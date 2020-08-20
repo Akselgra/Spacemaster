@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Earth_Explorer_Header xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <Fixed_Header>
+    <File_Name>SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501</File_Name>
+    <File_Description>Plasma data</File_Description>
+    <Notes></Notes>
+    <Mission>Swarm</Mission>
+    <File_Class>OPER</File_Class>
+    <File_Type>EFIA_LP_1B</File_Type>
+    <Validity_Period>
+      <Validity_Start>UTC=2013-12-02T10:11:13</Validity_Start>
+      <Validity_Stop>UTC=2013-12-02T14:01:09</Validity_Stop>
+    </Validity_Period>
+    <File_Version>0501</File_Version>
+    <Source>
+      <System>APDF</System>
+      <Creator>L1B</Creator>
+      <Creator_Version>03.20</Creator_Version>
+      <Creation_Date>UTC=2018-08-21T14:01:39</Creation_Date>
+    </Source>
+  </Fixed_Header>
+
+  <Variable_Header>
+    <MPH>
+      <Product>SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501</Product>
+      <Proc_Stage_Code>OPER</Proc_Stage_Code>
+      <Ref_Doc>SW-RS-DSC-SY-0007</Ref_Doc>
+      <Acquisition_Station>SGS</Acquisition_Station>
+      <Proc_Center>FRB</Proc_Center>
+      <Proc_Time>UTC=2018-08-21T14:01:39.612273</Proc_Time>
+      <Software_Version>PLASMA/03.20</Software_Version>
+      <Abs_Orbit_Start>000144</Abs_Orbit_Start>
+      <Abs_Orbit_Stop>000159</Abs_Orbit_Stop>
+      <State_Vector_Time>UTC=2013-12-02T00:00:00.000000</State_Vector_Time>
+      <Delta_UT1>-0.064371</Delta_UT1>
+      <X_Position>-425205.361000</X_Position>
+      <Y_Position>+124466.330000</Y_Position>
+      <Z_Position>-6871727.037000</Z_Position>
+      <X_Velocity>-6847.747904</X_Velocity>
+      <Y_Velocity>-3212.949245</Y_Velocity>
+      <Z_Velocity>+0368.083175</Z_Velocity>
+      <State_Vector_Source>MD</State_Vector_Source>
+      <Product_Err>1</Product_Err>
+      <Tot_Size unit="bytes">+00000000000000182400</Tot_Size>
+      <CRC>-00001</CRC>
+    </MPH>
+    <SPH>
+      <SPH_Descriptor>EFIA_LP_1B</SPH_Descriptor>
+      <Orbit_Information>
+        <Sensing_Start>UTC=2013-12-02T10:11:13.197002</Sensing_Start>
+        <Sensing_Stop>UTC=2013-12-02T14:01:09.696002</Sensing_Stop>
+      </Orbit_Information>
+      <Maneuver_Information count="0"/>
+      <Plasma_Information/>
+      <Product_Confidence_Data>
+        <Quality_Indicator>000</Quality_Indicator>
+        <HK_ISP_Missing>00000</HK_ISP_Missing>
+        <GPSR_ISP_Missing>00000</GPSR_ISP_Missing>
+        <STR_ISP_Missing>00000</STR_ISP_Missing>
+        <EFI_ISP_Missing>00000</EFI_ISP_Missing>
+        <LP_ISP_Missing>00000</LP_ISP_Missing>
+        <TII_ISP_Missing>00000</TII_ISP_Missing>
+      </Product_Confidence_Data>
+      <List_of_DSDs count="33">
+        <DSD>
+          <Data_Set_Name>STRASCI_1A</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_STRASCI_1A_20131201T235500_20131203T000458_0401</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>MODA_SC_1B</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_MODA_SC_1B_20131202T000000_20131202T235959_0401</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>MAGA_LR_1B</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_MAGA_LR_1B_20131202T000000_20131202T235959_0505</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>MAGA_HR_1B</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_MAGA_HR_1B_20131202T000000_20131202T235959_0505</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>HK_ABUS_1A</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_HK_ABUS_1A_20131201T235002_20131203T000958_0401</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>HK_AAOCS1A</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_HK_AAOCS1A_20131201T235000_20131203T000959_0401</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>EFIANOM_0_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_EFIANOM_0__20131202T131820_20131202T140109_0201</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>EFIANOM_0_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_EFIANOM_0__20131202T101112_20131202T101321_0201</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUX_USNEOP</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUX_USNEOP_20130914T000000_20140313T000000_0001</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUX_USLEAP</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUX_USLEAP_19720101T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXATMC_C_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXATMC_C__20000101T000000_99999999T999999_0006.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXASW1_C_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXASW1_C__20000101T000000_99999999T999999_0012.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAL1BPC_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAL1BPC__20131126T000000_20131220T000000_0012.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_S_LL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_S_LL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_S_LH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_S_LH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_S_HL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_S_HL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_S_HH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_S_HH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_H_LL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_H_LL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_H_LH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_H_LH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_H_HL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_H_HL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAE_H_HH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAE_H_HH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAEFLPC_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAEFLPC__20000101T000000_99999999T999999_0008.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAEFITC_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAEFITC__20000101T000000_99999999T999999_0010.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_S_LL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_S_LL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_S_LH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_S_LH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_S_HL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_S_HL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_S_HH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_S_HH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_H_LL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_H_LL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_H_LH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_H_LH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_H_HL</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_H_HL_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXAC_H_HH</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXAC_H_HH_00000000T000000_99999999T999999_0003</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>AUXACONSC_</Data_Set_Name>
+          <Data_Set_Type>R</Data_Set_Type>
+          <File_Name>SW_OPER_AUXACONSC__20000101T000000_99999999T999999_0004.EEF</File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000000000</Data_Set_Size>
+          <Num_of_Records>+0000000000</Num_of_Records>
+          <Record_Size unit="bytes">+0000000000</Record_Size>
+          <Byte_Order>0000</Byte_Order>
+        </DSD>
+        <DSD>
+          <Data_Set_Name>MDR_EFI_LP</Data_Set_Name>
+          <Data_Set_Type>M</Data_Set_Type>
+          <File_Name></File_Name>
+          <Data_Set_Offset unit="bytes">+00000000000000000000</Data_Set_Offset>
+          <Data_Set_Size unit="bytes">+00000000000000182400</Data_Set_Size>
+          <Num_of_Records>+0000002280</Num_of_Records>
+          <Record_Size unit="bytes">+0000000080</Record_Size>
+          <Byte_Order>3210</Byte_Order>
+        </DSD>
+      </List_of_DSDs>
+    </SPH>
+  </Variable_Header>
+
+</Earth_Explorer_Header>
