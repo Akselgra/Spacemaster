@@ -17,4 +17,7 @@ longitude = np.array(cdf["Longitude"])
 time = (cdf["Timestamp"])
 
 plt.plot(time, Ne)
+plt.xlabel("time")
+plt.ylabel("Electron number")
+plt.title("Ne vs time")
 plt.show()
