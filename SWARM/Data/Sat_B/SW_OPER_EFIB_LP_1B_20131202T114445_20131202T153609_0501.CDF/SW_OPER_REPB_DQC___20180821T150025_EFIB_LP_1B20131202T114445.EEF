@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<Earth_Explorer_File>
+  <Earth_Explorer_Header>
+    <Fixed_Header>
+      <File_Name>SW_OPER_REPB_DQC___20180821T150025_EFIB_LP_1B20131202T114445</File_Name>
+      <File_Description>APPROVE Test Report File</File_Description>
+      <Notes>APPROVE 2.7</Notes>
+      <Mission>Swarm</Mission>
+      <File_Class>OPER</File_Class>
+      <File_Type>REPB_DQC__</File_Type>
+      <Validity_Period>
+        <Validity_Start>UTC=2013-12-02T11:44:45</Validity_Start>
+        <Validity_Stop>UTC=2013-12-02T15:36:09</Validity_Stop>
+      </Validity_Period>
+      <File_Version>0501</File_Version>
+      <Source>
+        <System>FRB</System>
+        <Creator>DQC_B</Creator>
+        <Creator_Version>03.10</Creator_Version>
+        <Creation_Date>UTC=2018-08-21T15:00:25</Creation_Date>
+      </Source>
+    </Fixed_Header>
+    <Variable_Header>
+      <Product>SW_OPER_EFIB_LP_1B_20131202T114445_20131202T153609_0501</Product>
+      <Test_Definition_File>SW_OPER_AUX_PAR_QC_00000000T000000_99999999T999999_0018</Test_Definition_File>
+      <Format_Definition_File>SWARM-20180426.codadef</Format_Definition_File>
+      <Product_Quality>VALID_PRODUCT</Product_Quality>
+    </Variable_Header>
+  </Earth_Explorer_Header>
+  <Data_Block type="xml">
+    <List_of_Test_Modes count="4">
+      <Test_Mode>STRUCTURE_SIZE_AND_READ_HEADER</Test_Mode>
+      <Test_Mode>EXPRESSION_HEADER</Test_Mode>
+      <Test_Mode>STRUCTURE_SIZE_AND_READ_MDR_EFI_LP</Test_Mode>
+      <Test_Mode>EXPRESSION_MDR_EFI_LP</Test_Mode>
+    </List_of_Test_Modes>
+    <List_of_Messages count="0"></List_of_Messages>
+  </Data_Block>
+</Earth_Explorer_File>

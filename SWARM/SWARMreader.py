@@ -1,5 +1,5 @@
 """
-Requires cdf library.
+Currently only runs on Aksels laptop.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,17 +7,11 @@ import matplotlib.pyplot as plt
 from getpass import getuser
 usrname = getuser()
 import os
-os.environ["CDF_LIB"] = "/home/" + usrname +  "/Libraries/cdf/cdf/lib"
+os.environ["CDF_LIB"] = "/home/" + usrname +  "/Libraries/cdf/cdf36_3-dist/lib"
 from spacepy import pycdf
 
-cdf = pycdf.CDF("Data/testdata/testdata.cdf")
-Ne = (cdf["Ne"])
-latitude = np.array(cdf["Latitude"])
-longitude = np.array(cdf["Longitude"])
-time = (cdf["Timestamp"])
+cdfA = pycdf.CDF("Data/Sat_A/SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501.CDF/SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501_MDR_EFI_LP.cdf")
+cdfB = pycdf.CDF("Data/Sat_B/SW_OPER_EFIB_LP_1B_20131202T114445_20131202T153609_0501.CDF/SW_OPER_EFIB_LP_1B_20131202T114445_20131202T153609_0501_MDR_EFI_LP.cdf")
+cdfC = pycdf.CDF("Data/Sat_C/SW_OPER_EFIC_LP_1B_20131204T094004_20131204T223759_0501.CDF/SW_OPER_EFIC_LP_1B_20131204T094004_20131204T223759_0501_MDR_EFI_LP.cdf")
 
-plt.plot(time, Ne)
-plt.xlabel("time")
-plt.ylabel("Electron number")
-plt.title("Ne vs time")
-plt.show()
+print(cdfA["Radius"])
