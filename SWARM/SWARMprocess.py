@@ -48,3 +48,15 @@ class SWARMprocess():
             shiftvec[i] = dt*i #fills array with shift lengths
 
         return(corr_vec, shiftvec)
+
+
+    def timeshift(self, data1, data2, time, start = 0, stop = 40000, shifts = 30000):
+        """
+        Takes 2 arrays with data and 1 array with time values.
+        Calculates the most significant timeshift for the 2 data sets.
+        Returns the nr of indices shifted.
+        """
+        corr_vec, shiftvec = self.correlator(data1, data2, time, start, stop, shifts)
+        indices = np.arange(len(corr_vec))
+        shift_index = indices[np.where(corr_vec == np.max(corr_vec))]
+        return(shift_index[0])

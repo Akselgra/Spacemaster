@@ -1,8 +1,6 @@
 """
 Currently only runs on Aksels laptop.
 """
-import time
-from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from SWARMprocess import SWARMprocess
@@ -26,22 +24,49 @@ cdfA = pycdf.CDF(cdfA_path)
 cdfB = pycdf.CDF(cdfB_path)
 cdfC = pycdf.CDF(cdfC_path)
 
-N = int(1e5)
-NeA = cdfA["Ne"][:N]
-NeB = cdfB["Ne"][:N]
-NeC = cdfC["Ne"][:N]
-time = cdfA["Timestamp"][:N]
+def correlation_plotter(cdfA = pycdf.CDF(cdfA_path), cdfB = pycdf.CDF(cdfB_path), cdfC = pycdf.CDF(cdfC_path)):
+    N = int(1e5)
+    NeA = cdfA["Ne"][:N]
+    NeB = cdfB["Ne"][:N]
+    NeC = cdfC["Ne"][:N]
+    time = cdfA["Timestamp"][:N]
 
-classy = SWARMprocess()
-corr_vec, shiftvec = classy.correlator(NeA, NeB, time)
-corr_vec_2, shiftvec_2 = classy.correlator(NeA, NeC, time)
-corr_vec_3, shiftvec_3 = classy.correlator(NeB, NeC, time)
+    classy = SWARMprocess()
+    corr_vec, shiftvec = classy.correlator(NeA, NeB, time)
+    corr_vec_2, shiftvec_2 = classy.correlator(NeA, NeC, time)
+    corr_vec_3, shiftvec_3 = classy.correlator(NeB, NeC, time)
 
-plt.plot(shiftvec/2, corr_vec)
-plt.plot(shiftvec/2, corr_vec_2)
-plt.plot(shiftvec/2, corr_vec_3)
-plt.xlabel("Timeshift [s]")
-plt.ylabel("Pearson R coefficient")
-plt.title("SWARM Ne correlation coefficients")
-plt.legend(["A and B", "A and C", "B and C"])
-plt.show()
+    plt.plot(shiftvec/2, corr_vec)
+    plt.plot(shiftvec/2, corr_vec_2)
+    plt.plot(shiftvec/2, corr_vec_3)
+    plt.xlabel("Timeshift [s]")
+    plt.ylabel("Pearson R coefficient")
+    plt.title("SWARM Ne correlation coefficients")
+    plt.legend(["A and B", "A and C", "B and C"])
+    plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/correlations.png")
+    plt.show()
+
+def polar_plotter():
+    """
+    Shifts data to highest correlation and plots electron density at high latitudes.
+    """
+    start_index = 1920 #index of 16 minutes
+    stop_index = 3120 #index of 26 minutes
+
+    classy = SWARMprocess()
+    max_shift_ba = classy.timeshift(cdfB["Ne"][:100000], cdfA["Ne"][:100000], cdfA["Timestamp"][:100000],\
+                        start = start_index, stop = stop_index, shifts = 5000 )
+    max_shift_bc = classy.timeshift(cdfB["Ne"][:100000], cdfC["Ne"][:100000], cdfC["Timestamp"][:100000],\
+                        start = start_index, stop = stop_index, shifts = 5000)
+
+    plt.plot(cdfB["Timestamp"][start_index:stop_index], cdfB["Ne"][start_index:stop_index])
+    plt.plot(cdfB["Timestamp"][start_index:stop_index],
+            cdfA["Ne"][start_index + max_shift_ba: stop_index + max_shift_ba])
+    plt.plot(cdfB["Timestamp"][start_index:stop_index],
+            cdfC["Ne"][start_index + max_shift_bc:stop_index + max_shift_bc])
+    plt.xlabel("time of satellite B")
+    plt.ylabel("Electron Density")
+    plt.title("Electron densities at north pole")
+    plt.legend(["Satellite B", "Satellite A", "Satellite C"])
+    plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/polar_density.png")
+    plt.show()
