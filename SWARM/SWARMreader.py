@@ -1,8 +1,11 @@
 """
 Currently only runs on Aksels laptop.
 """
+import time
+from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
+from SWARMprocess import SWARMprocess
 #setting path to cdf library
 from getpass import getuser
 usrname = getuser()
@@ -23,9 +26,22 @@ cdfA = pycdf.CDF(cdfA_path)
 cdfB = pycdf.CDF(cdfB_path)
 cdfC = pycdf.CDF(cdfC_path)
 
-plt.plot(cdfA["Timestamp"], cdfA["Ne"])
-plt.xlabel("Time")
-plt.ylabel("Ne")
-plt.title("Ne vs Time, 21.12.13, Sat A")
-plt.savefig("Example_figure")
+N = int(1e5)
+NeA = cdfA["Ne"][:N]
+NeB = cdfB["Ne"][:N]
+NeC = cdfC["Ne"][:N]
+time = cdfA["Timestamp"][:N]
+
+classy = SWARMprocess()
+corr_vec, shiftvec = classy.correlator(NeA, NeB, time)
+corr_vec_2, shiftvec_2 = classy.correlator(NeA, NeC, time)
+corr_vec_3, shiftvec_3 = classy.correlator(NeB, NeC, time)
+
+plt.plot(shiftvec/2, corr_vec)
+plt.plot(shiftvec/2, corr_vec_2)
+plt.plot(shiftvec/2, corr_vec_3)
+plt.xlabel("Timeshift [s]")
+plt.ylabel("Pearson R coefficient")
+plt.title("SWARM Ne correlation coefficients")
+plt.legend(["A and B", "A and C", "B and C"])
 plt.show()
