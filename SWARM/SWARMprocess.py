@@ -62,12 +62,15 @@ class SWARMprocess():
         shift_index = indices[np.where(corr_vec == np.max(corr_vec))]
         return(shift_index[0])
 
-    def spher_to_cart(self, lat, long, rad):
+    def spher_to_cart(self, lat, long, rad, deg = True):
         """
         Takes 3 arrays latitude, longitude and radius
         containing spherical coordinates and converts them
         into cartesian coordinates x, y and z
         """
+        if deg == True:
+            lat = lat*np.pi/180
+            long = long*np.pi/180
 
         x = rad*np.sin(lat)*np.cos(long)
         y = rad*np.sin(lat)*np.sin(long)

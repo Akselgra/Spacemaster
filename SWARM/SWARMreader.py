@@ -95,10 +95,11 @@ NeB = NeB[:N]
 dist_ba = classy.distance(latB, longB, radB, latA, longA, radA)
 seconds = classy.stamp_to_sec(times[:N])
 
-# plt.plot(seconds, dist_ba/1e3)
-# plt.xlabel("Time [s]")
-# plt.ylabel("Distance [km]")
-# plt.show()
+plt.plot(seconds, dist_ba/1e3)
+plt.xlabel("Time [s]")
+plt.ylabel("Distance [km]")
+plt.show()
+
 #
 # plt.plot(seconds, NeB)
 # plt.plot(seconds, NeA)
