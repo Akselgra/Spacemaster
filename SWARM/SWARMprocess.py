@@ -27,7 +27,8 @@ class SWARMprocess():
         return(seconds)
 
 
-    def correlator(self, data1, data2, time, start = 0, stop = 40000, shifts = 30000):
+    def correlator(self, data1, data2, time, start = 0, stop = 40000,\
+                   shifts = 30000, timestamps = True):
         """
         Takes 2 arrays with data and 1 array with time values.
         and produces Pearson correlation numbers for the 2 data sets,
@@ -37,8 +38,8 @@ class SWARMprocess():
         start and stop are the indices used in slicing the data arrays.
         shifts is the number of correlation values calculated.
         """
-
-        time = self.stamp_to_sec(time)#turn timestamps into seconds
+        if timestamps == True:
+            time = self.stamp_to_sec(time)#turn timestamps into seconds
         dt = time[1] - time[0] #calculates the timestep
         corr_vec = np.zeros(shifts)
         shiftvec = np.zeros(shifts)
@@ -60,3 +61,33 @@ class SWARMprocess():
         indices = np.arange(len(corr_vec))
         shift_index = indices[np.where(corr_vec == np.max(corr_vec))]
         return(shift_index[0])
+
+    def spher_to_cart(self, lat, long, rad):
+        """
+        Takes 3 arrays latitude, longitude and radius
+        containing spherical coordinates and converts them
+        into cartesian coordinates x, y and z
+        """
+
+        x = rad*np.sin(lat)*np.cos(long)
+        y = rad*np.sin(lat)*np.sin(long)
+        z = rad*np.cos(lat)
+        return(x, y, z)
+
+    def distance(self, x1, y1, z1, x2, y2, z2, sphere = True):
+        """
+        Takes coordinates of 2 bodies and finds distance between them.
+        Assumes spherical coordinates if sphere is set to True.
+        If spherical, x = latitude, y = longitude, z = radius
+        """
+        if sphere == True:
+            x1, y1, z1 = self.spher_to_cart(x1, y1, z1)
+            x2, y2, z2 = self.spher_to_cart(x2, y2, z2)
+
+        x3 = x2 - x1
+        y3 = y2 - y1
+        z3 = z2 - z1
+
+        r = np.sqrt(x3**2 + y3**2 + z3**2)
+
+        return(r)

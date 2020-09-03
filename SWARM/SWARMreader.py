@@ -70,3 +70,55 @@ def polar_plotter():
     plt.legend(["Satellite B", "Satellite A", "Satellite C"])
     plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/polar_density.png")
     plt.show()
+
+M = int(50000)
+N = int(5000)
+NeA = np.array(cdfA["Ne"][:M])
+NeB = np.array(cdfB["Ne"][:M])
+times = cdfA["Timestamp"][:M]
+
+classy = SWARMprocess()
+shift_ba = classy.timeshift(NeB, NeA, times, start = 0, stop = 10000)
+
+
+latA = np.array(cdfA["Latitude"][shift_ba:N + shift_ba])
+longA = np.array(cdfA["Longitude"][shift_ba:N + shift_ba])
+radA = np.array(cdfA["Radius"][shift_ba:N + shift_ba])
+
+latB = np.array(cdfB["Latitude"][:N])
+longB = np.array(cdfB["Longitude"][:N])
+radB = np.array(cdfB["Radius"][:N])
+
+NeA = NeA[shift_ba:N + shift_ba]
+NeB = NeB[:N]
+
+dist_ba = classy.distance(latB, longB, radB, latA, longA, radA)
+seconds = classy.stamp_to_sec(times[:N])
+
+# plt.plot(seconds, dist_ba/1e3)
+# plt.xlabel("Time [s]")
+# plt.ylabel("Distance [km]")
+# plt.show()
+#
+# plt.plot(seconds, NeB)
+# plt.plot(seconds, NeA)
+# plt.xlabel("Time [s]")
+# plt.ylabel("Ne")
+# plt.show()
+#
+# plt.plot(seconds, radA)
+# plt.plot(seconds, radB)
+# plt.xlabel("Time [s]")
+# plt.ylabel("Radius")
+# plt.show()
+#
+# plt.plot(seconds, latA)
+# plt.plot(seconds, latB)
+# plt.xlabel("Time [s]")
+# plt.ylabel("Latitude")
+# plt.show()
+#
+# plt.plot(seconds, (longB - longA))
+# plt.xlabel("Time [s]")
+# plt.ylabel("relative Longitude")
+# plt.show()
