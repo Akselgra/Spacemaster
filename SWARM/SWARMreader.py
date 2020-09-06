@@ -85,11 +85,11 @@ def distanceplotter():
 
     latA = np.array(cdfA["Latitude"][shift_ba:N+shift_ba])
     longA = np.array(cdfA["Longitude"][shift_ba:N+shift_ba])
-    radA = np.array(cdfA["Radius"][shift_ba:N+shift_ba])
+    radA = np.array(cdfA["Radius"][shift_ba:N+shift_ba]) - classy.Re
 
     latB = np.array(cdfB["Latitude"][:N])
     longB = np.array(cdfB["Longitude"][:N])
-    radB = np.array(cdfB["Radius"][:N])
+    radB = np.array(cdfB["Radius"][:N]) - classy.Re
 
     NeA = NeA[shift_ba:N + shift_ba]
     NeB = NeB[:N]
@@ -100,83 +100,57 @@ def distanceplotter():
     plt.plot(seconds, dist_ba/1e3)
     plt.xlabel("Time [s]")
     plt.ylabel("Distance [km]")
-    plt.title("Distance between satellites A and B over time")
+    plt.title("Distance between closest measurement points for A and B")
     plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/distance_time.png")
     plt.show()
 
     plt.plot(latB, dist_ba/1e3)
     plt.xlabel("Latitude")
     plt.ylabel("Distance [km]")
-    plt.title("Distance between satellites A and B over latitude")
+    plt.title("Distance between measurements for A and B over latitude")
     plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/distance_latitude.png")
     plt.show()
 
-def pole_inspect():
+def timediff_inspect():
     """
-    Looks at difference in electron density measurements between satellites
-    at high latitudes
+    Compares methods to find time difference between satellites
     """
-    start = 1920 #index of 16 minutes
-    stop = 3120 #index of 26 minutes
-
-    start = 5
-    stop = 15
+    M = int(100000)
+    NeA = np.array(cdfA["Ne"][:M])
+    NeB = np.array(cdfB["Ne"][:M])
+    NeC = np.array(cdfC["Ne"][:M])
+    times = cdfA["Timestamp"][:M]
 
     classy = SWARMprocess()
-    max_shift_ba = classy.timeshift(cdfB["Ne"][:100000], cdfA["Ne"][:100000], cdfA["Timestamp"][:100000],\
-                        start = start, stop = stop, shifts = 5000 )
-    max_shift_bc = classy.timeshift(cdfB["Ne"][:100000], cdfC["Ne"][:100000], cdfC["Timestamp"][:100000],\
-                        start = start, stop = stop, shifts = 5000)
-    Astart = start + max_shift_ba
-    Astop = stop + max_shift_ba
-    Cstart = start + max_shift_bc
-    Cstop = stop + max_shift_bc
-    NeA = np.array(cdfA["Ne"][Astart:Astop])
-    NeB = np.array(cdfB["Ne"][start:stop])
-    NeC = np.array(cdfC["Ne"][Cstart:Cstop])
-    time = cdfA["Timestamp"][start:stop]
-    seconds = classy.stamp_to_sec(time)
-    seconds = seconds + start/2
-    # plt.plot(seconds, NeA)
-    # plt.plot(seconds, NeB)
-    # plt.plot(seconds, NeC)
-    # plt.xlabel("Time since midnight of satellite B [s]")
-    # plt.ylabel("Electron density [cm⁻¹]")
-    # plt.legend(["Sat A", "Sat B", "Sat C"])
-    # plt.show()
+    shift_ba = classy.timeshift(NeB, NeA, times)
+    shift_bc = classy.timeshift(NeB, NeC, times)
 
-    ba_diff = np.abs(NeB - NeA)
-    ac_diff = NeA - NeC
-    bc_diff = NeB - NeC
+    LatA = np.array(cdfA["Latitude"][:M])
+    LatB = np.array(cdfB["Latitude"][:M])
+    LatC = np.array(cdfC["Latitude"][:M])
 
-    # plt.plot(seconds, ba_diff)
-    # plt.plot(seconds, ac_diff)
-    # plt.plot(seconds, bc_diff)
-    # plt.xlabel("Time since midnight of satellite B [s]")
-    # plt.ylabel("Difference in electron density measurements")
-    # plt.legend(["b-a", "a-c", "b-c"])
-    # plt.show()
+    latshift_ba = classy.timeshift_latitude(LatB, LatA, shifts = 10000)
+    latshift_bc = classy.timeshift_latitude(LatB, LatC, shifts = 10000)
 
-    Alat = np.array(cdfA["Latitude"][start:stop])
-    Along = np.array(cdfA["Longitude"][start:stop])
-    Arad = np.array(cdfA["Radius"][start:stop])
+    shifts = int(30000)
+    meandist = np.zeros(shifts)
+    indices = np.arange(shifts)
+    for i in range(shifts):
+        meandist[i] = np.mean(np.abs(LatB[0:40000] - LatA[i:40000 + i]))
 
-    Blat = np.array(cdfB["Latitude"][start:stop])
-    Blong = np.array(cdfB["Longitude"][start:stop])
-    Brad = np.array(cdfB["Radius"][start:stop])
 
-    ba_dist = classy.distance(Blat, Blong, Brad, Alat, Along, Arad)
+    corrvec, shiftvec = classy.correlator(NeB, NeA, times)
+    meandist = 1 - meandist/np.max(meandist)
 
-    # plt.plot(ba_dist, ba_diff, ".")
-    # plt.xlabel("Distance between measuring points [m]")
-    # plt.ylabel("absolute difference in electron density [cm⁻¹]")
-    # plt.show()
+    plt.plot(indices/2, meandist)
+    plt.plot(shiftvec, corrvec)
+    plt.xlabel("Seconds shifted")
+    plt.ylabel("Normalized distance and correlation")
+    plt.legend(["1 - normalized mean distance", "Pearson R coefficient"])
+    plt.title("Correlation yields %g, distance yields %g" % (shift_ba, latshift_ba))
+    plt.show()
 
-    # plt.plot(seconds, ba_dist)
-    # plt.xlabel("Seconds")
-    # plt.ylabel("Distance B-A")
-    # plt.show()
+    print(latshift_ba)
+    print(shift_ba)
 
-    print(ba_dist)
-
-polar_plotter()
+timediff_inspect()

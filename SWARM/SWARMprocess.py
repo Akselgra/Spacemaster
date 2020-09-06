@@ -8,7 +8,7 @@ class SWARMprocess():
     """
 
     def __init__(self):
-        self.x = 5
+        self.Re = 6371008.8 #earth radius
 
 
     def stamp_to_sec(self, times):
@@ -61,6 +61,23 @@ class SWARMprocess():
         indices = np.arange(len(corr_vec))
         shift_index = indices[np.where(corr_vec == np.max(corr_vec))]
         return(shift_index[0])
+
+    def timeshift_latitude(self, lat1, lat2, start = 0, stop = 40000, shifts = 30000):
+        """
+        Assuming only latitude changes, takes 2 arrays with latitudes.
+        Calculates the index shift that gives the smallest difference in latitudes
+        With a change in only latitudes, this gives the measurement points with
+        the smallest change in distance.
+        """
+        meandist = np.zeros(shifts)
+        indices = np.arange(shifts)
+
+        for i in range(shifts):
+            meandist[i] = np.mean(np.abs(lat1[start:stop] - lat2[start + i: stop + i]))
+
+        shift_index = indices[np.where(meandist == np.min(meandist))]
+        return(shift_index[0])
+
 
     def spher_to_cart(self, lat, long, rad, deg = True):
         """
