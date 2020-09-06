@@ -10,6 +10,7 @@ usrname = getuser()
 import os
 os.environ["CDF_LIB"] = "/home/" + usrname +  "/Libraries/cdf/cdf36_3-dist/lib"
 from spacepy import pycdf
+from scipy.stats import pearsonr
 
 data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
 # cdfA = pycdf.CDF("Data/Sat_A/SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501.CDF/SW_OPER_EFIA_LP_1B_20131202T101113_20131202T140109_0501_MDR_EFI_LP.cdf")
@@ -71,55 +72,111 @@ def polar_plotter():
     plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/polar_density.png")
     plt.show()
 
-M = int(50000)
-N = int(5000)
-NeA = np.array(cdfA["Ne"][:M])
-NeB = np.array(cdfB["Ne"][:M])
-times = cdfA["Timestamp"][:M]
+def distanceplotter():
+    M = int(100000)
+    N = int(50000)
+    NeA = np.array(cdfA["Ne"][:M])
+    NeB = np.array(cdfB["Ne"][:M])
+    times = cdfA["Timestamp"][:M]
 
-classy = SWARMprocess()
-shift_ba = classy.timeshift(NeB, NeA, times, start = 0, stop = 10000)
+    classy = SWARMprocess()
+    shift_ba = classy.timeshift(NeB, NeA, times, start = 0, stop = 10000)
 
 
-latA = np.array(cdfA["Latitude"][shift_ba:N + shift_ba])
-longA = np.array(cdfA["Longitude"][shift_ba:N + shift_ba])
-radA = np.array(cdfA["Radius"][shift_ba:N + shift_ba])
+    latA = np.array(cdfA["Latitude"][shift_ba:N+shift_ba])
+    longA = np.array(cdfA["Longitude"][shift_ba:N+shift_ba])
+    radA = np.array(cdfA["Radius"][shift_ba:N+shift_ba])
 
-latB = np.array(cdfB["Latitude"][:N])
-longB = np.array(cdfB["Longitude"][:N])
-radB = np.array(cdfB["Radius"][:N])
+    latB = np.array(cdfB["Latitude"][:N])
+    longB = np.array(cdfB["Longitude"][:N])
+    radB = np.array(cdfB["Radius"][:N])
 
-NeA = NeA[shift_ba:N + shift_ba]
-NeB = NeB[:N]
+    NeA = NeA[shift_ba:N + shift_ba]
+    NeB = NeB[:N]
 
-dist_ba = classy.distance(latB, longB, radB, latA, longA, radA)
-seconds = classy.stamp_to_sec(times[:N])
+    dist_ba = classy.distance(latB, longB, radB, latA, longA, radA)
+    seconds = classy.stamp_to_sec(times[:N])
 
-plt.plot(seconds, dist_ba/1e3)
-plt.xlabel("Time [s]")
-plt.ylabel("Distance [km]")
-plt.show()
+    plt.plot(seconds, dist_ba/1e3)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Distance [km]")
+    plt.title("Distance between satellites A and B over time")
+    plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/distance_time.png")
+    plt.show()
 
-#
-# plt.plot(seconds, NeB)
-# plt.plot(seconds, NeA)
-# plt.xlabel("Time [s]")
-# plt.ylabel("Ne")
-# plt.show()
-#
-# plt.plot(seconds, radA)
-# plt.plot(seconds, radB)
-# plt.xlabel("Time [s]")
-# plt.ylabel("Radius")
-# plt.show()
-#
-# plt.plot(seconds, latA)
-# plt.plot(seconds, latB)
-# plt.xlabel("Time [s]")
-# plt.ylabel("Latitude")
-# plt.show()
-#
-# plt.plot(seconds, (longB - longA))
-# plt.xlabel("Time [s]")
-# plt.ylabel("relative Longitude")
-# plt.show()
+    plt.plot(latB, dist_ba/1e3)
+    plt.xlabel("Latitude")
+    plt.ylabel("Distance [km]")
+    plt.title("Distance between satellites A and B over latitude")
+    plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/distance_latitude.png")
+    plt.show()
+
+def pole_inspect():
+    """
+    Looks at difference in electron density measurements between satellites
+    at high latitudes
+    """
+    start = 1920 #index of 16 minutes
+    stop = 3120 #index of 26 minutes
+
+    start = 5
+    stop = 15
+
+    classy = SWARMprocess()
+    max_shift_ba = classy.timeshift(cdfB["Ne"][:100000], cdfA["Ne"][:100000], cdfA["Timestamp"][:100000],\
+                        start = start, stop = stop, shifts = 5000 )
+    max_shift_bc = classy.timeshift(cdfB["Ne"][:100000], cdfC["Ne"][:100000], cdfC["Timestamp"][:100000],\
+                        start = start, stop = stop, shifts = 5000)
+    Astart = start + max_shift_ba
+    Astop = stop + max_shift_ba
+    Cstart = start + max_shift_bc
+    Cstop = stop + max_shift_bc
+    NeA = np.array(cdfA["Ne"][Astart:Astop])
+    NeB = np.array(cdfB["Ne"][start:stop])
+    NeC = np.array(cdfC["Ne"][Cstart:Cstop])
+    time = cdfA["Timestamp"][start:stop]
+    seconds = classy.stamp_to_sec(time)
+    seconds = seconds + start/2
+    # plt.plot(seconds, NeA)
+    # plt.plot(seconds, NeB)
+    # plt.plot(seconds, NeC)
+    # plt.xlabel("Time since midnight of satellite B [s]")
+    # plt.ylabel("Electron density [cm⁻¹]")
+    # plt.legend(["Sat A", "Sat B", "Sat C"])
+    # plt.show()
+
+    ba_diff = np.abs(NeB - NeA)
+    ac_diff = NeA - NeC
+    bc_diff = NeB - NeC
+
+    # plt.plot(seconds, ba_diff)
+    # plt.plot(seconds, ac_diff)
+    # plt.plot(seconds, bc_diff)
+    # plt.xlabel("Time since midnight of satellite B [s]")
+    # plt.ylabel("Difference in electron density measurements")
+    # plt.legend(["b-a", "a-c", "b-c"])
+    # plt.show()
+
+    Alat = np.array(cdfA["Latitude"][start:stop])
+    Along = np.array(cdfA["Longitude"][start:stop])
+    Arad = np.array(cdfA["Radius"][start:stop])
+
+    Blat = np.array(cdfB["Latitude"][start:stop])
+    Blong = np.array(cdfB["Longitude"][start:stop])
+    Brad = np.array(cdfB["Radius"][start:stop])
+
+    ba_dist = classy.distance(Blat, Blong, Brad, Alat, Along, Arad)
+
+    # plt.plot(ba_dist, ba_diff, ".")
+    # plt.xlabel("Distance between measuring points [m]")
+    # plt.ylabel("absolute difference in electron density [cm⁻¹]")
+    # plt.show()
+
+    # plt.plot(seconds, ba_dist)
+    # plt.xlabel("Seconds")
+    # plt.ylabel("Distance B-A")
+    # plt.show()
+
+    print(ba_dist)
+
+polar_plotter()

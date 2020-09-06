@@ -8,8 +8,8 @@ def test_distance():
     """
     r = 2
     lat = 90
-    long1 = 0
-    long2 = 180
+    long1 = 90
+    long2 = 270
 
     analdist = 4
 
@@ -18,7 +18,8 @@ def test_distance():
 
     epsilon = 1e-4
     testy = (np.abs(analdist - compdist) < epsilon)
-    msg = "analytical distance not equal to calculated distance"
+    msg = "analytical distance not equal to calculated distance.\
+     Calculated %g, expected %g" % (compdist, analdist)
     assert testy, msg
 
 if __name__ == "__main__":

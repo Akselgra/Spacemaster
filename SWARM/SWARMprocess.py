@@ -77,15 +77,22 @@ class SWARMprocess():
         z = rad*np.cos(lat)
         return(x, y, z)
 
-    def distance(self, x1, y1, z1, x2, y2, z2, sphere = True):
+    def distance(self, x1, y1, z1, x2, y2, z2, sphere = True, rad = False):
         """
         Takes coordinates of 2 bodies and finds distance between them.
         Assumes spherical coordinates if sphere is set to True.
         If spherical, x = latitude, y = longitude, z = radius
         """
-        if sphere == True:
-            x1, y1, z1 = self.spher_to_cart(x1, y1, z1)
-            x2, y2, z2 = self.spher_to_cart(x2, y2, z2)
+        if sphere == True: #distance in spherical coordinates
+            if rad == False:
+                x1 = x1*np.pi/180
+                y1 = y1*np.pi/180
+                x2 = x2*np.pi/180
+                y2 = y2*np.pi/180
+            a = z1**2 + z2**2
+            b = np.sin(x1)*np.sin(x2)*np.cos(y1)*np.cos(y2)
+            c = np.sin(x1)*np.sin(x2)*np.sin(y1)*np.sin(y2) + np.cos(x1)*np.cos(x2)
+            return(np.sqrt(a - 2*z1*z2*(b + c)))
 
         x3 = x2 - x1
         y3 = y2 - y1
