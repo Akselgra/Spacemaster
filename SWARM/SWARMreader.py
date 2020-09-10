@@ -150,7 +150,53 @@ def timediff_inspect():
     plt.title("Correlation yields %g, distance yields %g" % (shift_ba, latshift_ba))
     plt.show()
 
-    print(latshift_ba)
-    print(shift_ba)
+def idek():
+    """
+    i dont even know
+    """
 
-timediff_inspect()
+    N = int(1e4)
+    start = 1920
+    stop = 3120
+    shift = 90
+    latA = cdfA["Latitude"][start+shift:stop+shift]
+    latB = cdfB["Latitude"][start:stop]
+    radA = cdfA["Radius"][start:stop]
+    classy = SWARMprocess()
+    seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
+
+    lat_diff = latB - latA
+    dist = classy.distance(latA, 0, radA, latB, 0, radA)
+
+    latA1 = latA[:-1]
+    latA2 = latA[1:]
+    dt = seconds[1] - seconds[0]
+    latAdiff = latA2 - latA1
+    deri_latA = latAdiff/dt
+
+    latB1 = latB[:-1]
+    latB2 = latB[1:]
+    dt = seconds[1] - seconds[0]
+    latBdiff = latB2 - latB1
+    deri_latB = latBdiff/dt
+
+    secondish = seconds[:-1]
+
+    deri_diff = deri_latB - deri_latA
+
+    plt.plot(secondish, deri_latA)
+    plt.plot(secondish, deri_latB)
+    plt.plot(secondish, deri_diff)
+    plt.ylabel("Time derivative of latitude")
+    plt.xlabel("Seconds")
+    plt.legend(["sat A", "sat B", "difference"])
+    plt.show()
+
+    plt.plot(seconds, dist/np.max(dist))
+    plt.plot(seconds, latA/np.max(latA))
+    plt.plot(seconds, latB/np.max(latB))
+    plt.plot(seconds, lat_diff/np.max(lat_diff))
+    plt.xlabel("seconds")
+    plt.ylabel("Normalized distance and latitude")
+    plt.legend(["Distance", "lat A", "lat B", "lat diff"])
+    plt.show()
