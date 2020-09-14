@@ -162,11 +162,13 @@ def idek():
     latA = cdfA["Latitude"][start+shift:stop+shift]
     latB = cdfB["Latitude"][start:stop]
     radA = cdfA["Radius"][start:stop]
+    longA = cdfA["Longitude"][start+shift:stop+shift]
+    longB = cdfB["Longitude"][start:stop]
     classy = SWARMprocess()
     seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
 
     lat_diff = latB - latA
-    dist = classy.distance(latA, 0, radA, latB, 0, radA)
+    dist = classy.distance(latA, longA, radA, latB, longB, radA)
 
     latA1 = latA[:-1]
     latA2 = latA[1:]
@@ -183,6 +185,7 @@ def idek():
     secondish = seconds[:-1]
 
     deri_diff = deri_latB - deri_latA
+    longdiff = longB - longA
 
     plt.plot(secondish, deri_latA)
     plt.plot(secondish, deri_latB)
@@ -195,8 +198,10 @@ def idek():
     plt.plot(seconds, dist/np.max(dist))
     plt.plot(seconds, latA/np.max(latA))
     plt.plot(seconds, latB/np.max(latB))
-    plt.plot(seconds, lat_diff/np.max(lat_diff))
+    plt.plot(seconds, lat_diff/np.max(lat_diff), ".")
+    plt.plot(seconds, longdiff/np.max(longdiff))
     plt.xlabel("seconds")
     plt.ylabel("Normalized distance and latitude")
-    plt.legend(["Distance", "lat A", "lat B", "lat diff"])
+    plt.legend(["Distance", "lat A", "lat B", "lat diff", "long diff"])
     plt.show()
+idek()

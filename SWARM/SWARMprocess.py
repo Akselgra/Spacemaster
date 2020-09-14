@@ -99,6 +99,7 @@ class SWARMprocess():
         Takes coordinates of 2 bodies and finds distance between them.
         Assumes spherical coordinates if sphere is set to True.
         If spherical, x = latitude, y = longitude, z = radius
+        Assumes x1, ..., z2 are arrays
         """
         if sphere == True: #distance in spherical coordinates
             if rad == False:
@@ -106,6 +107,7 @@ class SWARMprocess():
                 y1 = y1*np.pi/180
                 x2 = x2*np.pi/180
                 y2 = y2*np.pi/180
+
             a = z1**2 + z2**2
             b = np.sin(x1)*np.sin(x2)*np.cos(y1)*np.cos(y2)
             c = np.sin(x1)*np.sin(x2)*np.sin(y1)*np.sin(y2) + np.cos(x1)*np.cos(x2)
