@@ -51,26 +51,61 @@ def polar_plotter():
     """
     Shifts data to highest correlation and plots electron density at high latitudes.
     """
-    start_index = 1920 #index of 16 minutes
-    stop_index = 3120 #index of 26 minutes
+    start = 1920 #index of 16 minutes
+    stop = 3120 #index of 26 minutes
+    N = int(1e5)
 
     classy = SWARMprocess()
-    max_shift_ba = classy.timeshift(cdfB["Ne"][:100000], cdfA["Ne"][:100000], cdfA["Timestamp"][:100000],\
-                        start = start_index, stop = stop_index, shifts = 5000 )
-    max_shift_bc = classy.timeshift(cdfB["Ne"][:100000], cdfC["Ne"][:100000], cdfC["Timestamp"][:100000],\
-                        start = start_index, stop = stop_index, shifts = 5000)
+    ba_corrshift = classy.timeshift(cdfB["Ne"][:N], cdfA["Ne"][:N], cdfA["Timestamp"][:N],\
+                        start = 0, stop = 5000, shifts = 5000 )
+    bc_corrshift = classy.timeshift(cdfB["Ne"][:N], cdfC["Ne"][:N], cdfC["Timestamp"][:N],\
+                        start = 0, stop = 5000, shifts = 5000)
 
-    plt.plot(cdfB["Timestamp"][start_index:stop_index], cdfB["Ne"][start_index:stop_index])
-    plt.plot(cdfB["Timestamp"][start_index:stop_index],
-            cdfA["Ne"][start_index + max_shift_ba: stop_index + max_shift_ba])
-    plt.plot(cdfB["Timestamp"][start_index:stop_index],
-            cdfC["Ne"][start_index + max_shift_bc:stop_index + max_shift_bc])
-    plt.xlabel("time of satellite B")
-    plt.ylabel("Electron Density")
-    plt.title("Electron densities at north pole")
-    plt.legend(["Satellite B", "Satellite A", "Satellite C"])
-    plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/polar_density.png")
+    latA = cdfA["Latitude"][:N]
+    latB = cdfB["Latitude"][:N]
+    latC = cdfC["Latitude"][:N]
+
+    ba_distshift = classy.timeshift_latitude(latB, latA, start, stop, shifts = 10000)
+    bc_distshift = classy.timeshift_latitude(latB, latC, start, stop, shifts = 10000)
+
+    NeA_corr = cdfA["Ne"][start+ba_corrshift:stop+ba_corrshift]
+    NeC_corr = cdfC["Ne"][start+bc_corrshift:stop+bc_corrshift]
+
+    NeA_dist = cdfA["Ne"][start+ba_distshift:stop+ba_distshift]
+    NeC_dist = cdfC["Ne"][start+bc_distshift:stop+bc_distshift]
+
+    NeB = cdfB["Ne"][start:stop]
+    seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
+
+    plt.plot(seconds, NeB)
+    plt.plot(seconds, NeA_corr)
+    plt.plot(seconds, NeC_corr)
+    plt.xlabel("Seconds since midnight 20.12.13")
+    plt.ylabel("Electron density [cm⁻¹]")
+    plt.legend(["Sat B", "Sat A", "Sat C"])
+    plt.title("Sat A shifted %g indices forwards, sat C %g" %\
+                                    (ba_corrshift, bc_corrshift))
     plt.show()
+
+    plt.plot(seconds, NeB)
+    plt.plot(seconds, NeA_dist)
+    plt.plot(seconds, NeC_dist)
+    plt.xlabel("Seconds since midnight 20.12.13")
+    plt.ylabel("Electron density [cm⁻¹]")
+    plt.title("Sat A shifted %g indices forwards, sat C %g" %\
+                                  (ba_distshift, bc_distshift))
+    plt.show()
+    # plt.plot(cdfB["Timestamp"][start_index:stop_index], cdfB["Ne"][start_index:stop_index])
+    # plt.plot(cdfB["Timestamp"][start_index:stop_index],
+    #         cdfA["Ne"][start_index + max_shift_ba: stop_index + max_shift_ba])
+    # plt.plot(cdfB["Timestamp"][start_index:stop_index],
+    #         cdfC["Ne"][start_index + max_shift_bc:stop_index + max_shift_bc])
+    # plt.xlabel("time of satellite B")
+    # plt.ylabel("Electron Density")
+    # plt.title("Electron densities at north pole")
+    # plt.legend(["Satellite B", "Satellite A", "Satellite C"])
+    # plt.savefig("/home/aksel/Documents/Master/Spacemaster/Figures/polar_density.png")
+    # plt.show()
 
 def distanceplotter():
     M = int(100000)
@@ -204,4 +239,5 @@ def idek():
     plt.ylabel("Normalized distance and latitude")
     plt.legend(["Distance", "lat A", "lat B", "lat diff", "long diff"])
     plt.show()
-idek()
+
+polar_plotter()
