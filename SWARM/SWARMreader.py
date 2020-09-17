@@ -77,9 +77,9 @@ def polar_plotter():
     NeB = cdfB["Ne"][start:stop]
     seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
 
-    plt.plot(seconds, NeB)
-    plt.plot(seconds, NeA_corr)
-    plt.plot(seconds, NeC_corr)
+    plt.plot(latB[start:stop], NeB)
+    plt.plot(latB[start:stop], NeA_corr)
+    plt.plot(latB[start:stop], NeC_corr)
     plt.xlabel("Seconds since midnight 20.12.13")
     plt.ylabel("Electron density [cm⁻¹]")
     plt.legend(["Sat B", "Sat A", "Sat C"])
