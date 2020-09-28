@@ -87,7 +87,7 @@ class WaveInspect(SWARMprocess):
         plt.plot(seconds, NeB)
         plt.plot(seconds, NeA)
         plt.plot(seconds, NeC)
-        plt.xlabel("Seconds since midnight")
+        plt.xlabel("Seconds since midnight of sat B")
         plt.ylabel("Electron density")
         plt.title("Electron density measurements at polar region")
         plt.legend(["Sat B", "Sat A", "Sat C"])
@@ -111,15 +111,61 @@ class WaveInspect(SWARMprocess):
         plt.plot(seconds, NeB)
         plt.plot(seconds, NeA)
         plt.plot(seconds, NeC)
-        plt.xlabel("Seconds since midnight")
+        plt.xlabel("Seconds since midnight of sat B")
         plt.ylabel("Electron density [cm⁻¹]")
         plt.title("Shifted electron density measurements")
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.show()
 
         AB_shift_pearson = pearsonr(NeB, NeA)[0]
-        print("After shifting, the pearson correlation coefficient between A\
-         and B is %g" % AB_shift_pearson)
+        print("After shifting, the pearson correlation coefficient",\
+        "between A and B is %g" % AB_shift_pearson)
+
+        #case of B, then A, then C increasing
+        time1 = 1160
+        time2 = 1175
+        index1 = int(np.round((time1 - seconds[0])*2))
+        index2 = int(np.round((time2 - seconds[0])*2))+1
+
+        testA = NeA[index1:index2]
+        testB = NeB[index1:index2]
+        testC = NeC[index1:index2]
+        test_seconds = seconds[index1:index2]
+
+        plt.plot(test_seconds, testB)
+        plt.plot(test_seconds, testA)
+        plt.plot(test_seconds, testC)
+        plt.xlabel("Seconds since midnight of sat B")
+        plt.ylabel("Electron density [cm⁻¹]")
+        plt.title("An interesting case")
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.show()
+
+
+        corr_vecB, shiftvecB = self.correlator(NeC, NeB, start = index1, stop = index2, shifts = 40)
+        corr_vecA, shiftvecA = self.correlator(NeC, NeA, start = index1, stop = index2, shifts = 40)
+        plt.plot(shiftvecB, corr_vecB)
+        plt.plot(shiftvecA, corr_vecA)
+        plt.xlabel("Indices shifted")
+        plt.ylabel("Pearson correlation coefficient")
+        plt.title("Correlation coefficients, keeping C stationary.")
+        plt.legend(["Shifting B", "Shifting A"])
+        plt.show()
+
+        max_indB = int(shiftvecB[np.where(corr_vecB == np.max(corr_vecB))])
+        testB2 = NeB[index1 - max_indB:index2 - max_indB]
+
+        max_indA = int(shiftvecA[np.where(corr_vecA[10:] == np.max(corr_vecA[10:]))])
+        testA2 = NeA[index1 - max_indA:index2 - max_indA]
+
+        plt.plot(test_seconds, testB2)
+        plt.plot(test_seconds, testA2)
+        plt.plot(test_seconds, testC)
+        plt.xlabel("Seconds since midnight [Pre-shift B]")
+        plt.ylabel("Electron density [cm⁻¹]")
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.title("A shifted %g, B shifted %g" % (max_indA, max_indB))
+        plt.show()
 
 
 

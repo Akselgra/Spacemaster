@@ -27,7 +27,7 @@ class SWARMprocess():
         return(seconds)
 
 
-    def correlator(self, data1, data2, time, start = 0, stop = 40000,\
+    def correlator(self, data1, data2, time = False, start = 0, stop = 40000,\
                    shifts = 30000, timestamps = True):
         """
         Takes 2 arrays with data and 1 array with time values.
@@ -37,21 +37,32 @@ class SWARMprocess():
 
         start and stop are the indices used in slicing the data arrays.
         shifts is the number of correlation values calculated.
+
+        If time == False: returns indices shifted instead of seconds.
         """
-        if timestamps == True:
-            time = self.stamp_to_sec(time)#turn timestamps into seconds
-        dt = time[1] - time[0] #calculates the timestep
-        corr_vec = np.zeros(shifts)
-        shiftvec = np.zeros(shifts)
+        if time != False:
+            if timestamps == True:
+                time = self.stamp_to_sec(time)#turn timestamps into seconds
+            dt = time[1] - time[0] #calculates the timestep
+            corr_vec = np.zeros(shifts)
+            shiftvec = np.zeros(shifts)
 
-        for i in range(len(corr_vec)):
-            corr_vec[i] = pearsonr(data1[start:stop], data2[start+i:stop+i])[0]
-            shiftvec[i] = dt*i #fills array with shift lengths
+            for i in range(len(corr_vec)):
+                corr_vec[i] = pearsonr(data1[start:stop], data2[start+i:stop+i])[0]
+                shiftvec[i] = dt*i #fills array with shift lengths
 
-        return(corr_vec, shiftvec)
+            return(corr_vec, shiftvec)
 
+        else:
+            corr_vec = np.zeros(shifts)
+            shiftvec = np.zeros(shifts)
 
-    def timeshift(self, data1, data2, time, start = 0, stop = 40000, shifts = 30000):
+            for i in range(len(corr_vec)):
+                corr_vec[i] = pearsonr(data1[start:stop], data2[start+i:stop+i])[0]
+                shiftvec[i] = i
+            return(corr_vec, shiftvec)
+
+    def timeshift(self, data1, data2, time = False, start = 0, stop = 40000, shifts = 30000):
         """
         Takes 2 arrays with data and 1 array with time values.
         Calculates the most significant timeshift for the 2 data sets.
