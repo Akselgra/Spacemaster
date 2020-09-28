@@ -139,6 +139,7 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Electron density [cm⁻¹]")
         plt.title("An interesting case")
         plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/interesting_case.png")
         plt.show()
 
 
@@ -150,6 +151,7 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Pearson correlation coefficient")
         plt.title("Correlation coefficients, keeping C stationary.")
         plt.legend(["Shifting B", "Shifting A"])
+        plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/interesting_case_correlations.png")
         plt.show()
 
         max_indB = int(shiftvecB[np.where(corr_vecB == np.max(corr_vecB))])
@@ -165,6 +167,7 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Electron density [cm⁻¹]")
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.title("A shifted %g, B shifted %g" % (max_indA, max_indB))
+        plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted.png")
         plt.show()
 
 
