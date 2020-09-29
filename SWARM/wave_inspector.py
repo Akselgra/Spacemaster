@@ -171,9 +171,80 @@ class WaveInspect(SWARMprocess):
         plt.show()
 
 
+    def pole_case_study2(self):
+        """
+        Case study of high latitude region using differentials
+        """
+        NeA = self.NeA[self.indB]
+        NeB = self.NeB[self.indB]
+        NeC = self.NeC[self.indB]
+        seconds = self.seconds[self.indB]
+
+        start = self.indB[0][0]
+        stop = self.indB[0][-1]
+
+        BA_shift = self.timeshift_latitude(self.latB, self.latA, start,\
+         stop, shifts = 7500)
+
+        BC_shift = self.timeshift_latitude(self.latB, self.latC, start,\
+         stop, shifts = 7500)
+
+        NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
+        NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
+
+        diff_A = NeA[1:] - NeA[:-1]
+        diff_B = NeB[1:] - NeB[:-1]
+        diff_C = NeC[1:] - NeC[:-1]
+        diff_sec = seconds[1:]
+
+
+        time1 = 1150
+        time2 = 1185
+        index1 = int(np.round((time1 - seconds[0])*2))
+        index2 = int(np.round((time2 - seconds[0])*2))+1
+
+        testA = NeA[index1:index2]
+        testB = NeB[index1:index2]
+        testC = NeC[index1:index2]
+        test_seconds = seconds[index1:index2]
+
+        mean_range = 10
+        meanieB = self.meanie(diff_B, mean_range)
+        meanieA = self.meanie(diff_A, mean_range)
+        meanieC = self.meanie(diff_C, mean_range)
+
+        examp_B = meanieB[index1:index2]
+        examp_A = meanieA[index1:index2]
+        examp_C = meanieC[index1:index2]
+
+        indices = np.arange(len(examp_B))
+        maxB = indices[np.where(examp_B == np.max(examp_B))][0]
+        maxA = indices[np.where(examp_A == np.max(examp_A))][0]
+        maxC = indices[np.where(examp_C == np.max(examp_C))][0]
+
+        Cshift = maxC - maxB
+        Ashift = maxA - maxB
+
+        shift_testA = NeA[index1 + Ashift:index2 + Ashift]
+        shift_testC = NeC[index1 + Cshift:index2 + Cshift]
+
+        plt.plot(test_seconds, testB)
+        plt.plot(test_seconds, shift_testA)
+        plt.plot(test_seconds, shift_testC)
+        plt.xlabel("Time of sat B")
+        plt.ylabel("Electron density [cm⁻¹]")
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.title("Sat A shifted %g, sat C shifted %g" % (Ashift, Cshift))
+        plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted_meandiff.png")
+        plt.show()
+
+
+
+
+
 
 
 
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study()
+    object.pole_case_study2()

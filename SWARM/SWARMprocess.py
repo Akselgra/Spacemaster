@@ -131,3 +131,42 @@ class SWARMprocess():
         r = np.sqrt(x3**2 + y3**2 + z3**2)
 
         return(r)
+
+    def reshape(self, array, shape):
+        """
+        Takes 1d array and shape
+        reshapes array to be of given shape.
+        Array given must be 1d.
+        """
+
+        new_array = np.zeros(shape)
+        if len(array) < shape[0]*shape[1]:
+            app_array = np.zeros((shape[0]*shape[1] - len(array)))
+            array = np.concatenate((array, app_array))
+
+        for i in range(len(new_array)):
+            for j in range(len(new_array[0])):
+                new_array[i][j] = array[shape[1]*i + j]
+
+        return(new_array)
+
+    def meanie(self, array, mean_range):
+        """
+        Takes an array and a mean_range.
+        Returns an array where every element is the average of the 2*mean_range
+        elements neighbouring it and itself.
+        """
+        new_array = np.zeros(np.shape(array))
+        #setting the boundaries
+        for i in range(mean_range):
+            new_array[i] = array[i]
+        for i in range(1, mean_range+1):
+            new_array[-i] = array[-i]
+
+        for i in range(mean_range, len(array)-(mean_range)):
+            new_array[i] = np.mean(array[i - mean_range:i + mean_range+1])
+
+        return(new_array)
+
+if __name__ == "__main__":
+    pass
