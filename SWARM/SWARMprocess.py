@@ -159,9 +159,9 @@ class SWARMprocess():
         new_array = np.zeros(np.shape(array))
         #setting the boundaries
         for i in range(mean_range):
-            new_array[i] = array[i]
+            new_array[i] = 0
         for i in range(1, mean_range+1):
-            new_array[-i] = array[-i]
+            new_array[-i] = 0
 
         for i in range(mean_range, len(array)-(mean_range)):
             new_array[i] = np.mean(array[i - mean_range:i + mean_range+1])

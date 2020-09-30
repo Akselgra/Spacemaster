@@ -239,12 +239,46 @@ class WaveInspect(SWARMprocess):
         plt.show()
 
 
+    def pole_case_study3(self):
+        """
+        Third case study of polar region.
+        Here we look at the whole region, rather than one spot.
+        """
 
+        NeA = self.NeA[self.indB]
+        NeB = self.NeB[self.indB]
+        NeC = self.NeC[self.indB]
+        seconds = self.seconds[self.indB]
 
+        start = self.indB[0][0]
+        stop = self.indB[0][-1]
 
+        BA_shift = self.timeshift_latitude(self.latB, self.latA, start,\
+         stop, shifts = 7500)
+
+        BC_shift = self.timeshift_latitude(self.latB, self.latC, start,\
+         stop, shifts = 7500)
+
+        NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
+        NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
+
+        diff_A = NeA[1:] - NeA[:-1]
+        diff_B = NeB[1:] - NeB[:-1]
+        diff_C = NeC[1:] - NeC[:-1]
+        diff_sec = seconds[1:]
+
+        mean_range = 10
+        meanA = self.meanie(diff_A, mean_range)
+        meanB = self.meanie(diff_B, mean_range)
+        meanC = self.meanie(diff_C, mean_range)
+
+        plt.plot(diff_sec, meanB)
+        plt.plot(diff_sec, meanA)
+        plt.plot([np.min(diff_sec), np.max(diff_sec)], [0, 0])
+        plt.show()
 
 
 
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study2()
+    object.pole_case_study3()
