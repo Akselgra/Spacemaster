@@ -54,6 +54,8 @@ class WaveInspect(SWARMprocess):
         self.stamps = cdfA["Timestamp"][:N]
         #finding first indices of pole region
         self.pole_finder()
+        self.figpath = "/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/"
+
 
 
 
@@ -342,7 +344,7 @@ class WaveInspect(SWARMprocess):
         NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
         NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
 
-        mean_range = 7
+        mean_range = 15
         partsize = 200
         wavefront_inds, BA_diff, BC_diff = self.wavefront_finder(NeB, NeA, NeC,\
                                             mean_range = mean_range,\
@@ -357,7 +359,8 @@ class WaveInspect(SWARMprocess):
 
         plt.plot(seconds, NeB)
         plt.xlabel("Seconds since midnight of sat B")
-        plt.ylabel("Electron density")
+        plt.ylabel("Electron density [cm⁻¹]")
+        plt.savefig(self.figpath + "wavefront_finder_example.png")
         plt.show()
 if __name__ == "__main__":
     object = WaveInspect()
