@@ -22,5 +22,22 @@ def test_distance():
      Calculated %g, expected %g" % (compdist, analdist)
     assert testy, msg
 
-if __name__ == "__main__":
-    test_distance()
+def test_maxdiff():
+    """
+    test function for maxdiff method in SAWRMprocess
+    """
+
+    array1 = np.array([1,2,3,2,1])
+    array2 = np.array([1,2,3,4,5])
+    diff = -2
+    object = SWARMprocess()
+    calcdiff = object.maxdiff(array1, array2)[1]
+    eps = 1e-5
+    testy = np.abs(calcdiff - diff) < eps
+    msg = "Calculated difference is %g while true dist is %g" % (calcdiff, diff)
+    assert testy, msg
+
+print("Running tests")
+test_distance()
+test_maxdiff()
+print("Tests passed")

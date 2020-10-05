@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import pearsonr
 
 
+
 class SWARMprocess():
     """
     Class for processing SWARM data
@@ -167,6 +168,78 @@ class SWARMprocess():
             new_array[i] = np.mean(array[i - mean_range:i + mean_range+1])
 
         return(new_array)
+
+
+    def maxdiff(self, array1, array2):
+        """
+        Takes 2 1d arrays of same length.
+        Returns number of indices between max values in arrays
+        on the form (max1, (max1 - max2)), as well as index of max value of array1.
+        """
+        #assert arrays equal length
+        testy = len(array1) == len(array2)
+        msg = "Arrays are not of equal length"
+        assert testy, msg
+
+        indices = np.arange(len(array1))
+        max1 = indices[np.where(array1 == np.max(array1))]
+        max2 = indices[np.where(array2 == np.max(array2))]
+
+        return(max1, (max1 - max2))
+
+    def wavefront_finder(self, array1, array2, array3, mean_range = 10,\
+        partsize = 50):
+        """
+        Takes 3 syncronized data sets of same length and
+        mean_range, the number of data points used to smooth out the gradient
+        partsize, the number of data points inspected at any one time.
+        Returns:
+        index of wavefronts in array 1,
+        distance (indices) between wavefronts in array 1 and 2
+        distance (indices) between wavefronts in array 1 and 3
+        """
+
+        #calculate gradients
+        diff1 = array1[1:] - array1[:-1]
+        diff2 = array2[1:] - array2[:-1]
+        diff3 = array3[1:] - array3[:-1]
+        #smoothen the gradients
+        mean1 = self.meanie(diff1, mean_range)
+        mean2 = self.meanie(diff2, mean_range)
+        mean3 = self.meanie(diff3, mean_range)
+
+        #cutting the arrays into parts of length partsize, with 50% overlap
+        m = len(mean1)
+        parts = int(m/partsize*2) -1
+
+        diff_inds = []
+        diffs_1_2 = []
+        diffs_1_3 = []
+
+        for i in range(parts):
+            startind = int(i/2*partsize)
+            stopind = int((i/2+1)*partsize)
+            curr1 = mean1[startind:stopind]
+            curr2 = mean2[startind:stopind]
+            curr3 = mean3[startind:stopind]
+            #finding distance between max values along with index of max values
+            ind_1, diff_1_2 = self.maxdiff(curr1, curr2)
+            ind_1 += startind
+            diff_1_3 = self.maxdiff(curr1, curr3)
+            diff_inds.append(ind_1)
+            diffs_1_2.append(diff_1_2)
+            diffs_1_3.append(diff_1_3)
+
+        diff_inds = np.array(diff_inds) +1
+        diffs_1_2 = np.array(diffs_1_2)
+        diffs_1_3 = np.array(diffs_1_3)
+
+        return(diff_inds, diffs_1_2, diffs_1_3)
+
+
+
+
+
 
 if __name__ == "__main__":
     pass

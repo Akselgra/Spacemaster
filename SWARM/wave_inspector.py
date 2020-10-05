@@ -4,6 +4,7 @@ Currently only runs on Aksels laptop.
 import numpy as np
 import matplotlib.pyplot as plt
 from SWARMprocess import SWARMprocess
+import test_SWARMprocess
 #setting path to cdf library
 from getpass import getuser
 usrname = getuser()
@@ -272,13 +273,92 @@ class WaveInspect(SWARMprocess):
         meanB = self.meanie(diff_B, mean_range)
         meanC = self.meanie(diff_C, mean_range)
 
-        plt.plot(diff_sec, meanB)
-        plt.plot(diff_sec, meanA)
-        plt.plot([np.min(diff_sec), np.max(diff_sec)], [0, 0])
+        m = len(meanB)
+        partsize = 50
+        parts = int(m/partsize*2) -1
+        partvecA = []
+        partvecB = []
+        partvecC = []
+        partsec = []
+
+        for i in range(parts):
+            startind = int(i/2*partsize)
+            stopind = int((i/2+1)*partsize)
+            partvecA.append(meanA[startind:stopind])
+            partvecB.append(meanB[startind:stopind])
+            partvecC.append(meanC[startind:stopind])
+            partsec.append(diff_sec[startind:stopind])
+
+        partvecA = np.array(partvecA)
+        partvecB = np.array(partvecB)
+        partvecC = np.array(partvecC)
+        partsec = np.array(partsec)
+
+        diff_inds = []
+        BAdiffs = []
+        BCdiffs = []
+        for i in range(parts):
+            B_ind, diff_BA = self.maxdiff(partvecB[i], partvecA[i])
+            diff_BC = self.maxdiff(partvecB[i], partvecC[i])[1]
+            B_ind = B_ind + int(i/2*partsize)
+            diff_inds.append(B_ind)
+            BAdiffs.append(diff_BA)
+            BCdiffs.append(diff_BC)
+
+        diff_inds = np.array(diff_inds)
+        BAdiffs = np.array(BAdiffs)
+        BCdiffs = np.array(BCdiffs)
+
+        plt.plot(diff_sec[diff_inds], BAdiffs, "-o")
+        plt.plot(diff_sec[diff_inds], BCdiffs, "-o")
+        plt.xlabel("Time of sat B")
+        plt.ylabel("Indices shifted")
         plt.show()
 
+        print(diff_sec[diff_inds])
+        print(BAdiffs)
+        print(BCdiffs)
 
 
+    def pole_case_study4(self):
+        """
+        Test of wavefront_finder.
+        Finds all wavefronts and plots them along with electron densities
+        """
+        NeA = self.NeA[self.indB]
+        NeB = self.NeB[self.indB]
+        NeC = self.NeC[self.indB]
+        seconds = self.seconds[self.indB]
+
+        start = self.indB[0][0]
+        stop = self.indB[0][-1]
+
+        BA_shift = self.timeshift_latitude(self.latB, self.latA, start,\
+         stop, shifts = 7500)
+
+        BC_shift = self.timeshift_latitude(self.latB, self.latC, start,\
+         stop, shifts = 7500)
+
+        NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
+        NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
+
+        mean_range = 7
+        partsize = 200
+        wavefront_inds, BA_diff, BC_diff = self.wavefront_finder(NeB, NeA, NeC,\
+                                            mean_range = mean_range,\
+                                            partsize = partsize)
+
+        #plotting lines at wavefronts
+        for i in range(len(wavefront_inds)):
+            curr_time = seconds[wavefront_inds[i]]
+            maxval = np.max(NeB)
+            minval = np.min(NeB)
+            plt.plot([curr_time, curr_time], [minval, maxval], "k")
+
+        plt.plot(seconds, NeB)
+        plt.xlabel("Seconds since midnight of sat B")
+        plt.ylabel("Electron density")
+        plt.show()
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study3()
+    object.pole_case_study4()
