@@ -174,7 +174,9 @@ class WaveInspect(SWARMprocess):
         plt.title("A shifted %g, B shifted %g" % (max_indA, max_indB))
         plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted.png")
         plt.show()
+        print(self.cdfA["U_orbit"][index1])
         print(self.cdfB["U_orbit"][index1])
+        print(self.cdfC["U_orbit"][index1])
 
 
     def pole_case_study2(self):
@@ -214,6 +216,7 @@ class WaveInspect(SWARMprocess):
         testC = NeC[index1:index2]
         test_seconds = seconds[index1:index2]
 
+
         mean_range = 10
         meanieB = self.meanie(diff_B, mean_range)
         meanieA = self.meanie(diff_A, mean_range)
@@ -233,6 +236,37 @@ class WaveInspect(SWARMprocess):
 
         shift_testA = NeA[index1 + Ashift:index2 + Ashift]
         shift_testC = NeC[index1 + Cshift:index2 + Cshift]
+
+        plt.plot(test_seconds, testB)
+        plt.plot(test_seconds, testA)
+        plt.plot(test_seconds, testC)
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.xlabel("Seconds since midnight of sat B")
+        plt.ylabel("Electron density [cm⁻¹]")
+        plt.title("An interesting case")
+        plt.savefig(self.figpath + "intersting_case_meandiff.png")
+        plt.show()
+
+        plt.plot(diff_sec[index1:index2],diff_B[index1:index2])
+        plt.plot(diff_sec[index1:index2],diff_A[index1:index2])
+        plt.plot(diff_sec[index1:index2], diff_C[index1:index2])
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.title("Difference in electron density between points")
+        plt.ylabel("$\Delta N_e$")
+        plt.xlabel("Seconds since midnight of Sat B")
+        plt.savefig(self.figpath + "electron_density_deltas.png")
+        plt.show()
+
+        plt.plot(diff_sec[index1:index2], meanieB[index1:index2])
+        plt.plot(diff_sec[index1:index2], meanieA[index1:index2])
+        plt.plot(diff_sec[index1:index2], meanieC[index1:index2])
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.title("Smoothened electron density differences")
+        plt.xlabel("Seconds since midnight of Sat B")
+        plt.ylabel("$\Delta N_e$")
+        plt.savefig(self.figpath + "electron_density_deltas_smoothened.png")
+        plt.show()
+
 
         plt.plot(test_seconds, testB)
         plt.plot(test_seconds, shift_testA)
@@ -367,4 +401,4 @@ class WaveInspect(SWARMprocess):
         plt.show()
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study()
+    object.pole_case_study2()
