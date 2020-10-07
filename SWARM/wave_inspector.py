@@ -29,29 +29,29 @@ class WaveInspect(SWARMprocess):
         cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_20131221T000000_20131221T235959_0501.CDF/SW_OPER_EFIB_LP_1B_20131221T000000_20131221T235959_0501_MDR_EFI_LP.cdf"
         cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_20131221T000000_20131221T235959_0501.CDF/SW_OPER_EFIC_LP_1B_20131221T000000_20131221T235959_0501_MDR_EFI_LP.cdf"
 
-        cdfA = pycdf.CDF(cdfA_path)
-        cdfB = pycdf.CDF(cdfB_path)
-        cdfC = pycdf.CDF(cdfC_path)
+        self.cdfA = pycdf.CDF(cdfA_path)
+        self.cdfB = pycdf.CDF(cdfB_path)
+        self.cdfC = pycdf.CDF(cdfC_path)
         #Retrieving data from CDF files.
-        self.NeA = cdfA["Ne"][:N]
-        self.NeB = cdfB["Ne"][:N]
-        self.NeC = cdfC["Ne"][:N]
+        self.NeA = self.cdfA["Ne"][:N]
+        self.NeB = self.cdfB["Ne"][:N]
+        self.NeC = self.cdfC["Ne"][:N]
 
-        self.longA = cdfA["Longitude"][:N]
-        self.longB = cdfB["Longitude"][:N]
-        self.longC = cdfC["Longitude"][:N]
+        self.longA = self.cdfA["Longitude"][:N]
+        self.longB = self.cdfB["Longitude"][:N]
+        self.longC = self.cdfC["Longitude"][:N]
 
-        self.latA = cdfA["Latitude"][:N]
-        self.latB = cdfB["Latitude"][:N]
-        self.latC = cdfC["Latitude"][:N]
+        self.latA = self.cdfA["Latitude"][:N]
+        self.latB = self.cdfB["Latitude"][:N]
+        self.latC = self.cdfC["Latitude"][:N]
 
-        self.radA = cdfA["Radius"][:N]
-        self.radB = cdfB["Radius"][:N]
-        self.radC = cdfC["Radius"][:N]
+        self.radA = self.cdfA["Radius"][:N]
+        self.radB = self.cdfB["Radius"][:N]
+        self.radC = self.cdfC["Radius"][:N]
 
         #Setting time to seconds after midnight
-        self.seconds = self.stamp_to_sec(cdfA["Timestamp"][:N])
-        self.stamps = cdfA["Timestamp"][:N]
+        self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:N])
+        self.stamps = self.cdfA["Timestamp"][:N]
         #finding first indices of pole region
         self.pole_finder()
         self.figpath = "/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/"
@@ -94,6 +94,7 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Electron density")
         plt.title("Electron density measurements at polar region")
         plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.savefig(self.figpath + "polar_density.png")
         plt.show()
 
         AB_pearson = pearsonr(NeB, NeA)[0]
@@ -118,6 +119,7 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Electron density [cm⁻¹]")
         plt.title("Shifted electron density measurements")
         plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.savefig(self.figpath + "polar_density_corr.png")
         plt.show()
 
         AB_shift_pearson = pearsonr(NeB, NeA)[0]
@@ -172,6 +174,7 @@ class WaveInspect(SWARMprocess):
         plt.title("A shifted %g, B shifted %g" % (max_indA, max_indB))
         plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted.png")
         plt.show()
+        print(self.cdfB["U_orbit"][index1])
 
 
     def pole_case_study2(self):
