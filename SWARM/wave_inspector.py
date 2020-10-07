@@ -364,4 +364,4 @@ class WaveInspect(SWARMprocess):
         plt.show()
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study4()
+    object.pole_case_study()
