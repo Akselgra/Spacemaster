@@ -185,7 +185,7 @@ class SWARMprocess():
         max1 = indices[np.where(array1 == np.max(array1))]
         max2 = indices[np.where(array2 == np.max(array2))]
 
-        return(max1, (max1 - max2))
+        return(int(max1), int(max1 - max2))
 
     def wavefront_finder(self, array1, array2, array3, mean_range = 10,\
         partsize = 50):
@@ -225,7 +225,7 @@ class SWARMprocess():
             #finding distance between max values along with index of max values
             ind_1, diff_1_2 = self.maxdiff(curr1, curr2)
             ind_1 += startind
-            diff_1_3 = self.maxdiff(curr1, curr3)
+            ind_2, diff_1_3 = self.maxdiff(curr1, curr3)
             diff_inds.append(ind_1)
             diffs_1_2.append(diff_1_2)
             diffs_1_3.append(diff_1_3)

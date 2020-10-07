@@ -381,8 +381,8 @@ class WaveInspect(SWARMprocess):
         NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
         NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
 
-        mean_range = 15
-        partsize = 200
+        mean_range = 10
+        partsize = 50
         wavefront_inds, BA_diff, BC_diff = self.wavefront_finder(NeB, NeA, NeC,\
                                             mean_range = mean_range,\
                                             partsize = partsize)
@@ -399,6 +399,17 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Electron density [cm⁻¹]")
         plt.savefig(self.figpath + "wavefront_finder_example.png")
         plt.show()
+
+        plt.plot(seconds[wavefront_inds], BA_diff, "-o")
+        plt.plot(seconds[wavefront_inds], BC_diff, "-o")
+        plt.xlabel("Seconds after midnight of sat B")
+        plt.ylabel("Index difference")
+        plt.title("Index differences found")
+        plt.legend(["BA diff", "BC diff"])
+        plt.savefig(self.figpath + "wavefront_finder_example_indices.png")
+        plt.show()
+
+        print(BC_diff)
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study2()
+    object.pole_case_study4()
