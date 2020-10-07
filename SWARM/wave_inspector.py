@@ -117,7 +117,7 @@ class WaveInspect(SWARMprocess):
         plt.plot(seconds, NeC)
         plt.xlabel("Seconds since midnight of sat B")
         plt.ylabel("Electron density [cm⁻¹]")
-        plt.title("Shifted electron density measurements")
+        plt.title("Sat A shifted %g indices fowards, sat C %g" % (BA_shift, BC_shift))
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.savefig(self.figpath + "polar_density_corr.png")
         plt.show()
