@@ -127,8 +127,8 @@ class WaveInspect(SWARMprocess):
         "between A and B is %g" % AB_shift_pearson)
 
         #case of B, then A, then C increasing
-        time1 = 1160
-        time2 = 1175
+        time1 = 1150
+        time2 = 1185
         index1 = int(np.round((time1 - seconds[0])*2))
         index2 = int(np.round((time2 - seconds[0])*2))+1
 
@@ -148,30 +148,30 @@ class WaveInspect(SWARMprocess):
         plt.show()
 
 
-        corr_vecB, shiftvecB = self.correlator(NeC, NeB, start = index1, stop = index2, shifts = 40)
-        corr_vecA, shiftvecA = self.correlator(NeC, NeA, start = index1, stop = index2, shifts = 40)
-        plt.plot(shiftvecB, corr_vecB)
+        corr_vecA, shiftvecA = self.correlator(NeB, NeA, start = index1, stop = index2, shifts = 40)
+        corr_vecC, shiftvecC = self.correlator(NeB, NeC, start = index1, stop = index2, shifts = 40)
         plt.plot(shiftvecA, corr_vecA)
+        plt.plot(shiftvecC, corr_vecC)
         plt.xlabel("Indices shifted")
         plt.ylabel("Pearson correlation coefficient")
-        plt.title("Correlation coefficients, keeping C stationary.")
-        plt.legend(["Shifting B", "Shifting A"])
+        plt.title("Correlation coefficients, keeping B stationary.")
+        plt.legend(["Shifting A", "Shifting C"])
         plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/interesting_case_correlations.png")
         plt.show()
 
-        max_indB = int(shiftvecB[np.where(corr_vecB == np.max(corr_vecB))])
-        testB2 = NeB[index1 - max_indB:index2 - max_indB]
+        max_indA = int(shiftvecA[np.where(corr_vecA == np.max(corr_vecA))])
+        testA2 = NeA[index1 + max_indA:index2 + max_indA]
 
-        max_indA = int(shiftvecA[np.where(corr_vecA[10:] == np.max(corr_vecA[10:]))])
-        testA2 = NeA[index1 - max_indA:index2 - max_indA]
+        max_indC = int(shiftvecC[np.where(corr_vecC == np.max(corr_vecC))])
+        testC2 = NeC[index1 + max_indC:index2 + max_indC]
 
-        plt.plot(test_seconds, testB2)
+        plt.plot(test_seconds, testB)
         plt.plot(test_seconds, testA2)
-        plt.plot(test_seconds, testC)
+        plt.plot(test_seconds, testC2)
         plt.xlabel("Seconds since midnight [Pre-shift B]")
         plt.ylabel("Electron density [cm⁻¹]")
         plt.legend(["Sat B", "Sat A", "Sat C"])
-        plt.title("A shifted %g, B shifted %g" % (max_indA, max_indB))
+        plt.title("A shifted %g, B shifted %g" % (max_indA, max_indC))
         plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted.png")
         plt.show()
         print(self.cdfA["U_orbit"][index1])
@@ -412,4 +412,4 @@ class WaveInspect(SWARMprocess):
         print(BC_diff)
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study4()
+    object.pole_case_study()
