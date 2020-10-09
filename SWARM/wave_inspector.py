@@ -171,7 +171,7 @@ class WaveInspect(SWARMprocess):
         plt.xlabel("Seconds since midnight [Pre-shift B]")
         plt.ylabel("Electron density [cm⁻¹]")
         plt.legend(["Sat B", "Sat A", "Sat C"])
-        plt.title("A shifted %g, B shifted %g" % (max_indA, max_indC))
+        plt.title("A shifted %g, C shifted %g" % (max_indA, max_indC))
         plt.savefig("/home/aksel/Documents/Master/Spacemaster/SWARM/Figures/intersting_case_shifted.png")
         plt.show()
         print(self.cdfA["U_orbit"][index1])
