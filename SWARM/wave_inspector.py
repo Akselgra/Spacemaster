@@ -452,15 +452,16 @@ class WaveInspect(SWARMprocess):
         testC = NeC[index1 + Cshift:index2 + Cshift]
         test_seconds = seconds[index1:index2]
 
-        testA = testA
+        #testA = testA[:int(len(testA)/2)]
+        meanNe = np.mean(testB)
+        testA = testA - meanNe; testB = testB - meanNe; testC = testC -meanNe
+        testA = testA/np.std(testA); testB = testB/np.std(testB); testC = testC/np.std(testC);
 
-        corrBA = np.correlate(testB, testA, "Full")
-        corrBC = np.correlate(testB, testC, "Full")
-
-        plt.plot(corrBA/np.max(corrBA))
-        plt.plot(corrBC/corrBA.max())
+        plt.plot(test_seconds, testB)
+        plt.plot(test_seconds, testA)
+        plt.plot(test_seconds, testC)
+        plt.savefig(self.figpath + "Posefigur.png")
         plt.show()
-
 
 if __name__ == "__main__":
     object = WaveInspect()
