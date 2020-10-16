@@ -464,14 +464,13 @@ class WaveInspect(SWARMprocess):
         plt.show()
 
         testA = testA[:int(len(testA)/2)]; testC = testC[:int(len(testC)/2)]
-        corr_BA = np.correlate(testB, testA, "full")
-        corr_BC = np.correlate(testB, testC, "full")
-        T = len(testA/2)
-        times = np.linspace(-T, T, len(corr_BA))
+        corr_BA = np.correlate(testB, testA, "valid")
+        corr_BC = np.correlate(testB, testC, "valid")
+        times = np.arange(len(corr_BA))
         plt.plot(times, corr_BA)
         plt.plot(times, corr_BC)
         plt.legend(["BA", "BC"])
-        plt.xlabel("Time shifted")
+        plt.xlabel("Indices shifted")
         plt.ylabel("Correlation? idk.")
         plt.savefig(self.figpath + "Correlationtest_png")
         plt.show()
