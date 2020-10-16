@@ -410,6 +410,58 @@ class WaveInspect(SWARMprocess):
         plt.show()
 
         print(BC_diff)
+
+    def fourier_test(self):
+        """
+        Testing fourier analysis methods
+        """
+
+        NeA = self.NeA[self.indB]
+        NeB = self.NeB[self.indB]
+        NeC = self.NeC[self.indB]
+        seconds = self.seconds[self.indB]
+
+        start = self.indB[0][0]
+        stop = self.indB[0][-1]
+
+        BA_shift = self.timeshift_latitude(self.latB, self.latA, start,\
+         stop, shifts = 7500)
+
+        BC_shift = self.timeshift_latitude(self.latB, self.latC, start,\
+         stop, shifts = 7500)
+
+        NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
+        NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
+
+        diff_A = NeA[1:] - NeA[:-1]
+        diff_B = NeB[1:] - NeB[:-1]
+        diff_C = NeC[1:] - NeC[:-1]
+        diff_sec = seconds[1:]
+
+
+        time1 = 1165
+        time2 = 1200
+        index1 = int(np.round((time1 - seconds[0])*2))
+        index2 = int(np.round((time2 - seconds[0])*2))+1
+
+        Cshift = 12
+        Ashift = 5
+
+        testA = NeA[index1 + Ashift:index2 + Ashift]
+        testB = NeB[index1:index2]
+        testC = NeC[index1 + Cshift:index2 + Cshift]
+        test_seconds = seconds[index1:index2]
+
+        testA = testA
+
+        corrBA = np.correlate(testB, testA, "Full")
+        corrBC = np.correlate(testB, testC, "Full")
+
+        plt.plot(corrBA/np.max(corrBA))
+        plt.plot(corrBC/corrBA.max())
+        plt.show()
+
+
 if __name__ == "__main__":
     object = WaveInspect()
-    object.pole_case_study()
+    object.fourier_test()

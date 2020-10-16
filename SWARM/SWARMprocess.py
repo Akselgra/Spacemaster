@@ -238,7 +238,13 @@ class SWARMprocess():
 
 
 
-
+    def gauss_curve(self, x, mean, std):
+        """
+        Gaussian bell function
+        """
+        first = 1/(std*np.sqrt(2*np.pi))
+        second = -0.5*(x - mean)**2/(std**2)
+        return(first*np.exp(second))
 
 
 if __name__ == "__main__":
