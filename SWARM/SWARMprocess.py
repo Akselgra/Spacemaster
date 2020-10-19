@@ -41,7 +41,7 @@ class SWARMprocess():
 
         If time == False: returns indices shifted instead of seconds.
         """
-        if time != False:
+        if type(time) != type(False):
             if timestamps == True:
                 time = self.stamp_to_sec(time)#turn timestamps into seconds
             dt = time[1] - time[0] #calculates the timestep
@@ -62,6 +62,36 @@ class SWARMprocess():
                 corr_vec[i] = pearsonr(data1[start:stop], data2[start+i:stop+i])[0]
                 shiftvec[i] = i
             return(corr_vec, shiftvec)
+
+    def correlator2(self, data1, data2):
+        """
+        Takes data1 and data2 and calculates pearson R correlation coefficients
+        for different timeshifts.
+
+        Assumes that data1 and data2 are of equal sizes.
+        Uses data1 as background while shifting data2.
+
+        Assumes that data1[0] and data2[0] are measured at the same times.
+
+        Returns corrvec; array of same size as data which contains
+                         pearson r correlation coefficients for
+                         different shifts, going from
+                         -len(data1)/2 to len(data1)/2
+        """
+
+        if len(data1) != len(data2):
+            raise ValueError("data1 and data2 are not of equal length")
+
+        n = int(len(data1)/2)
+        corrvec = np.zeros(2*n)
+
+
+        for i in range(n):
+            corrvec[i] = pearsonr(data1[i:n+i], data2[n:2*n])[0]
+            corrvec[n+i] = pearsonr(data1[i:n+i], data2[:n])[0]
+
+        return corrvec
+
 
     def timeshift(self, data1, data2, time = False, start = 0, stop = 40000, shifts = 30000):
         """
