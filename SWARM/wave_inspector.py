@@ -21,7 +21,9 @@ class WaveInspect(SWARMprocess):
     Class for inspecting waves
     """
 
-    def __init__(self, N = int(1e5)):
+    def __init__(self, N = int(1e5), start = 0, stop = 5000):
+        self.start = start
+        self.stop = stop
         #Initializing data
         data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
 
@@ -64,16 +66,27 @@ class WaveInspect(SWARMprocess):
         finds the indices where the satellites
         are between 80 and 90 degrees latitude
         """
-        init_cut = 5000
-        is_poleA = np.logical_not(self.latA[:init_cut] < 80)
-        is_poleB = np.logical_not(self.latB[:init_cut] < 80)
-        is_poleC = np.logical_not(self.latC[:init_cut] < 80)
+        is_poleA = np.logical_not(self.latA[self.start:self.stop] < 80)
+        is_poleB = np.logical_not(self.latB[self.start:self.stop] < 80)
+        is_poleC = np.logical_not(self.latC[self.start:self.stop] < 80)
 
 
 
         self.indA = np.where(is_poleA == 1)
         self.indB = np.where(is_poleB == 1)
         self.indC = np.where(is_poleC == 1)
+
+
+        for i in range(len(self.indA[0])):
+            self.indA[0][i] += self.start
+        for i in range(len(self.indB[0])):
+            self.indB[0][i] += self.start
+        for i in range(len(self.indC[0])):
+            self.indC[0][i] += self.start
+
+        if np.size(self.indA) < 1:
+            raise IndexError("There is no north pole between index %g and %g" %\
+                                (self.start, self.stop))
 
 
     def pole_case_study(self):
@@ -420,6 +433,7 @@ class WaveInspect(SWARMprocess):
         NeB = self.NeB[self.indB]
         NeC = self.NeC[self.indB]
         seconds = self.seconds[self.indB]
+        lat = self.latB[self.indB]
 
         start = self.indB[0][0]
         stop = self.indB[0][-1]
@@ -433,48 +447,20 @@ class WaveInspect(SWARMprocess):
         NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
         NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
 
-        diff_A = NeA[1:] - NeA[:-1]
-        diff_B = NeB[1:] - NeB[:-1]
-        diff_C = NeC[1:] - NeC[:-1]
-        diff_sec = seconds[1:]
 
+        fftA = np.roll(np.fft.fft(NeA)/len(NeA), int(len(NeA)/2))
+        Fs = 2
+        freqs = np.linspace(-Fs/2, Fs/2, len(fftA))
 
-        time1 = 1165
-        time2 = 1200
-        index1 = int(np.round((time1 - seconds[0])*2))
-        index2 = int(np.round((time2 - seconds[0])*2))+1
-
-        Cshift = 12
-        Ashift = 5
-
-        testA = NeA[index1 + Ashift:index2 + Ashift]
-        testB = NeB[index1:index2]
-        testC = NeC[index1 + Cshift:index2 + Cshift]
-        test_seconds = seconds[index1:index2]
-
-        #testA = testA[:int(len(testA)/2)]
-        meanNe = np.mean(testB)
-        testA = testA - meanNe; testB = testB - meanNe; testC = testC -meanNe
-        testA = testA/np.std(testA); testB = testB/np.std(testB); testC = testC/np.std(testC);
-
-        plt.plot(test_seconds, testB)
-        plt.plot(test_seconds, testA)
-        plt.plot(test_seconds, testC)
-        plt.savefig(self.figpath + "Posefigur.png")
+        plt.plot(freqs, np.real(fftA))
+        plt.plot(freqs, np.imag(fftA))
+        plt.legend(["Real", "Complex"])
         plt.show()
 
-        testA = testA[:int(len(testA)/2)]; testC = testC[:int(len(testC)/2)]
-        corr_BA = np.correlate(testB, testA, "valid")
-        corr_BC = np.correlate(testB, testC, "valid")
-        times = np.arange(len(corr_BA))
-        plt.plot(times, corr_BA)
-        plt.plot(times, corr_BC)
-        plt.legend(["BA", "BC"])
-        plt.xlabel("Indices shifted")
-        plt.ylabel("Correlation? idk.")
-        plt.savefig(self.figpath + "Correlationtest_png")
+        plt.plot(lat, NeA)
         plt.show()
 
 if __name__ == "__main__":
-    object = WaveInspect()
+    n = 1
+    object = WaveInspect(start = 2000 +  7000*(n-1), stop = 2000 + 7000*n)
     object.fourier_test()
