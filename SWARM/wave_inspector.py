@@ -372,7 +372,7 @@ class WaveInspect(SWARMprocess):
         print(BCdiffs)
 
 
-    def pole_case_study4(self):
+    def pole_case_study4(self, mean_range = 10, partsize = 50):
         """
         Test of wavefront_finder.
         Finds all wavefronts and plots them along with electron densities
@@ -394,8 +394,6 @@ class WaveInspect(SWARMprocess):
         NeA = self.NeA[start + BA_shift:stop + BA_shift +1]
         NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
 
-        mean_range = 10
-        partsize = 50
         wavefront_inds, BA_diff, BC_diff = self.wavefront_finder(NeB, NeA, NeC,\
                                             mean_range = mean_range,\
                                             partsize = partsize)
@@ -448,17 +446,44 @@ class WaveInspect(SWARMprocess):
         NeC = self.NeC[start + BC_shift:stop + BC_shift +1]
 
 
-        fftA = np.roll(np.fft.fft(NeA)/len(NeA), int(len(NeA)/2))
+        plt.plot(seconds, NeB)
+        plt.plot(seconds, NeA)
+        plt.plot(seconds, NeC)
+        plt.show()
+
         Fs = 2
-        freqs = np.linspace(-Fs/2, Fs/2, len(fftA))
+        time0 = 1170
+        time1 = 1200
 
-        plt.plot(freqs, np.real(fftA))
-        plt.plot(freqs, np.imag(fftA))
-        plt.legend(["Real", "Complex"])
+        startind = self.indB[0][0]
+
+        time0 = int(time0*Fs - startind)
+        time1 = int(time1*Fs - startind)
+
+        NeA = NeA[time0:time1]
+        NeB = NeB[time0:time1]
+        NeC = NeC[time0:time1]
+
+
+        plt.plot(NeB)
+        plt.plot(NeA)
+        plt.plot(NeC)
         plt.show()
 
-        plt.plot(lat, NeA)
+        corrBA = self.correlator2(NeB, NeA)
+        corrBC = self.correlator2(NeB, NeC)
+        shifty = np.linspace(-len(NeA)/2, len(NeA)/2, len(NeA))
+
+        plt.plot(shifty, corrBA)
+        #plt.show()
+
+        corrvec, shiftvec = self.correlator(NeB, NeA, stop = int(len(NeA)/2),\
+                                shifts = int(len(NeA)/2), timestamps = False)
+        plt.plot(shiftvec, corrvec)
         plt.show()
+
+
+
 
 if __name__ == "__main__":
     n = 1
