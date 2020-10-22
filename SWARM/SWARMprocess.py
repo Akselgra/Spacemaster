@@ -276,6 +276,19 @@ class SWARMprocess():
         second = -0.5*(x - mean)**2/(std**2)
         return(first*np.exp(second))
 
+    def cross_spectrum(self, u, v, fs = 2):
+        """
+        Takes 2 signals u and v
+        returns cross spectrum of u and v
+        DTFT[u]* times DTFT[v]
+        """
+        N = len(u)
+        fftu = np.fft.fft(u)/N
+        fftv = np.fft.fft(v)/N
+
+        return(2*N/fs*np.conjugate(fftu)*fftv)
+
+
 
 if __name__ == "__main__":
     pass

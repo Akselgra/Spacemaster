@@ -482,6 +482,27 @@ class WaveInspect(SWARMprocess):
         plt.plot(shiftvec, corrvec)
         plt.show()
 
+        NeA = NeA - np.mean(NeA)
+        NeB = NeB - np.mean(NeB)
+        cross_spec = self.cross_spectrum(NeB, NeA)
+
+        phase = np.arctan2(np.imag(cross_spec), np.real(cross_spec))
+
+        freqs = np.linspace(-1, 1, len(cross_spec))
+
+        plt.plot(freqs, np.abs(cross_spec))
+        plt.title("Power spectrum density of cross spectrum")
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Power")
+        plt.show()
+
+        plt.plot(freqs, phase)
+        plt.title("Phase of cross spectrum")
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Phase [Radians]")
+        plt.show()
+
+
 
 
 
