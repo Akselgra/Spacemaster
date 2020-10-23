@@ -7,9 +7,9 @@ pro = pro()
 
 fs = 2
 t = 100
-f1 = 1/4
-f2 = 1/3
-f3 = 1/2
+f1 = 0.1
+f2 = 0.2
+f3 = 0.3
 n = int(fs*t)
 times = np.linspace(0, t, n)
 
