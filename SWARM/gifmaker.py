@@ -10,14 +10,14 @@ t = 100
 fs = 2
 n = int(t*fs)
 times = np.linspace(0, t, n)
-f0 = 0
-f1 = 0.1
-f2 = 0.1
+f0 = 0.1
+f1 = 0.2
+f2 = 0.3
 frames = 100
 fps = 15
 
 data1 = (np.sin(times*f1*2*np.pi) + np.sin(times*f0*2*np.pi))/2
-shifts = np.linspace(0.0, 9.99, frames)
+shifts = np.linspace(0.0, 2*np.pi, frames)
 
 for shift in shifts:
     data2 = (np.sin(times*f2*2*np.pi + shift) + np.sin(times*f0*2*np.pi))/2
@@ -61,23 +61,7 @@ phase_dir = glob.glob("phase_gif/*.png")
 signal_dir.sort()
 CSD_dir.sort()
 phase_dir.sort()
-# CSDs = []
-# signals = []
-# phases = []
-#
 
-# for signal in signal_dir:
-#     signals.append(imageio.imread(signal))
-#
-# for CSD in CSD_dir:
-#     CSDs.append(imageio.imread(CSD))
-#
-# for phase in phase_dir:
-#     phases.append(imageio.imread(phase))
-#
-# imageio.mimsave("Figures/signals.gif", signals, duration = 0.5)
-# imageio.mimsave("Figures/CSDs.gif", CSDs, duration = 0.5)
-# imageio.mimsave("Figures/phases.gif", phases, duration = 0.5)
 
 with imageio.get_writer("Figures/signals.gif", mode = "I", fps=fps) as writer:
     for signal in signal_dir:
