@@ -20,7 +20,7 @@ data1 = (np.sin(times*f1*2*np.pi) + np.sin(times*f0*2*np.pi))/2
 shifts = np.linspace(0.0, 2*np.pi, frames)
 
 for shift in shifts:
-    data2 = (np.sin(times*f2*2*np.pi + shift) + np.sin(times*f0*2*np.pi))/2
+    data2 = (np.sin(times*f2*2*np.pi + shift) + np.sin(times*f0*2*np.pi + shift))/2
 
     cross_spec = pro.cross_spectrum(data1, data2, fs =fs)
     cross_spec = np.roll(cross_spec, int(n/2))
