@@ -289,6 +289,13 @@ class SWARMprocess():
         return(2*N/fs*np.conjugate(fftu)*fftv)
 
 
+    def time_displace(self, phase, freq):
+        """
+        Takes phase and frequency from cross spectrum
+        returns time displacement
+        """
+
+        return(phase/(2*np.pi*freq))
 
 if __name__ == "__main__":
     pass

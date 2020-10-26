@@ -449,6 +449,8 @@ class WaveInspect(SWARMprocess):
         plt.plot(seconds, NeB)
         plt.plot(seconds, NeA)
         plt.plot(seconds, NeC)
+        plt.xlabel("Time [s]")
+        plt.ylabel("Electron density [cm⁻³]")
         plt.show()
 
         Fs = 2
@@ -468,6 +470,8 @@ class WaveInspect(SWARMprocess):
         plt.plot(NeB)
         plt.plot(NeA)
         plt.plot(NeC)
+        plt.xlabel("Time [s]")
+        plt.ylabel("Electron density [cm⁻³]")
         plt.show()
 
         corrBA = self.correlator2(NeB, NeA)
@@ -480,13 +484,17 @@ class WaveInspect(SWARMprocess):
         corrvec, shiftvec = self.correlator(NeB, NeA, stop = int(len(NeA)/2),\
                                 shifts = int(len(NeA)/2), timestamps = False)
         plt.plot(shiftvec, corrvec)
+        plt.xlabel("Time displaced")
+        plt.ylabel("Pearson R correlation coefficient")
+        plt.legend(["New correlator", "Old correlator"])
         plt.show()
 
         NeA = NeA - np.mean(NeA)
         NeB = NeB - np.mean(NeB)
         cross_spec = self.cross_spectrum(NeB, NeA)
+        cross_spec = np.roll(cross_spec, int(n/2))
 
-        phase = np.arctan2(np.imag(cross_spec), np.real(cross_spec))
+        phase = np.arctan2(np.imag(cross_spec), np.real(cross_spec)) + np.pi
 
         freqs = np.linspace(-1, 1, len(cross_spec))
 
@@ -502,7 +510,13 @@ class WaveInspect(SWARMprocess):
         plt.ylabel("Phase [Radians]")
         plt.show()
 
+        time_dis = self.time_displace(phase, freqs)
 
+        plt.plot(freqs, time_dis)
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Time displaced [s]")
+        plt.title("phase/(2*pi*freq)")
+        plt.show()
 
 
 
