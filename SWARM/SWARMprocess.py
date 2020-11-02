@@ -104,7 +104,7 @@ class SWARMprocess():
         shift_index = indices[np.where(corr_vec == np.max(corr_vec))]
         return(shift_index[0])
 
-    def timeshift_latitude(self, lat1, lat2, start = 0, stop = 40000, shifts = 30000):
+    def timeshift_latitude(self, lat1, lat2, start = 0, stop = 40000, shifts = 7000):
         """
         Assuming only latitude changes, takes 2 arrays with latitudes.
         Calculates the index shift that gives the smallest difference in latitudes

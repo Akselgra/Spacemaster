@@ -492,7 +492,7 @@ class WaveInspect(SWARMprocess):
         NeA = NeA - np.mean(NeA)
         NeB = NeB - np.mean(NeB)
         cross_spec = self.cross_spectrum(NeB, NeA)
-        cross_spec = np.roll(cross_spec, int(n/2))
+        cross_spec = np.roll(cross_spec, int(len(cross_spec)/2))
 
         phase = np.arctan2(np.imag(cross_spec), np.real(cross_spec)) + np.pi
 
