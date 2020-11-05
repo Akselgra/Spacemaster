@@ -64,7 +64,7 @@ class MovingWindow(SWARMprocess):
 
     def solver(self, t0, t1, n, window = 1):
         """
-        Calculates cross spectral densities over time.
+        Calculates cross spectral densities and fourier transforms over time.
         __________________________________________________
         Arguments:
         t0 - initial time in seconds
@@ -89,6 +89,10 @@ class MovingWindow(SWARMprocess):
         freqs = np.linspace(0, self.fs/2, n_freq)
         BA_CSDs = []
         BC_CSDs = []
+        AC_CSDs = []
+        B_PSDs = []
+        A_PSDs = []
+        C_PSDs = []
 
 
         for i in range(len(indices)-1):
@@ -114,15 +118,31 @@ class MovingWindow(SWARMprocess):
 
             BA_cross_spec = self.cross_spectrum(dataB, dataA)[:n_freq]
             BC_cross_spec = self.cross_spectrum(dataB, dataC)[:n_freq]
+            AC_cross_spec = self.cross_spectrum(dataA, dataC)[:n_freq]
+            A_fft = np.fft.fft(dataA)[:n_freq]/(2*n_freq)
+            B_fft = np.fft.fft(dataB)[:n_freq]/(2*n_freq)
+            C_fft = np.fft.fft(dataC)[:n_freq]/(2*n_freq)
             BA_CSDs.append(np.abs(BA_cross_spec))
             BC_CSDs.append(np.abs(BC_cross_spec))
+            AC_CSDs.append(np.abs(AC_cross_spec))
+            A_PSDs.append(np.abs(A_fft))
+            B_PSDs.append(np.abs(B_fft))
+            C_PSDs.append(np.abs(C_fft))
 
         BA_CSDs = np.array(BA_CSDs)
         BC_CSDs = np.array(BC_CSDs)
+        AC_CSDs = np.array(AC_CSDs)
+        A_PSDs = np.array(A_PSDs)
+        B_PSDs = np.array(B_PSDs)
+        C_PSDs = np.array(C_PSDs)
         self.freqs = freqs
         self.times = times
         self.BA_CSDs = BA_CSDs
         self.BC_CSDs = BC_CSDs
+        self.AC_CSDs = AC_CSDs
+        self.A_PSDs = A_PSDs
+        self.B_PSDs = B_PSDs
+        self.C_PSDs = C_PSDs
         self.solved = True
         self.t0 = t0
         self.t1 = t1
@@ -142,14 +162,92 @@ class MovingWindow(SWARMprocess):
         plt.xlabel("Seconds after midnight")
         plt.ylabel("Frequency")
         plt.colorbar()
-        plt.title("logarithmic CSD")
+        plt.title("logarithmic CSD BA")
         plt.show()
 
-        plt.plot(self.seconds[int(2*self.t0):int(2*self.t1)],\
-         self.NeB[int(2*self.t0):int(2*self.t1)])
+        loggy2 = np.log10(self.BC_CSDs)
+        plt.contourf(Times, Freqs, loggy2, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("logarithmic CSD BC")
         plt.show()
-        # plt.plot(self.seconds, self.NeB)
-        # plt.show()
+
+        loggy3 = np.log10(self.AC_CSDs)
+        plt.contourf(Times, Freqs, loggy3, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("logarithmic CSD AC")
+        plt.show()
+
+        logA = np.log10(self.A_PSDs)
+        logB = np.log10(self.B_PSDs)
+        logC = np.log10(self.C_PSDs)
+
+        plt.contourf(Times, Freqs, logA, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic PSD A")
+        plt.show()
+
+
+    def diffplot(self):
+        """
+        Plots comparisons between CSDs and PSDs
+        """
+
+        assert self.solved, "solver method has not been called."
+
+        Freqs, Times = np.meshgrid(self.freqs, self.times[:-1])
+
+        #normalizing CSDs and PSDs
+        # BA_CSDs = self.BA_CSDs/np.max(self.BA_CSDs)
+        # BC_CSDs = self.BC_CSDs/np.max(self.BC_CSDs)
+        # AC_CSDs = self.AC_CSDs/np.max(self.AC_CSDs)
+        # A_PSDs = self.A_PSDs/np.max(self.A_PSDs)
+        # B_PSDs = self.B_PSDs/np.max(self.B_PSDs)
+        # C_PSDs = self.C_PSDs/np.max(self.C_PSDs)
+
+        BA_CSDs = self.BA_CSDs
+        BC_CSDs = self.BC_CSDs
+        AC_CSDs = self.AC_CSDs
+        A_PSDs = self.A_PSDs
+        B_PSDs = self.B_PSDs
+        C_PSDs = self.C_PSDs
+
+        logBA = np.log10(BA_CSDs)
+        logBC = np.log10(BC_CSDs)
+        logAC = np.log10(AC_CSDs)
+        logA = np.log10(A_PSDs)
+        logB = np.log10(B_PSDs)
+        logC = np.log10(C_PSDs)
+
+        BA_A_diff = logBA - logAC
+        plt.contourf(Times, Freqs, logBA, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic CSD BA")
+        plt.show()
+
+        plt.contourf(Times, Freqs, logA, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic PSD A")
+        plt.show()
+
+
+        plt.contourf(Times, Freqs, BA_A_diff, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Log10(CSD BA) - log10(PSD A)")
+        plt.show()
+
+
 if __name__ == "__main__":
     object = MovingWindow()
     # t0 = 3750
@@ -166,9 +264,9 @@ if __name__ == "__main__":
 
     t0s = [0, 3000, 3750]
     t1s = [49000, 8000, 4600]
-    ns = [10000, 1000, 100]
+    ns = [10000, 1000, 200]
     for i in range(len(t0s)):
         n_window = int((t1s[i]-t0s[i])/ns[i]*2)*2
         window = windows.general_gaussian(n_window, 1, sig = n_window/4)
         object.solver(t0s[i], t1s[i], ns[i], window = window)
-        object.contourplot()
+        object.diffplot()
