@@ -185,12 +185,6 @@ class MovingWindow(SWARMprocess):
         logB = np.log10(self.B_PSDs)
         logC = np.log10(self.C_PSDs)
 
-        plt.contourf(Times, Freqs, logA, cmap = "magma")
-        plt.xlabel("Seconds after midnight")
-        plt.ylabel("Frequency")
-        plt.colorbar()
-        plt.title("Logarithmic PSD A")
-        plt.show()
 
 
     def diffplot(self):
@@ -224,28 +218,86 @@ class MovingWindow(SWARMprocess):
         logB = np.log10(B_PSDs)
         logC = np.log10(C_PSDs)
 
-        BA_A_diff = logBA - logAC
+
+        savepath = "contour_figs/"
+        timestr = "_t0 = %g_t1=%g.png" % (self.t0, self.t1)
+        timetitle = ",t = [%g, %g]" % (self.t0, self.t1)
         plt.contourf(Times, Freqs, logBA, cmap = "magma")
         plt.xlabel("Seconds after midnight")
         plt.ylabel("Frequency")
         plt.colorbar()
-        plt.title("Logarithmic CSD BA")
-        plt.show()
+        plt.title("Logarithmic CSD BA" + timetitle )
+        plt.savefig(savepath + "CSD_BA" + timestr)
+        plt.close()
+
+        plt.contourf(Times, Freqs, logBC, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic CSD BC" + timetitle )
+        plt.savefig(savepath + "CSD_BC" + timestr)
+        plt.close()
+
+        plt.contourf(Times, Freqs, logAC, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic CSD AC" + timetitle )
+        plt.savefig(savepath + "CSD_AC" + timestr)
+        plt.close()
+
 
         plt.contourf(Times, Freqs, logA, cmap = "magma")
         plt.xlabel("Seconds after midnight")
         plt.ylabel("Frequency")
         plt.colorbar()
-        plt.title("Logarithmic PSD A")
-        plt.show()
+        plt.title("Logarithmic PSD A" + timetitle)
+        plt.savefig(savepath + "PSD_A" + timestr)
+        plt.close()
 
-
-        plt.contourf(Times, Freqs, BA_A_diff, cmap = "magma")
+        plt.contourf(Times, Freqs, logB, cmap = "magma")
         plt.xlabel("Seconds after midnight")
         plt.ylabel("Frequency")
         plt.colorbar()
-        plt.title("Log10(CSD BA) - log10(PSD A)")
-        plt.show()
+        plt.title("Logarithmic PSD B" + timetitle)
+        plt.savefig(savepath + "PSD_B" + timestr)
+        plt.close()
+
+        plt.contourf(Times, Freqs, logC, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Logarithmic PSD C" + timetitle)
+        plt.savefig(savepath + "PSD_C" + timestr)
+        plt.close()
+
+        BA_AC_diff = logBA - logAC
+        BA_BC_diff = logBA - logBC
+        BC_AC_diff = logBC - logAC
+
+        plt.contourf(Times, Freqs, BA_AC_diff, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Log10(CSD BA) - log10(CSD AC)" + timetitle)
+        plt.savefig(savepath + "BA_AC_diff" + timestr)
+        plt.close()
+
+        plt.contourf(Times, Freqs, BA_BC_diff, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Log10(CSD BA) - log10(CSD BC)" + timetitle)
+        plt.savefig(savepath + "BA_BC_diff" + timestr)
+        plt.close()
+
+        plt.contourf(Times, Freqs, BC_AC_diff, cmap = "magma")
+        plt.xlabel("Seconds after midnight")
+        plt.ylabel("Frequency")
+        plt.colorbar()
+        plt.title("Log10(CSD BC) - log10(CSD AC)" + timetitle)
+        plt.savefig(savepath + "BC_AC_diff" + timestr)
+        plt.close()
 
 
 if __name__ == "__main__":
@@ -262,9 +314,9 @@ if __name__ == "__main__":
     # t1 = 49000
     # n = 10000
 
-    t0s = [0, 3000, 3750]
-    t1s = [49000, 8000, 4600]
-    ns = [10000, 1000, 200]
+    t0s = [0, 1000, 1100]
+    t1s = [49000, 8000, 1500]
+    ns = [10000, 1000, 50]
     for i in range(len(t0s)):
         n_window = int((t1s[i]-t0s[i])/ns[i]*2)*2
         window = windows.general_gaussian(n_window, 1, sig = n_window/4)
