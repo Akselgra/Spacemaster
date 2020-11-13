@@ -108,7 +108,7 @@ class SynthDat():
         if stepwidth:
             stepwidth = width/4
 
-        for m in range(self.m): #filling data from gauss_curve2d
+        for m in range(self.m): #filling data from flatfunc
             curr_mean = meanx + partsize*m*self.dx
             ind0 = partsize*m
             for i in range(self.n):
@@ -125,7 +125,45 @@ class SynthDat():
 
 
 
+    def rand_flat_grid(self):
+        """
+        Initializes a grid with flat bubbles
+        with random amplitude, width and stepwidth
+        """
 
+        A_base = self.amplitude  
+        xs = np.arange(n)*self.dx
+        ys = np.arange(n)*self.dx
+        Xs, Ys = np.meshgrid(xs, ys)
+
+        data = np.zeros_like(Xs)
+
+        partsize = int(self.n/self.m) #grid points in each top
+        meanx = partsize/2*self.dx # position of tops in  x direction
+        meany = self.n/2*self.dx
+    
+        width_base = meanx/2
+        
+
+        for m in range(self.m): #filling data from flatfunc
+            curr_mean = meanx + partsize*m*self.dx
+            ind0 = partsize*m
+            
+            width = width_base * np.random.uniform(0.2, 1)#randomize variables
+            stepwidth = width/4
+            A = A_base*np.random.uniform(0.2, 1)
+            
+            for i in range(self.n):
+                for j in range(partsize):
+                    x_ind = i
+                    y_ind = ind0 + j
+                    x = Xs[x_ind, y_ind]
+                    y = Ys[x_ind, y_ind]
+                    data[x_ind, y_ind] = self.flatfunc(A, x, y, width, stepwidth,\
+                                                       curr_mean, meany)
+        self.Xs = Xs
+        self.Ys = Ys
+        self.data = data
 
 
 
@@ -133,11 +171,11 @@ class SynthDat():
 if __name__ == "__main__":
     fs = 2
     v = 7615
-    n = 1000
-    m = 5
+    n = 500
+    m = 3
     amplitude = 225000
     obj = SynthDat(fs = fs, v = v, n = n, m = m, amplitude = amplitude)
-    obj.flatgrid()
+    obj.rand_flat_grid()
     data = obj.data
     Xs = obj.Xs
     Ys = obj.Ys
@@ -146,5 +184,5 @@ if __name__ == "__main__":
     plt.colorbar()
     plt.show()
 
-    plt.plot(Xs[500, :], data[500, :])
+    plt.plot(Xs[int(n/2), :], data[int(n/2), :])
     plt.show()
