@@ -88,6 +88,35 @@ class SynthDat():
         else:
             return B
 
+    
+    def flatfunc_vec(self, A, satpos, width, stepwidth, bobpos):
+        """
+        Generalized flatfunc for any dimension
+        -----------------------------------------------
+        takes:
+            A - scalar max amplitude
+            satpos - array with [x, y, ...] positions of satellite
+            width - width of bubble
+            stepwidth - width of incline
+            bobpos - array with [x, y, ...] positions of bubble
+        
+        returns:
+            Electron density at satellite position
+        """
+        
+        B = self.background
+        width_circ = width + stepwidth
+        incline = (A-B)/stepwidth
+        r = np.sqrt(np.sum((satpos - bobpos)**2))
+        
+        if r <= width:
+            return A
+
+        elif width < r < width_circ:
+            return(-(r- width)*incline + A)
+
+        else:
+            return B
 
     def flatgrid(self, width = True, stepwidth = True):
         """
@@ -159,8 +188,10 @@ class SynthDat():
                     y_ind = ind0 + j
                     x = Xs[x_ind, y_ind]
                     y = Ys[x_ind, y_ind]
-                    data[x_ind, y_ind] = self.flatfunc(A, x, y, width, stepwidth,\
-                                                       curr_mean, meany)
+                    satpos = np.array([x, y])
+                    bubpos = np.array([curr_mean, meany])
+                    data[x_ind, y_ind] = self.flatfunc_vec(A, satpos, width, stepwidth,\
+                                                       bubpos)
         self.Xs = Xs
         self.Ys = Ys
         self.data = data
@@ -172,7 +203,7 @@ if __name__ == "__main__":
     fs = 2
     v = 7615
     n = 500
-    m = 3
+    m = 1
     amplitude = 225000
     obj = SynthDat(fs = fs, v = v, n = n, m = m, amplitude = amplitude)
     obj.rand_flat_grid()
