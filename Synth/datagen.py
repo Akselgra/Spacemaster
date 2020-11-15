@@ -24,6 +24,7 @@ class SynthDat():
         self.m = m
         self.amplitude = amplitude
         self.background = background
+        self.data = np.zeros((n, n))
 
 
     def gauss_curve2d(self, amplitude, x, y, meanx, meany, stdx, stdy):
@@ -104,9 +105,8 @@ class SynthDat():
             Electron density at satellite position
         """
         
-        B = self.background
         width_circ = width + stepwidth
-        incline = (A-B)/stepwidth
+        incline = (A)/stepwidth
         r = np.sqrt(np.sum((satpos - bobpos)**2))
         
         if r <= width:
@@ -116,7 +116,7 @@ class SynthDat():
             return(-(r- width)*incline + A)
 
         else:
-            return B
+            return 0
 
     def flatgrid(self, width = True, stepwidth = True):
         """
@@ -197,19 +197,63 @@ class SynthDat():
         self.data = data
 
 
+    def add_bubble(self, A, width, stepwidth, bobpos):
+        """
+        Adds bubble to data from flatfunc_vec method
+        """
+        xs = np.arange(n)*obj.dx
+        ys = np.arange(n)*obj.dx
+        Xs, Ys = np.meshgrid(xs, ys)
+        for i in range(len(self.data)):
+            for j in range(len(self.data[i])):
+                self.data[i,j] += obj.flatfunc_vec(A, np.array([Xs[i, j], Ys[i, j]]), width, stepwidth, bobpos)
+                
+    
+    def density(self, r, C = 6.022e23):
+        """
+        The density of a bubble with a constant electron count.
+        standard of C is set to Avogadros number/10
+        """
+        return(3/4 * C/np.pi * 1/(r**3))
+        
 
 
 if __name__ == "__main__":
     fs = 2
     v = 7615
     n = 500
-    m = 1
+    m = 9
     amplitude = 225000
     obj = SynthDat(fs = fs, v = v, n = n, m = m, amplitude = amplitude)
-    obj.rand_flat_grid()
+    '''obj.rand_flat_grid()
     data = obj.data
     Xs = obj.Xs
-    Ys = obj.Ys
+    Ys = obj.Ys'''
+    
+    xs = np.arange(n)*obj.dx
+    ys = np.arange(n)*obj.dx
+    Xs, Ys = np.meshgrid(xs, ys)
+    
+    pos1 = np.array([obj.dx*250, obj.dx*250])
+    width1 = 100*obj.dx
+    stepwidth1 = width1/10
+    A1 = obj.density(width1)
+    
+    
+    pos2 = np.array([obj.dx*69, obj.dx*100])
+    width2 = 40*obj.dx
+    stepwidth2 = width1/5
+    A2 = obj.density(width2)
+    
+    pos3 = np.array([obj.dx*50, obj.dx*360])
+    width3 = 50*obj.dx
+    stepwidth3 = width3/5
+    A3 = obj.density(width3)
+    
+    obj.add_bubble(A1, width1, stepwidth1, pos1)
+    obj.add_bubble(A2, width2, stepwidth2, pos2)
+    obj.add_bubble(A3, width3, stepwidth3, pos3)
+    data = obj.data
 
     plt.pcolormesh(Xs, Ys, data, cmap = "magma")
     plt.colorbar()
