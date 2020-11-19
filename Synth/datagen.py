@@ -97,7 +97,8 @@ class SynthDat():
         The density of a bubble with a constant electron count.
         standard of C is set to Avogadros number
         """
-        return(3/4 * C/np.pi * 1/(r**3))
+        area = 4/3*np.pi*r**3
+        return(C/area)
 
 
     def multibob(self, satpos, bobpos, width, stepwidth, A):
@@ -147,6 +148,10 @@ class SynthDat():
         A = np.zeros_like(width)
         dt = times[1] - times[0]
 
+        for i in range(len(bobpos)):
+            bobpos[i] = bobpos[i] + t0*bobvel[i]
+            width[i] = width[i] + t0*diffus[i]
+
         for i in range(n):
             satpos = satpos + satdir*self.v*dt#update satellite position
 
@@ -184,7 +189,7 @@ if __name__ == "__main__":
     bobvel1 = np.array([0, 0])*v
     bobvel2 = np.array([0, 0])*v
     bobvel3 = np.array([0, 0])*v
-    bobvel4 = np.array([-0.2, 0])*v
+    bobvel4 = np.array([0, 0])*v
     bobvel = np.array([bobvel1, bobvel2, bobvel3, bobvel4])
 
     satpos = np.array([0, 0])
@@ -192,29 +197,40 @@ if __name__ == "__main__":
 
     width = np.array([50])*v
     C = np.array([c])
-    diffus = np.array([0.1])*v
-    bobpos = np.array([np.array([-500, 0])])*v
-    bobvel = np.array([np.array([10, 0])])*v
+    diffus = np.array([0.01])*v
+    bobpos = np.array([np.array([150, 0])])*v
+    bobvel = np.array([np.array([-0.05, 0])])*v
 
-    # satpossies = np.linspace(0, t1*v, n)
-    # xs = np.linspace(-500*v, 500*v, 500)
-    # ys = np.linspace(-500*v, 500*v, 500)
-    # Xs, Ys = np.meshgrid(xs, ys)
-    #
-    # data = np.zeros_like(Xs)
-    # for i in range(len(data)):
-    #     for j in range(len(data[i])):
-    #         possies = np.array([Xs[i, j], Ys[i, j]])
-    #         data[i, j] = obj.multibob(possies, bobpos, width, width/5, obj.density(width))
-    #
-    # plt.figure()
-    # plt.pcolormesh(Xs, Ys, data, cmap = "magma")
-    # plt.colorbar()
-    # plt.plot(satpossies, np.zeros_like(satpossies), "r.")
-    # plt.legend(["Satellite path"])
-    # plt.show()
+    satpossies = np.linspace(0, t1*v, n)
+    xs = np.linspace(-500*v, 500*v, 500)
+    ys = np.linspace(-500*v, 500*v, 500)
+    Xs, Ys = np.meshgrid(xs, ys)
+
+    data = np.zeros_like(Xs)
+    for i in range(len(data)):
+        for j in range(len(data[i])):
+            possies = np.array([Xs[i, j], Ys[i, j]])
+            data[i, j] = obj.multibob(possies, bobpos, width, width/5, obj.density(width))
+
+    plt.figure()
+    plt.pcolormesh(Xs, Ys, data, cmap = "magma")
+    plt.colorbar()
+    plt.plot(satpossies, np.zeros_like(satpossies), "r.")
+    plt.legend(["Satellite path"])
+    plt.show()
 
     nes = obj.satrun(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
+
+    t0 += 50
+    t1 += 50
+    n = int((t1 - t0)*fs)
+    nes2 = obj.satrun(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
+
     times = np.linspace(t0, t1, n)
-    plt.plot(times, nes)
+    xs = np.linspace(0, v*(t1 - t0), n)
+    plt.plot(xs/v, nes)
+    plt.plot(xs/v, nes2)
+    plt.xlabel("x/v (basically time)")
+    plt.ylabel("Electron density")
+    plt.legend(["t0 = 0", "t0 = 50"])
     plt.show()
