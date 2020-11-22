@@ -164,6 +164,42 @@ class SynthDat():
 
         return(nes)
 
+
+    def satrun2(self,t0, t1, satpos, satdir, bobpos, bobvel, width, A, growth):
+        """
+        Generates synthetic data for one satellite.
+        takes:
+            t0 - initial sampling time [s]
+            t1 - final sampling time [s]
+            satpos - array with initial satellite positions [m]
+            satdir - direction of satellite velocity
+            bobpos - list of initial bubble positions [m]
+            bobvel - list of bubble velocities [m/s]
+            width - list of initial bubble widths [m]
+            A - list of electron density in bubble
+            growth - time derivative of width [m/s]
+        returns:
+        nes - array with electron density values
+        """
+
+        n = int((t1 - t0)*self.fs) #nr of samples
+        times = np.linspace(t0, t1, n)
+        nes = np.zeros(n)
+        stepwidth = np.zeros_like(width)
+        dt = times[1] - times[0]
+
+        for i in range(n):
+            satpos = satpos + satdir*self.v*dt #update satellite position
+
+            for j in range(len(bobpos)):
+                bobpos[j] = bobpos[j] + bobvel[j]*dt #update bubble positions
+                width[j] = width[j] + growth[j]*dt #update bubble width
+                stepwidth[j] = width[j]/10
+            nes[i] = self.multibob(satpos, bobpos, width, stepwidth, A)
+
+        return(nes)
+
+
 if __name__ == "__main__":
     t0 = 0
     t1 = 400
@@ -206,25 +242,25 @@ if __name__ == "__main__":
     ys = np.linspace(-500*v, 500*v, 500)
     Xs, Ys = np.meshgrid(xs, ys)
 
-    data = np.zeros_like(Xs)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            possies = np.array([Xs[i, j], Ys[i, j]])
-            data[i, j] = obj.multibob(possies, bobpos, width, width/5, obj.density(width))
+    # data = np.zeros_like(Xs)
+    # for i in range(len(data)):
+    #     for j in range(len(data[i])):
+    #         possies = np.array([Xs[i, j], Ys[i, j]])
+    #         data[i, j] = obj.multibob(possies, bobpos, width, width/5, obj.density(width))
+    #
+    # plt.figure()
+    # plt.pcolormesh(Xs, Ys, data, cmap = "magma")
+    # plt.colorbar()
+    # plt.plot(satpossies, np.zeros_like(satpossies), "r.")
+    # plt.legend(["Satellite path"])
+    # plt.show()
 
-    plt.figure()
-    plt.pcolormesh(Xs, Ys, data, cmap = "magma")
-    plt.colorbar()
-    plt.plot(satpossies, np.zeros_like(satpossies), "r.")
-    plt.legend(["Satellite path"])
-    plt.show()
-
-    nes = obj.satrun(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
+    nes = obj.satrun2(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
 
     t0 += 50
     t1 += 50
     n = int((t1 - t0)*fs)
-    nes2 = obj.satrun(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
+    nes2 = obj.satrun2(t0, t1, satpos, satdir, bobpos, bobvel, width, C, diffus)
 
     times = np.linspace(t0, t1, n)
     xs = np.linspace(0, v*(t1 - t0), n)
