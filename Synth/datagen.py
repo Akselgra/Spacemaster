@@ -188,14 +188,17 @@ class SynthDat():
         stepwidth = np.zeros_like(width)
         dt = times[1] - times[0]
 
+        temp_bobpos = np.zeros_like(bobpos) + bobpos
+
         for i in range(n):
             satpos = satpos + satdir*self.v*dt #update satellite position
 
             for j in range(len(bobpos)):
-                bobpos[j] = bobpos[j] + bobvel[j]*dt #update bubble positions
+                temp_bobpos[j] = temp_bobpos[j] + bobvel[j]*dt #update bubble positions
                 width[j] = width[j] + growth[j]*dt #update bubble width
                 stepwidth[j] = width[j]/10
-            nes[i] = self.multibob(satpos, bobpos, width, stepwidth, A)
+            nes[i] = self.multibob(satpos, temp_bobpos, width, stepwidth, A)
+
 
         return(nes)
 
