@@ -24,7 +24,7 @@ satpos3 = np.array([-123, 0])*v
 
 bobpos = np.array([150, 0])*v
 bobpos = np.array([bobpos])
-bobvel = np.array([694, 0])
+bobvel = np.array([0, 0])
 
 
 
@@ -32,7 +32,7 @@ bobvel = np.array([bobvel])
 
 width = np.array([25])*v
 A = np.array([1e5])
-growth = np.array([0])
+growth = np.array([25])
 
 n = int(fs*(t1 - t0))
 times = np.linspace(t0, t1, n)
@@ -44,9 +44,12 @@ xposB = times*v*satdir[0] + satpos1[0]
 xposA = times*v*satdir[0] + satpos2[0]
 xposC = times*v*satdir[0] + satpos3[0]
 
+
 plt.plot(times, dataB)
 plt.plot(times, dataA)
 plt.plot(times, dataC)
+plt.xlabel("Time [s]")
+plt.ylabel("Electron density")
 plt.show()
 
 BA_shift = pro.timeshift_latitude(xposB, xposA, start = 0, stop = 500, shifts = 500)
@@ -64,6 +67,8 @@ dataC = dataC[ind0 + BC_shift:ind1 + BC_shift]
 plt.plot(times, dataB)
 plt.plot(times, dataA)
 plt.plot(times, dataC)
+plt.xlabel("Time [s]")
+plt.ylabel("Electron density")
 plt.show()
 
 diffB = dataB[1:] - dataB[:-1]
@@ -77,6 +82,8 @@ diffC = pro.meanie(diffC, 10)
 plt.plot(diffB)
 plt.plot(diffA)
 plt.plot(diffC)
+plt.xlabel("indices [2*T]")
+plt.ylabel("Electron density")
 plt.show()
 
 B_ind, BA_diff = pro.maxdiff(diffB, diffA)
