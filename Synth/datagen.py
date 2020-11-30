@@ -196,12 +196,12 @@ class SynthDat():
             for j in range(len(bobpos)):
                 temp_bobpos[j] = temp_bobpos[j] + bobvel[j]*dt #update bubble positions
                 width[j] = width[j] + growth[j]*dt #update bubble width
-                stepwidth[j] = width[j]/10
+                stepwidth[j] = width[j]/3
             nes[i] = self.multibob(satpos, temp_bobpos, width, stepwidth, A)
 
         
         if noise:
-            return(nes + np.random.normal(scale = 0.01*A[0], size = np.shape(nes)))
+            return(nes + np.random.normal(scale = 0.05*A[0], size = np.shape(nes)))
         else:
             return(nes)
 

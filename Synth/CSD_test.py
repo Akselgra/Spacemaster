@@ -143,7 +143,7 @@ Freqs, Times = np.meshgrid(freqs, times[:-1])
 
 
 loggy = np.log10(BA_CSDs)
-
+#loggy = BA_CSDs
 plt.figure(2)
 plt.pcolormesh(Times, Freqs, loggy, cmap = "magma")
 plt.colorbar()
