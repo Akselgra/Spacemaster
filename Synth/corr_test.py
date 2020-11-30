@@ -24,7 +24,7 @@ satpos3 = np.array([-123, 0])*v
 
 bobpos = np.array([150, 0])*v
 bobpos = np.array([bobpos])
-bobvel = np.array([0, 0])
+bobvel = np.array([600, 0])
 
 
 
@@ -32,7 +32,7 @@ bobvel = np.array([bobvel])
 
 width = np.array([25])*v
 A = np.array([1e5])
-growth = np.array([25])
+growth = np.array([0])
 
 n = int(fs*(t1 - t0))
 times = np.linspace(t0, t1, n)
@@ -75,9 +75,9 @@ diffB = dataB[1:] - dataB[:-1]
 diffA = dataA[1:] - dataA[:-1]
 diffC = dataC[1:] - dataC[:-1]
 
-diffB = pro.meanie(diffB, 10)
-diffA = pro.meanie(diffA, 10)
-diffC = pro.meanie(diffC, 10)
+diffB = pro.meanie(diffB, 15)
+diffA = pro.meanie(diffA, 15)
+diffC = pro.meanie(diffC, 15)
 
 plt.plot(diffB)
 plt.plot(diffA)

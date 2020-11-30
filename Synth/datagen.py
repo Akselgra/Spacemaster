@@ -165,7 +165,7 @@ class SynthDat():
         return(nes)
 
 
-    def satrun2(self,t0, t1, satpos, satdir, bobpos, bobvel, width, A, growth):
+    def satrun2(self,t0, t1, satpos, satdir, bobpos, bobvel, width, A, growth, noise = True):
         """
         Generates synthetic data for one satellite.
         takes:
@@ -199,8 +199,11 @@ class SynthDat():
                 stepwidth[j] = width[j]/10
             nes[i] = self.multibob(satpos, temp_bobpos, width, stepwidth, A)
 
-
-        return(nes)
+        
+        if noise:
+            return(nes + np.random.normal(scale = 0.01*A[0], size = np.shape(nes)))
+        else:
+            return(nes)
 
 
 if __name__ == "__main__":
