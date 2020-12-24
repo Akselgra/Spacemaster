@@ -62,18 +62,18 @@ for j in range(len(mids)):
 # ys += sin
 ys += np.random.normal(size = len(ys))
 
-Freqs, Times, ffts = pro.fft_time(ys, 100, fs)
+Freqs, Times, ffts = pro.fft_time(ys, 10, fs)
 
 ffts = np.abs(ffts) + 1e-16
 #ffts = np.log10(ffts)
 
-plt.figure(1)
-plt.plot(xs, ys)
-plt.grid(b = True)
-
-plt.figure(2)
-plt.pcolormesh(Times, Freqs, np.log10(ffts), cmap = "magma")
-plt.colorbar()
+# plt.figure(1)
+# plt.plot(xs, ys)
+# plt.grid(b = True)
+#
+# plt.figure(2)
+# plt.pcolormesh(Times, Freqs, np.log10(ffts), cmap = "magma")
+# plt.colorbar()
 
 
 freqs = Freqs[0, :]
@@ -87,13 +87,24 @@ times = Times[:, 0]
 #     fourier_ints[i] = np.sum(ffts[:int(len(freqs)/8), i])*df
 
 
-temp_ffts = ffts[:50, :int(len(times))]
-fourier_int = np.sum(temp_ffts, axis = 1)*df
-print(np.shape(temp_ffts))
+temp_ffts1 = ffts[:int(len(times)), :]
+temp_ffts2 = ffts[:int(len(times)), :50]
+fourier_int1 = np.sum(temp_ffts1, axis = 1)*df
+fourier_int2 = np.sum(temp_ffts2, axis = 1)*df
+
+print(np.shape(temp_ffts1))
+print(np.shape(Times[:, 0]))
 
 
+# plt.figure(3)
+# plt.plot(Times[:, 0], fourier_int1)
+# plt.grid(b = True)
+#
+# plt.figure(4)
+# plt.plot(Times[:, 0], fourier_int2)
+# plt.grid(b = True)
+# plt.show()
 
-plt.figure(3)
-plt.plot(Times[:, 0], fourier_int)
-plt.grid(b = True)
+plt.plot(xs, ys/np.max(ys))
+plt.plot(Times[:, 0], fourier_int1/np.max(fourier_int1))
 plt.show()
