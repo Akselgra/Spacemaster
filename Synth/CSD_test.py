@@ -40,7 +40,7 @@ for i in range(n_bob):
     bobpos[i][1] = bobposy[i]
     bobvel[i][0] = bobvelx[i]
     bobvel[i][1] = bobvely[i]
-    
+
 width = np.zeros(n_bob) + 10*v
 A = np.zeros(n_bob)+1e5*0.8 + np.random.random(n_bob)*1e5*0.2
 growth = np.zeros(n_bob) + 75
@@ -100,7 +100,7 @@ indices = np.zeros_like(times)
 for i in range(len(indices)):
     indices[i] = int(times[i]*fs)
 
-    
+
 n_freq = int(indices[1] - indices[0])
 freqs = np.linspace(0, fs/2, n_freq)
 BA_CSDs = []
@@ -110,21 +110,21 @@ AC_CSDs = []
 for i in range(len(indices)-1):
     ind0 = int(indices[i] - n_freq)
     ind1 = int(indices[i+1])
-    
+
     n_window = ind1 - ind0
     window = windows.general_gaussian(n_window, 1, sig = n_window/8)
     curr_dataA = dataA[ind0:ind1]
     curr_dataB = dataB[ind0:ind1]
     curr_dataC = dataC[ind0:ind1]
-    
+
     curr_dataA = curr_dataA - np.mean(curr_dataA)
     curr_dataB = curr_dataB - np.mean(curr_dataB)
     curr_dataC = curr_dataC - np.mean(curr_dataC)
-    
+
     curr_dataA = curr_dataA*window
     curr_dataB = curr_dataB*window
     curr_dataC = curr_dataC*window
-    
+
     BA_cross_spec = pro.cross_spectrum(curr_dataB, curr_dataA)[:n_freq]
     BC_cross_spec = pro.cross_spectrum(curr_dataB, curr_dataC)[:n_freq]
     AC_cross_spec = pro.cross_spectrum(curr_dataA, curr_dataC)[:n_freq]
@@ -132,7 +132,7 @@ for i in range(len(indices)-1):
     BA_CSDs.append(np.abs(BA_cross_spec))
     BC_CSDs.append(np.abs(BC_cross_spec))
     AC_CSDs.append(np.abs(AC_cross_spec))
-    
+
 
 BA_CSDs = np.array(BA_CSDs) + 1e-16
 BC_CSDs = np.array(BC_CSDs) + 1e-16
@@ -149,5 +149,13 @@ plt.pcolormesh(Times, Freqs, loggy, cmap = "magma")
 plt.colorbar()
 plt.xlabel("Time [s]")
 plt.ylabel("Frequency [Hz]")
+#plt.show()
+
+
+Freqs, Times, ffts = pro.fft_time(dataB, 50, fs)
+ffts = np.abs(ffts)
+ffts = np.log10(ffts)
+plt.figure(3)
+plt.pcolormesh(Times, Freqs, ffts, cmap = "magma")
+plt.colorbar()
 plt.show()
-    
