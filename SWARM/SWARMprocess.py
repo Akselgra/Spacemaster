@@ -304,7 +304,10 @@ class SWARMprocess():
         """
         Splits signal into n windows and calculates fourier transform of each
         uses 50% overlap
-
+        parameters:
+            signal - signal to be processed
+            n - width of window
+            fs - sampling frequency
         returns:
             Freqs - 2D array with frequency coordinates
             Times - 2D array with times coordinates
@@ -334,5 +337,39 @@ class SWARMprocess():
         Freqs, Times = np.meshgrid(freqs, times)
 
         return(Freqs, Times, ffts)
+
+
+    def fft_time_integral(self, signal, n, fs, maxfreq = 2):
+        """
+        Calls fft_time and integrates results over frequency.
+        parameters:
+            signal - signal to be processed
+            n - width of window
+            fs - sampling frequency
+            maxfreq - last frequency point evaluated in integral
+        returns:
+            times - array of time points
+            fourier_int - array with integrated fourier values
+        """
+
+        assert maxfreq<=fs, "maxfreq must be lower or equal sampling frequency"
+
+        N = len(signal)
+        N_maxfreq = int(maxfreq/fs*N)
+
+        Freqs, Times, ffts = self.fft_time(signal, n, fs)
+
+        ffts = np.abs(ffts) + 1e-16
+        freqs = Freqs[0, :]
+        df = freqs[1] - freqs[0]
+        times = Times[:, 0]
+
+        temp_ffts = ffts[:int(len(times)), :N_maxfreq]
+        fourier_int = np.sum(temp_ffts, axis = 1)*df
+
+        return(times, fourier_int)
+
+
+
 if __name__ == "__main__":
     pass

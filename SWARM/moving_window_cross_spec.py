@@ -300,6 +300,50 @@ class MovingWindow(SWARMprocess):
         plt.close()
 
 
+    def meaner(self, mean_range = 10):
+        """
+        calculates moving average of electron densities
+        """
+
+        self.NeA = self.meanie(self.NeA, mean_range)
+        self.NeB = self.meanie(self.NeB, mean_range)
+        self.NeC = self.meanie(self.NeC, mean_range)
+
+    def d1_solver(self, t0, t1, n, maxfreq = 2):
+        """
+        Generates integrated fourier spectra over time interval
+        parameters:
+            t0 - initial times
+            t1 - end time
+            n - window width
+            fs - sampling frequency
+        """
+        fs = self.fs
+        self.meaner(10)
+
+        ind0 = int(t0*fs)
+        ind1 = int(t1*fs)
+
+
+        NeA = self.NeA[ind0 + self.BA_shift : ind1 + self.BA_shift]
+        NeB = self.NeB[ind0:ind1]
+        NeC = self.NeC[ind0 + self.BC_shift : ind1 + self.BC_shift]
+        seconds = self.seconds[ind0:ind1]
+        # NeA = NeA - np.mean(NeA)
+        # NeA = NeA/np.std(NeA)
+
+        times, d1_fftA = self.fft_time_integral(NeA, n, fs, maxfreq)
+        times, d1_fftB = self.fft_time_integral(NeB, n, fs, maxfreq)
+        times, d1_fftC = self.fft_time_integral(NeC, n, fs, maxfreq)
+
+        times += t0
+        plt.plot(seconds, NeA/np.max(NeA))
+        plt.plot(times, d1_fftA/np.max(d1_fftA))
+        plt.show()
+
+
+
+
 if __name__ == "__main__":
     object = MovingWindow()
     # t0 = 3750
@@ -314,11 +358,13 @@ if __name__ == "__main__":
     # t1 = 49000
     # n = 10000
 
-    t0s = [0, 1000, 1100]
-    t1s = [49000, 8000, 1500]
-    ns = [10000, 1000, 50]
-    for i in range(len(t0s)):
-        n_window = int((t1s[i]-t0s[i])/ns[i]*2)*2
-        window = windows.general_gaussian(n_window, 1, sig = n_window/4)
-        object.solver(t0s[i], t1s[i], ns[i], window = window)
-        object.diffplot()
+    # t0s = [0, 1000, 1100]
+    # t1s = [49000, 8000, 1500]
+    # ns = [10000, 1000, 50]
+    # for i in range(len(t0s)):
+    #     n_window = int((t1s[i]-t0s[i])/ns[i]*2)*2
+    #     window = windows.general_gaussian(n_window, 1, sig = n_window/4)
+    #     object.solver(t0s[i], t1s[i], ns[i], window = window)
+    #     object.diffplot()
+
+    object.d1_solver(0, 49000, 200, 2)
