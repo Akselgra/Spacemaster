@@ -355,7 +355,7 @@ class SWARMprocess():
         assert maxfreq<=fs, "maxfreq must be lower or equal sampling frequency"
 
         N = len(signal)
-        N_maxfreq = int(maxfreq/fs*N)
+        N_maxfreq = int(maxfreq/fs*n)
 
         Freqs, Times, ffts = self.fft_time(signal, n, fs)
 
