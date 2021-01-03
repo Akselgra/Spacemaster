@@ -215,6 +215,9 @@ class SWARMprocess():
         max1 = indices[np.where(array1 == np.max(array1))]
         max2 = indices[np.where(array2 == np.max(array2))]
 
+        max1 = np.mean(max1)
+        max2 = np.mean(max2)
+
         return(int(max1), int(max1 - max2))
 
     def wavefront_finder(self, array1, array2, array3, mean_range = 10,\
@@ -297,5 +300,39 @@ class SWARMprocess():
 
         return(phase/(2*np.pi*freq))
 
+    def fft_time(self, signal, n, fs):
+        """
+        Splits signal into n windows and calculates fourier transform of each
+        uses 50% overlap
+
+        returns:
+            Freqs - 2D array with frequency coordinates
+            Times - 2D array with times coordinates
+            ffts - list containing fourier transforms
+        """
+
+        N = len(signal)
+
+        m = 0
+        n_temp = 0
+        while n_temp + int(n/2) <= N:
+            m += 1
+            n_temp += int(n/2)
+
+        ffts = []
+        #ffts.append(np.fft.fft(signal[:n])[:int(n/2)])
+        for i in range(1, m):
+            ind1 = int(n/2)*(i - 1)
+            ind2 = int(n/2)*(i + 1)
+            curr_dat = signal[ind1:ind2]
+            ffts.append(np.fft.fft(curr_dat)[:int(n/2)])
+
+        ffts = np.array(ffts)
+
+        times = np.arange(m-1)*int(n/2)/fs + int(n/2)/fs
+        freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        Freqs, Times = np.meshgrid(freqs, times)
+
+        return(Freqs, Times, ffts)
 if __name__ == "__main__":
     pass
