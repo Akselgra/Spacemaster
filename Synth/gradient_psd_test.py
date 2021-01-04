@@ -62,7 +62,7 @@ for j in range(len(mids)):
 # ys += sin
 ys += np.random.normal(size = len(ys))
 
-Freqs, Times, ffts = pro.fft_time(ys, 10, fs)
+Freqs, Times, ffts = pro.fft_time(ys, 100, fs)
 
 ffts = np.abs(ffts) + 1e-16
 #ffts = np.log10(ffts)
@@ -88,7 +88,7 @@ times = Times[:, 0]
 
 
 temp_ffts1 = ffts[:int(len(times)), :]
-temp_ffts2 = ffts[:int(len(times)), :50]
+temp_ffts2 = ffts[:int(len(times)), :5]
 fourier_int1 = np.sum(temp_ffts1, axis = 1)*df
 fourier_int2 = np.sum(temp_ffts2, axis = 1)*df
 
@@ -105,6 +105,19 @@ print(np.shape(Times[:, 0]))
 # plt.grid(b = True)
 # plt.show()
 
+plt.figure(1)
 plt.plot(xs, ys/np.max(ys))
-plt.plot(Times[:, 0], fourier_int1/np.max(fourier_int1))
+plt.plot(Times[:, 0], fourier_int2/np.max(fourier_int1))
+
+Freqs, Times, ffts = pro.fft_time(ys, width, fs)
+plt.figure(2)
+plt.pcolormesh(Times, Freqs, np.log10(np.abs(ffts)), cmap = "magma")
+plt.colorbar()
+
+minfreq = 0.25
+maxfreq = 1
+
+times, fft_ints = pro.fft_time_integral(ys, width, fs, minfreq, maxfreq)
+plt.figure(3)
+plt.plot(times, fft_ints)
 plt.show()

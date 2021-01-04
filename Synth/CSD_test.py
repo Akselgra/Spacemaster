@@ -43,7 +43,7 @@ for i in range(n_bob):
 
 width = np.zeros(n_bob) + 10*v
 A = np.zeros(n_bob)+1e5*0.8 + np.random.random(n_bob)*1e5*0.2
-growth = np.zeros(n_bob) + 75
+growth = np.zeros(n_bob) + 75*np.random.random(n_bob)*0.5 + 75*0.5
 
 
 
@@ -52,9 +52,9 @@ growth = np.zeros(n_bob) + 75
 
 n = int(fs*(t1 - t0))
 times = np.linspace(t0, t1, n)
-dataB = obj.satrun2(t0, t1, satpos1, satdir, bobpos, bobvel, width, A, growth, noise = True)
-dataA = obj.satrun2(t0, t1, satpos2, satdir, bobpos, bobvel, width, A, growth, noise = True)
-dataC = obj.satrun2(t0, t1, satpos3, satdir, bobpos, bobvel, width, A, growth, noise = True)
+dataB = obj.satrun2(t0, t1, satpos1, satdir, bobpos, bobvel, width, A, growth, noise = 0)
+dataA = obj.satrun2(t0, t1, satpos2, satdir, bobpos, bobvel, width, A, growth, noise = 0)
+dataC = obj.satrun2(t0, t1, satpos3, satdir, bobpos, bobvel, width, A, growth, noise = 0)
 
 xposB = times*v*satdir[0] + satpos1[0]
 xposA = times*v*satdir[0] + satpos2[0]
