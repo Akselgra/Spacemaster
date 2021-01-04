@@ -341,6 +341,7 @@ class MovingWindow(SWARMprocess):
         plt.plot(seconds, NeA/np.max(NeA))
         plt.plot(times, d1_fftA/np.max(d1_fftA))
         plt.legend(["Electron density", "Integrated fourier"])
+        plt.grid("on")
 
         plt.figure(2)
         plt.plot(times, d1_fftB)
@@ -350,6 +351,7 @@ class MovingWindow(SWARMprocess):
         plt.ylabel("Fourier integral")
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.title("Integrated fourier series")
+        plt.grid("on")
 
         plt.figure(3)
         plt.plot(seconds, NeB)
@@ -359,6 +361,7 @@ class MovingWindow(SWARMprocess):
         plt.ylabel("Electron density [cm⁻¹]")
         plt.title("Electron densities")
         plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.grid("on")
         plt.show()
 
 
@@ -390,4 +393,4 @@ if __name__ == "__main__":
     #     object.solver(t0s[i], t1s[i], ns[i], window = window)
     #     object.diffplot()
 
-    object.d1_solver(3750, 4600, 100, 2)
+    object.d1_solver(3750, 4600, 10, 2)

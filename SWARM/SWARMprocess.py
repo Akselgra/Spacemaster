@@ -311,7 +311,7 @@ class SWARMprocess():
         returns:
             Freqs - 2D array with frequency coordinates
             Times - 2D array with times coordinates
-            ffts - list containing fourier transforms
+            ffts - array containing fourier transforms
         """
 
         N = len(signal)
@@ -323,11 +323,11 @@ class SWARMprocess():
             n_temp += int(n/2)
 
         ffts = []
-        #ffts.append(np.fft.fft(signal[:n])[:int(n/2)])
         for i in range(1, m):
             ind1 = int(n/2)*(i - 1)
             ind2 = int(n/2)*(i + 1)
             curr_dat = signal[ind1:ind2]
+            curr_dat = curr_dat*np.hanning(len(curr_dat))
             ffts.append(np.fft.fft(curr_dat)[:int(n/2)])
 
         ffts = np.array(ffts)
@@ -338,6 +338,46 @@ class SWARMprocess():
 
         return(Freqs, Times, ffts)
 
+    def CSD_time(self, u, v, n, fs):
+        """
+        Splits signals into n windows and calculates cross spectrum of each
+        uses 50% overlap
+        parameters:
+            u - signal1 to be processed
+            v - signal2 to be processed
+            n - width of window
+            fs - sampling frequency
+        returns:
+            Freqs - 2D array with frequency coordinates
+            Times - 2D array with times coordinates
+            CSDs - array containing CSDs
+        """
+
+        N = len(u)
+
+        m = 0
+        n_temp = 0
+        while n_temp + int(n/2) <= N:
+            m += 1
+            n_temp += int(n/2)
+
+        CSDs = []
+        for i in range(1, m):
+            ind1 = int(n/2)*(i - 1)
+            ind2 = int(n/2)*(i + 1)
+            curr_dat_u = u[ind1:ind2]
+            curr_dat_v = v[ind1:ind2]
+            curr_dat_u = curr_dat_u*np.hanning(len(curr_dat_u))
+            curr_dat_v = curr_dat_v*np.hanning(len(curr_dat_v))
+            CSDs.append(self.cross_spectrum(curr_dat_u, curr_dat_v, fs)[:int(n/2)])
+
+        CSDs = np.array(CSDs)
+
+        times = np.arange(m-1)*int(n/2)/fs + int(n/2)/fs
+        freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        Freqs, Times = np.meshgrid(freqs, times)
+
+        return(Freqs, Times, CSDs)
 
     def fft_time_integral(self, signal, n, fs, maxfreq = 2):
         """
@@ -352,10 +392,9 @@ class SWARMprocess():
             fourier_int - array with integrated fourier values
         """
 
-        assert maxfreq<=fs, "maxfreq must be lower or equal sampling frequency"
+        assert maxfreq<=(fs/2), "maxfreq must be lower or equal sampling frequency"
 
         N = len(signal)
-        N_maxfreq = int(maxfreq/fs*n)
 
         Freqs, Times, ffts = self.fft_time(signal, n, fs)
 
@@ -364,11 +403,44 @@ class SWARMprocess():
         df = freqs[1] - freqs[0]
         times = Times[:, 0]
 
+        N_maxfreq = int(maxfreq/df)
+
         temp_ffts = ffts[:int(len(times)), :N_maxfreq]
         fourier_int = np.sum(temp_ffts, axis = 1)*df
 
         return(times, fourier_int)
 
+    def CSD_time_integral(self, u, v, n, fs, maxfreq = 2):
+        """
+        Calls fft_time and integrates results over frequency.
+        parameters:
+            u - signal1 to be processed
+            v - signal2 to be processed
+            n - width of window
+            fs - sampling frequency
+            maxfreq - last frequency point evaluated in integral
+        returns:
+            times - array of time points
+            CSD_int - array with integrated CSDs
+        """
+
+        assert maxfreq<=(fs/2), "maxfreq must be lower or equal nyquist frequency"
+
+        N = len(signal)
+
+        Freqs, Times, CSDs = self.CSD_time(u, v, n, fs)
+
+        CSDs = np.abs(CSDs) + 1e-16
+        freqs = Freqs[0, :]
+        df = freqs[1] - freqs[0]
+        times = Times[:, 0]
+
+        N_maxfreq = int(maxfreq/df)
+
+        temp_CSDs = CSDs[:int(len(times)), :N_maxfreq]
+        CSD_int = np.sum(temp_CSDs, axis = 1)*df
+
+        return(times, CSD_int)
 
 
 if __name__ == "__main__":
