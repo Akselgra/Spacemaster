@@ -379,20 +379,21 @@ class SWARMprocess():
 
         return(Freqs, Times, CSDs)
 
-    def fft_time_integral(self, signal, n, fs, maxfreq = 2):
+    def fft_time_integral(self, signal, n, fs, minfreq = 0, maxfreq = 1):
         """
         Calls fft_time and integrates results over frequency.
         parameters:
             signal - signal to be processed
             n - width of window
             fs - sampling frequency
-            maxfreq - last frequency point evaluated in integral
+            minfreq - min integral limit
+            maxfreq - max integral limit
         returns:
             times - array of time points
             fourier_int - array with integrated fourier values
         """
 
-        assert maxfreq<=(fs/2), "maxfreq must be lower or equal sampling frequency"
+        assert maxfreq<=(fs/2), "maxfreq must be lower or equal nyquist frequency"
 
         N = len(signal)
 
@@ -404,13 +405,14 @@ class SWARMprocess():
         times = Times[:, 0]
 
         N_maxfreq = int(maxfreq/df)
+        N_minfreq = int(minfreq/df)
 
-        temp_ffts = ffts[:int(len(times)), :N_maxfreq]
+        temp_ffts = ffts[:int(len(times)), N_minfreq:N_maxfreq]
         fourier_int = np.sum(temp_ffts, axis = 1)*df
 
         return(times, fourier_int)
 
-    def CSD_time_integral(self, u, v, n, fs, maxfreq = 2):
+    def CSD_time_integral(self, u, v, n, fs, minfreq = 0, maxfreq = 1):
         """
         Calls fft_time and integrates results over frequency.
         parameters:
@@ -418,7 +420,8 @@ class SWARMprocess():
             v - signal2 to be processed
             n - width of window
             fs - sampling frequency
-            maxfreq - last frequency point evaluated in integral
+            minfreq - min integral limit
+            maxfreq - max integral limit
         returns:
             times - array of time points
             CSD_int - array with integrated CSDs
@@ -426,7 +429,7 @@ class SWARMprocess():
 
         assert maxfreq<=(fs/2), "maxfreq must be lower or equal nyquist frequency"
 
-        N = len(signal)
+        N = len(u)
 
         Freqs, Times, CSDs = self.CSD_time(u, v, n, fs)
 
@@ -436,8 +439,9 @@ class SWARMprocess():
         times = Times[:, 0]
 
         N_maxfreq = int(maxfreq/df)
+        N_minfreq = int(minfreq/df)
 
-        temp_CSDs = CSDs[:int(len(times)), :N_maxfreq]
+        temp_CSDs = CSDs[:int(len(times)), N_minfreq:N_maxfreq]
         CSD_int = np.sum(temp_CSDs, axis = 1)*df
 
         return(times, CSD_int)

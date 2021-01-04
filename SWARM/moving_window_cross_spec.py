@@ -309,7 +309,7 @@ class MovingWindow(SWARMprocess):
         self.NeB = self.meanie(self.NeB, mean_range)
         self.NeC = self.meanie(self.NeC, mean_range)
 
-    def d1_solver(self, t0, t1, n, maxfreq = 2):
+    def d1_solver(self, t0, t1, n, minfreq = 0, maxfreq = 1):
         """
         Generates integrated fourier spectra over time interval
         parameters:
@@ -317,6 +317,8 @@ class MovingWindow(SWARMprocess):
             t1 - end time
             n - window width
             fs - sampling frequency
+            minfreq - min integral limit
+            maxfreq - max integral limit
         """
         fs = self.fs
         self.meaner(10)
@@ -332,9 +334,9 @@ class MovingWindow(SWARMprocess):
         # NeA = NeA - np.mean(NeA)
         # NeA = NeA/np.std(NeA)
 
-        times, d1_fftA = self.fft_time_integral(NeA, n, fs, maxfreq)
-        times, d1_fftB = self.fft_time_integral(NeB, n, fs, maxfreq)
-        times, d1_fftC = self.fft_time_integral(NeC, n, fs, maxfreq)
+        times, d1_fftA = self.fft_time_integral(NeA, n, fs, minfreq, maxfreq)
+        times, d1_fftB = self.fft_time_integral(NeB, n, fs, minfreq, maxfreq)
+        times, d1_fftC = self.fft_time_integral(NeC, n, fs, minfreq, maxfreq)
 
         times += t0
         plt.figure(1)
@@ -344,12 +346,15 @@ class MovingWindow(SWARMprocess):
         plt.grid("on")
 
         plt.figure(2)
-        plt.plot(times, d1_fftB)
-        plt.plot(times, d1_fftA)
-        plt.plot(times, d1_fftC)
+        times_csd, BA_CSD = self.CSD_time_integral(NeB, NeA, n, fs, minfreq, maxfreq)
+        times_csd += t0
+        plt.plot(times_csd, BA_CSD/np.max(BA_CSD))
+        plt.plot(times, d1_fftB/np.max(d1_fftB))
+        plt.plot(times, d1_fftA/np.max(d1_fftA))
+        plt.plot(times, d1_fftC/np.max(d1_fftC))
         plt.xlabel("Time since midnight of sat B [s]")
         plt.ylabel("Fourier integral")
-        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.legend(["CSD_BA","Sat B", "Sat A", "Sat C"])
         plt.title("Integrated fourier series")
         plt.grid("on")
 
@@ -363,6 +368,7 @@ class MovingWindow(SWARMprocess):
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.grid("on")
         plt.show()
+
 
 
 
@@ -393,4 +399,4 @@ if __name__ == "__main__":
     #     object.solver(t0s[i], t1s[i], ns[i], window = window)
     #     object.diffplot()
 
-    object.d1_solver(3750, 4600, 10, 2)
+    object.d1_solver(3750, 4600, 100, 0, 0.2)
