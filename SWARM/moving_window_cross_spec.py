@@ -367,8 +367,14 @@ class MovingWindow(SWARMprocess):
         plt.title("Electron densities")
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.grid("on")
-        plt.show()
 
+
+        fft_diff_ab = self.relative_diff(d1_fftB, d1_fftA)
+        plt.figure(4)
+        plt.plot(times, fft_diff_ab)
+        plt.xlabel("time")
+        plt.ylabel("Relative difference AB")
+        plt.show()
 
 
 
@@ -399,4 +405,4 @@ if __name__ == "__main__":
     #     object.solver(t0s[i], t1s[i], ns[i], window = window)
     #     object.diffplot()
 
-    object.d1_solver(3750, 4600, 100, 0, 0.2)
+    object.d1_solver(3750, 4600, 100, 0.2, 1)
