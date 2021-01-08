@@ -383,7 +383,7 @@ class MovingWindow(SWARMprocess):
 
 
 if __name__ == "__main__":
-    object = MovingWindow()
+    object = MovingWindow(int(1e5))
     # t0 = 3750
     # t1 = 4600
     # n = 100
