@@ -113,10 +113,11 @@ class GenSWARMread(SWARMprocess):
 
 
 if __name__ == "__main__":
+    day = "29"
     data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
-    cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_20131221T000000_20131221T235959_0501.CDF/SW_OPER_EFIA_LP_1B_20131221T000000_20131221T235959_0501_MDR_EFI_LP.cdf"
-    cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_20131221T000000_20131221T235959_0501.CDF/SW_OPER_EFIB_LP_1B_20131221T000000_20131221T235959_0501_MDR_EFI_LP.cdf"
-    cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_20131221T000000_20131221T235959_0501.CDF/SW_OPER_EFIC_LP_1B_20131221T000000_20131221T235959_0501_MDR_EFI_LP.cdf"
+    cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
+    cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
+    cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path)
     hists, bins = object.histmake(minfreq = 0, maxfreq = 0.33)
     BA_hist1 = hists[0]
