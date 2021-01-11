@@ -57,7 +57,8 @@ class GenSWARMread(SWARMprocess):
         self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
         self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
 
-    def histmake(self, n = 200, t0 = 0, t1 = 85000, minfreq = 0, maxfreq = True):
+    def histmake(self, n = 100, t0 = 0, t1 = 85000, minfreq = 0, maxfreq = True,\
+                 bins = 10):
         """
         make histograms of relative difference in integrated fouriers.
 
@@ -93,7 +94,6 @@ class GenSWARMread(SWARMprocess):
         fft_diff_AC = self.relative_diff(fft_intB, fft_intC)
 
         #making histograms
-        bins = 10
         histBA, binsBA = np.histogram(fft_diff_BA, bins = bins)
         histBC, binsBC = np.histogram(fft_diff_BC, bins = bins)
         histAC, binsAC = np.histogram(fft_diff_AC, bins = bins)
@@ -134,29 +134,48 @@ if __name__ == "__main__":
     BA_bins3 = bins[0]
     width3 = BA_bins3[1] - BA_bins3[0]
 
+    df1 = BA_bins1[1] - BA_bins1[0]
+    norm1 = np.sum(BA_hist1)*df1
+
+    df2 = BA_bins2[1] - BA_bins2[0]
+    norm2 = np.sum(BA_hist2)*df2
+
+    df3 = BA_bins3[1] - BA_bins3[0]
+    norm3 = np.sum(BA_hist3)*df3
+
     plt.figure(1)
-    plt.bar(BA_bins1, BA_hist1, width = width1*0.9)
+    plt.bar(BA_bins1, BA_hist1/norm1, width = width1*0.9)
     plt.title("F: 0 - 0.33")
     plt.xlabel("relative difference")
-    plt.ylabel("Nr of occurences")
+    plt.ylabel("Normalized occurance rate")
     plt.savefig("Figures/testhist_F_0_033.png")
 
     plt.figure(2)
-    plt.bar(BA_bins2, BA_hist2, width = width2*0.9)
+    plt.bar(BA_bins2, BA_hist2/norm3, width = width2*0.9)
     plt.title("F: 0.33 - 0.66")
     plt.xlabel("relative difference")
-    plt.ylabel("Nr of occurences")
+    plt.ylabel("Normalized occurence rate")
     plt.savefig("Figures/testhist_F_033_066.png")
 
     plt.figure(3)
-    plt.bar(BA_bins3, BA_hist3, width = width3*0.9)
+    plt.bar(BA_bins3, BA_hist3/norm3, width = width3*0.9)
     plt.title("F: 0.66 - 1")
     plt.xlabel("relative difference")
-    plt.ylabel("Nr of occurences")
+    plt.ylabel("Normalized occurence rate")
     plt.savefig("Figures/testhist_F_066_1.png")
     plt.show()
 
-    plt.plot(BA_bins1, BA_hist1)
-    plt.plot(BA_bins2, BA_hist2)
-    plt.plot(BA_bins3, BA_hist3)
+    plt.plot(BA_bins1, BA_hist1/norm1)
+    plt.plot(BA_bins2, BA_hist2/norm2)
+    plt.plot(BA_bins3, BA_hist3/norm3)
+    plt.legend(["0 - 0.33", "0.33 - 0.66", "0.66 - 1"])
+    plt.show()
+
+    BC_hist = hists[1]
+    BC_bins = bins[1]
+    dw = BC_bins[1] - BC_bins[0]
+    norm = np.sum(BC_hist)*dw
+
+    plt.plot(BA_bins3, BA_hist3/norm3)
+    plt.plot(BC_bins, BC_hist/norm)
     plt.show()

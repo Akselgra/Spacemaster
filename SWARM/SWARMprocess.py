@@ -446,7 +446,7 @@ class SWARMprocess():
 
         return(times, CSD_int)
 
-    def relative_diff(self, array1, array2):
+    def relative_diff(self, array1, array2, abs = True, norm = True):
         """
         Takes 2 arrays and returns relative difference
         |array1 - array2|/max(array1, array2)
@@ -460,14 +460,18 @@ class SWARMprocess():
 
         assert len(array1)==len(array2), "array1 and array2 must be of equal length"
 
-        diff = np.abs(array1 - array2)
+        if abs:
+            diff = np.abs(array1 - array2)
+        else:
+            diff = array1 - array2
 
         normals = np.zeros_like(array1) #normalization array
 
         for i in range(len(normals)):
             normals[i] = np.max(np.array([array1[i], array2[i]]))
 
-        diff = diff/normals
+        if norm:
+            diff = diff/normals
         return(diff)
 
 
