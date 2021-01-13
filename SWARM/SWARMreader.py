@@ -240,4 +240,4 @@ def idek():
     plt.legend(["Distance", "lat A", "lat B", "lat diff", "long diff"])
     plt.show()
 
-polar_plotter()
+timediff_inspect()

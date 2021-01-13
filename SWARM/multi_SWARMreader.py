@@ -19,7 +19,8 @@ class MultiSWARM():
     Designed for specific file structures.
     """
 
-    def __init__(self, year1, month1, day1, year2, month2, day2):
+    def __init__(self, year1, month1, day1, year2, month2, day2,\
+                 day0 = 9, month0 = 12, year0 = 2013 ):
         """
         parameters:
             year1 - int; year of first data file
@@ -28,7 +29,14 @@ class MultiSWARM():
             year2 - int; year of last data file
             month2 - int; month of last data file
             day2 - int; day of last data file
+            day0 - int; day of first file
+            month0 - int; month of first file
+            year0 - int; year of first file
+
         """
+        self.year0 = year0
+        self.month0 = month0
+        self.day0 = day0
         self.year1 = year1
         self.month1 = month1
         self.day1 = day1
@@ -37,6 +45,38 @@ class MultiSWARM():
         self.day2 = day2
 
         self.data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
+
+        #calculating indices for looping over data files
+        start_days = 0
+        days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        tot_month_days0 = 0
+        tot_month_days1 = 0
+        tot_month_days2 = 0
+        for i in range(month0-1):
+            tot_month_days0 += days_per_month[i]
+
+        for i in range(month1-1):
+            tot_month_days1 += days_per_month[i]
+
+        for i in range(month2-1):
+            tot_month_days2 += days_per_month[i]
+
+        init_loop_index = 365*year1 + tot_month_days1 + day1\
+                        -(365*year0 + tot_month_days0 + day0)
+
+        end_loop_index = 365*year2 + tot_month_days2 + day2\
+                       - (365*year0 + tot_month_days0 + day0)
+
+        self.init_loop_index = init_loop_index
+        self.end_loop_index = end_loop_index + 1
+
+        if self.init_loop_index < 0:
+            raise ValueError("initial date must be higher or equal to base date")
+        if self.end_loop_index < self.init_loop_index:
+            raise ValueError("end date must be higher than initial date")
+
+
+
 
 
 
@@ -108,7 +148,7 @@ class MultiSWARM():
         cdfB.sort()
         pathB = pathB + "/" + cdfB[1]
 
-        pathC = self.data_path + "/Sat_A"
+        pathC = self.data_path + "/Sat_C"
         dirsC = os.listdir(pathC)
         dirsC.sort()
         pathC = pathC + "/" + dirsC[ind]
@@ -118,16 +158,116 @@ class MultiSWARM():
 
         files = [pathA, pathB, pathC]
 
-        print(pathA)
-        print(pathB)
-        print(pathC)
         return(files)
 
-if __name__ == "__main__":
-    object = MultiSWARM(1,1,1,2,2,2)
-    files = object.gen_filenames(25)
 
-    genread = GenSWARMread(files[0], files[1], files[2])
-    hists, bins = genread.histmake()
-    plt.bar(bins[0], hists[0], width = (bins[0][1] - bins[0][0])*0.9)
+    def multi_histmake(self, n = 100, minfreq = 0, maxfreq = True,\
+                 bins_ = 10, abs = False, norm = True):
+        """
+        make histograms of relative difference in integrated fouriers using
+        multiple dates of data
+
+        Parameters:
+            n - int; number of indices in time window used in fft_time_integral
+            t0 - float; start time
+            t1 - float; end time
+            minfreq - float; lower integral limit
+            maxfreq - float; higher integral limit
+            bins_ - int; number of bin edges.
+
+        returns:
+            hists; list of histograms [BC, BA, AC]
+            bins; list of bins [BC, BA, AC]
+        """
+
+        binlist = np.linspace(-1, 1, bins_)
+
+        for i in range(self.init_loop_index, self.end_loop_index):
+            files = self.gen_filenames(i)
+            data = GenSWARMread(files[0], files[1], files[2])
+
+            print(i)
+            if data.samelength != True: #checks that data files are complete
+                print("data file %g was not complete" % i)
+                continue
+
+            if maxfreq:
+                maxfreq = data.fs/2
+            histsA = np.zeros_like(binlist[:-1])
+            histsB = np.zeros_like(binlist[:-1])
+            histsC = np.zeros_like(binlist[:-1])
+            t0 = data.seconds[200]
+            t1 = data.seconds[-1600] #data set is sliced to make room for index shifting
+
+
+            temp_hists, bins = data.histmake(n = n, minfreq = minfreq, maxfreq = maxfreq,\
+                                        t0 = t0, t1 = t1, bins = binlist, abs = abs, norm = norm)
+
+            histsA = histsA + temp_hists[0]
+            histsB = histsB + temp_hists[1]
+            histsC = histsC + temp_hists[2]
+
+            hists = np.array([histsA, histsB, histsC])
+        return(hists, bins)
+
+
+    def testymctestface(self):
+        """
+        tests testy testfaces
+        """
+        for i in range(self.init_loop_index, self.end_loop_index):
+            files = self.gen_filenames(i)
+            data = GenSWARMread(files[0], files[1], files[2])
+            if data.samelength != True:
+                continue
+
+            shifts = 7000
+            start = 0
+            stop = 20000
+            lat1 = data.latA
+            lat2 = data.latC
+            meandist = np.zeros(shifts)
+            indices = np.arange(shifts)
+
+            for j in range(shifts):
+                meandist[j] = np.mean(np.abs(lat1[start:stop] - lat2[start + j: stop + j]))
+
+            plt.plot(indices/2,1 - meandist/np.max(meandist))
+            plt.title("day %g" % (self.day0 + i))
+            plt.xlabel("Time shifted [s]")
+            plt.ylabel("normalized mean distance in latitude")
+            plt.show()
+
+
+
+
+
+
+if __name__ == "__main__":
+    object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
+    minfreq = 0
+    maxfreq = 1/3
+    hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
+
+
+
+    widthA = bins[0][1] - bins[0][0]
+    BA_hist = hists[0]/np.sum(hists[0]*widthA)
+
+    std = np.std(BA_hist*bins[0])
+    mean = np.mean(BA_hist*bins[0])
+    x = np.linspace(-1, 1, 1000)
+    pro = SWARMprocess()
+    gaussian = pro.gauss_curve(x, std = std, mean = mean)
+
+    print(std)
+    print(mean)
+
+    plt.figure(1)
+    plt.bar(bins[0], BA_hist, width = 0.9*widthA)
+    plt.xlabel("relative difference B - A")
+    plt.ylabel("Normalized occurence")
+    plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
+    plt.plot(x, gaussian, "r")
+    plt.legend(["gaussian approximation", "B-A histogram"])
     plt.show()

@@ -454,6 +454,8 @@ class SWARMprocess():
         parameters:
             array1 - array
             array2 - array
+            abs - bool; if True, will take absolute value
+            norm - bool; if True, will normalize
         returns:
             diff - array
         """

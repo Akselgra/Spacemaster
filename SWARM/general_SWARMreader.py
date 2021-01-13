@@ -30,35 +30,43 @@ class GenSWARMread(SWARMprocess):
         self.cdfB = pycdf.CDF(filenameB)
         self.cdfC = pycdf.CDF(filenameC)
         #Retrieving data from CDF files.
-        if N:
-            N = len(self.cdfA["Ne"])
-        self.NeA = self.cdfA["Ne"][:N]
-        self.NeB = self.cdfB["Ne"][:N]
-        self.NeC = self.cdfC["Ne"][:N]
 
-        self.longA = self.cdfA["Longitude"][:N]
-        self.longB = self.cdfB["Longitude"][:N]
-        self.longC = self.cdfC["Longitude"][:N]
+        self.samelength = True
 
-        self.latA = self.cdfA["Latitude"][:N]
-        self.latB = self.cdfB["Latitude"][:N]
-        self.latC = self.cdfC["Latitude"][:N]
+        if len(self.cdfA["Ne"]) == len(self.cdfB["Ne"]) == len(self.cdfC["Ne"]):
+            if N:
+                N = len(self.cdfA["Ne"])
 
-        self.radA = self.cdfA["Radius"][:N]
-        self.radB = self.cdfB["Radius"][:N]
-        self.radC = self.cdfC["Radius"][:N]
+            self.NeA = self.cdfA["Ne"][:N]
+            self.NeB = self.cdfB["Ne"][:N]
+            self.NeC = self.cdfC["Ne"][:N]
 
-        #Setting time to seconds after midnight
-        self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:N])
-        self.stamps = self.cdfA["Timestamp"][:N]
+            self.longA = self.cdfA["Longitude"][:N]
+            self.longB = self.cdfB["Longitude"][:N]
+            self.longC = self.cdfC["Longitude"][:N]
 
-        self.fs = 2
+            self.latA = self.cdfA["Latitude"][:N]
+            self.latB = self.cdfB["Latitude"][:N]
+            self.latC = self.cdfC["Latitude"][:N]
 
-        self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
-        self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
+            self.radA = self.cdfA["Radius"][:N]
+            self.radB = self.cdfB["Radius"][:N]
+            self.radC = self.cdfC["Radius"][:N]
 
+            #Setting time to seconds after midnight
+            self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:N])
+            self.stamps = self.cdfA["Timestamp"][:N]
+
+            #self.fs = 2
+            self.fs = 1/(self.seconds[1] - self.seconds[0])
+
+            self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
+            self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
+
+        else:
+            self.samelength = False
     def histmake(self, n = 100, t0 = 0, t1 = 85000, minfreq = 0, maxfreq = True,\
-                 bins = 10):
+                 bins = 10, abs = False, norm = True):
         """
         make histograms of relative difference in integrated fouriers.
 
@@ -68,15 +76,22 @@ class GenSWARMread(SWARMprocess):
             t1 - float; end time
             minfreq - float; lower integral limit
             maxfreq - float; higher integral limit
+            bins - int or list; if int, number of bins. if list, bin edges.
+            abs - bool; if True, relative diff will be absolute valued.
+            norm - bool; if True, relative diff will be divided by highest value.
 
         returns:
             hists; list of histograms [BC, BA, AC]
             bins; list of bins [BC, BA, AC]
         """
+        assert self.samelength, "Data sets must be without holes."
         if maxfreq:
             maxfreq = self.fs/2
         ind1 = int(self.fs*t0)
         ind2 = int(self.fs*t1)
+
+        if len(self.NeA) < (ind2 - ind1): #fixing random, equal holes.
+            ind2 = int((len(self.NeA)-ind1)*0.99)
 
         #timeshifting data
         NeB = self.NeB[ind1:ind2]
@@ -89,9 +104,9 @@ class GenSWARMread(SWARMprocess):
         times, fft_intC = self.fft_time_integral(NeC, n, self.fs, minfreq, maxfreq)
 
         #finding relative difference
-        fft_diff_BA = self.relative_diff(fft_intB, fft_intA)
-        fft_diff_BC = self.relative_diff(fft_intB, fft_intC)
-        fft_diff_AC = self.relative_diff(fft_intB, fft_intC)
+        fft_diff_BA = self.relative_diff(fft_intB, fft_intA, abs, norm)
+        fft_diff_BC = self.relative_diff(fft_intB, fft_intC, abs, norm)
+        fft_diff_AC = self.relative_diff(fft_intA, fft_intC, abs, norm)
 
         #making histograms
         histBA, binsBA = np.histogram(fft_diff_BA, bins = bins)
