@@ -124,6 +124,158 @@ class GenSWARMread(SWARMprocess):
         return(hists, bins)
 
 
+    def lat_finder(self, lat1, lat0 = 0):
+        """
+        Splits data set in high and low latitude regions
+        split by lat
+        returns:
+            indisk - list; list on the form [[A0, A1],[B0, B1],[C0,C1]]
+                           where A0...C1 are arrays of indices
+                           with 1 being the region between lat0 and lat1
+                           and 0 being the region between lat1 and lat0
+        """
+
+        lowerA = np.abs(self.latA) < lat1
+        higherA = np.abs(self.latA) > lat0
+        is_poleA = lowerA * higherA
+
+        lowerB = np.abs(self.latB) < lat1
+        higherB = np.abs(self.latB) > lat0
+        is_poleB = lowerB * higherB
+
+        lowerC = np.abs(self.latC) < lat1
+        higherC = np.abs(self.latC) > lat0
+        is_poleC = lowerC * higherC
+
+
+
+        # is_poleA = np.logical_not(lat0 < np.abs(self.latA) < lat)
+        # is_poleB = np.logical_not(lat0 < np.abs(self.latB) < lat)
+        # is_poleC = np.logical_not(lat0 < np.abs(self.latC) < lat)
+
+
+
+        high_lat_A = np.where(is_poleA == 1)
+        high_lat_B = np.where(is_poleB == 1)
+        high_lat_C = np.where(is_poleC == 1)
+
+        low_lat_A = np.where(is_poleA == 0)
+        low_lat_B = np.where(is_poleB == 0)
+        low_lat_C = np.where(is_poleC == 0)
+
+        indsA = [low_lat_A, high_lat_A]
+        indsB = [low_lat_B, high_lat_B]
+        indsC = [low_lat_C, high_lat_C]
+
+        indisk = [indsA, indsB, indsC]
+
+        return indisk
+
+
+
+    def lat_hist(self, n = 100, minfreq = 0, maxfreq = True,\
+                 bins = 10, abs = False, norm = True, lat_limit = 75, lat0 = 0):
+        """
+        makes 2 histograms for each combination of satellites
+        by splitting data into high and low latitude.
+        returns:
+            hists - list; list of histograms. On the form [BA_high, BA_low, ... AC_low]
+            bins - list; list of bins. On the form [BA_high, BA_low, ... AC_low]
+        """
+
+        assert self.samelength, "Data sets must be without holes."
+        if maxfreq:
+            maxfreq = self.fs/2
+
+        #splitting by latitude
+        indisk = self.lat_finder(lat_limit, lat0)
+        high_NeA = self.NeA[indisk[0][1]]
+        low_NeA = self.NeA[indisk[0][0]]
+
+        high_NeB = self.NeB[indisk[1][1]]
+        low_NeB = self.NeB[indisk[1][0]]
+
+        high_NeC = self.NeC[indisk[2][1]]
+        low_NeC = self.NeC[indisk[2][0]]
+
+        ind1_high = 0
+        ind2_high = np.min(np.array([len(high_NeA),\
+                                     len(high_NeB),\
+                                     len(high_NeC)]))\
+                  - np.max(np.array([self.BA_shift, self.BC_shift]))
+
+        ind1_low = 0
+        ind2_low = np.min(np.array([len(low_NeA),\
+                                     len(low_NeB),\
+                                     len(low_NeC)]))\
+                  - np.max(np.array([self.BA_shift, self.BC_shift]))
+
+        #timeshifting data
+        high_NeA = high_NeA[ind1_high + self.BA_shift:ind2_high + self.BA_shift]
+        low_NeA = low_NeA[ind1_low + self.BA_shift:ind2_low + self.BA_shift]
+
+        high_NeB = high_NeB[ind1_high:ind2_high]
+        low_NeB = low_NeB[ind1_low:ind2_low]
+
+        high_NeC = high_NeC[ind1_high + self.BC_shift:ind2_high + self.BC_shift]
+        low_NeC = low_NeC[ind1_low + self.BC_shift:ind2_low + self.BC_shift]
+
+
+
+        #calculating integrated fourier times
+        times, fft_intA_high = self.fft_time_integral(high_NeA, n, self.fs, minfreq, maxfreq)
+        times, fft_intA_low = self.fft_time_integral(low_NeA, n, self.fs, minfreq, maxfreq)
+
+        times, fft_intB_high = self.fft_time_integral(high_NeB, n, self.fs, minfreq, maxfreq)
+        times, fft_intB_low = self.fft_time_integral(low_NeB, n, self.fs, minfreq, maxfreq)
+
+        times, fft_intC_high = self.fft_time_integral(high_NeC, n, self.fs, minfreq, maxfreq)
+        times, fft_intC_low = self.fft_time_integral(low_NeC, n, self.fs, minfreq, maxfreq)
+
+        #finding relative difference
+        fft_diff_BA_high = self.relative_diff(fft_intB_high, fft_intA_high, abs, norm)
+        fft_diff_BA_low = self.relative_diff(fft_intB_low, fft_intA_low, abs, norm)
+
+        fft_diff_BC_high = self.relative_diff(fft_intB_high, fft_intC_high, abs, norm)
+        fft_diff_BC_low = self.relative_diff(fft_intB_low, fft_intC_low, abs, norm)
+
+        fft_diff_AC_high = self.relative_diff(fft_intA_high, fft_intC_high, abs, norm)
+        fft_diff_AC_low = self.relative_diff(fft_intA_low, fft_intC_low, abs, norm)
+
+
+
+        #making histograms
+        histBA_high, binsBA_high = np.histogram(fft_diff_BA_high, bins = bins)
+        histBA_low, binsBA_low = np.histogram(fft_diff_BA_low, bins = bins)
+
+        histBC_high, binsBC_high = np.histogram(fft_diff_BC_high, bins = bins)
+        histBC_low, binsBC_low = np.histogram(fft_diff_BC_low, bins = bins)
+
+        histAC_high, binsAC_high = np.histogram(fft_diff_AC_high, bins = bins)
+        histAC_low, binsAC_low = np.histogram(fft_diff_AC_low, bins = bins)
+
+
+        #fixing bins
+        binsBA_high = (binsBA_high[1:]+binsBA_high[:-1])/2
+        binsBA_low = (binsBA_low[1:]+binsBA_low[:-1])/2
+
+        binsBC_high = (binsBC_high[1:]+binsBC_high[:-1])/2
+        binsBC_low = (binsBC_low[1:]+binsBC_low[:-1])/2
+
+        binsAC_high = (binsAC_high[1:]+binsAC_high[:-1])/2
+        binsAC_low = (binsAC_low[1:]+binsAC_low[:-1])/2
+
+
+        hists = [histBA_high, histBA_low, histBC_high, histBC_low, histAC_high, histAC_low]
+        bins = [binsBA_high, binsBA_low, binsBC_high, binsBC_low, binsAC_high, binsAC_low]
+
+
+
+        return(hists, bins)
+
+
+
+
 
 
 

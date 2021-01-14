@@ -211,6 +211,82 @@ class MultiSWARM():
         return(hists, bins)
 
 
+    def multi_histmake_lat(self, n = 100, minfreq = 0, maxfreq = True,\
+                 bins_ = 10, abs = False, norm = True, lat1 = 75, lat0 = 0):
+        """
+        make histograms of relative difference in integrated fouriers using
+        multiple dates of data
+
+        Parameters:
+            n - int; number of indices in time window used in fft_time_integral
+            t0 - flofor i in range(object.init_loop_index, object.end_loop_index):
+        files = object.gen_filenames(i)
+        genread = GenSWARMread(files[0], files[1], files[2])
+        if genread.samelength != True:
+            print("%g failed" % i)
+            continue
+        # binlist = np.linspace(-1, 1, 50)
+        # hists, bins = genread.lat_hist(lat_limit = 85, bins = binlist)
+        #
+        # print(hists[1])
+        # plt.figure(1)
+        # plt.bar(bins[0],hists[0], width = 0.9*(bins[0][1] - bins[0][0]))
+        # plt.figure(2)
+        # plt.bar(bins[1], hists[1], width = 0.9*(bins[1][1] - bins[1][0]))
+        # plt.show()
+
+        indisk = genread.lat_finder(85, 80)
+        plt.plot(genread.seconds[indisk[0][1]], genread.latA[indisk[0][1]], ".")
+        plt.show()at; start time
+            t1 - float; end time
+            minfreq - float; lower integral limit
+            maxfreq - float; higher integral limit
+            bins_ - int; number of bin edges.
+            lat1 - float; high latitude limit
+            lat0 - float; low latitude limit
+
+        returns:
+            hists; list of histograms [BC, BA, AC]
+            bins; list of bins [BC, BA, AC]
+        """
+
+        binlist = np.linspace(-1, 1, bins_)
+
+        for i in range(self.init_loop_index, self.end_loop_index):
+            files = self.gen_filenames(i)
+            data = GenSWARMread(files[0], files[1], files[2])
+
+            print(i)
+            if data.samelength != True: #checks that data files are complete
+                print("data file %g was not complete" % i)
+                continue
+
+            if maxfreq:
+                maxfreq = data.fs/2
+            histsBA_low = np.zeros_like(binlist[:-1])
+            histsBA_high = np.zeros_like(binlist[:-1])
+            histsBC_low = np.zeros_like(binlist[:-1])
+            histsBC_high = np.zeros_like(binlist[:-1])
+            histsAC_low = np.zeros_like(binlist[:-1])
+            histsAC_high = np.zeros_like(binlist[:-1])
+            t0 = data.seconds[200]
+            t1 = data.seconds[-1600] #data set is sliced to make room for index shifting
+
+
+            temp_hists, bins = data.lat_hist(n = n, minfreq = minfreq, maxfreq = maxfreq,\
+                                        bins = binlist, abs = abs, norm = norm,\
+                                        lat_limit = lat1, lat0 = lat0)
+
+            histsBA_low = histsBA_low + temp_hists[1]
+            histsBA_high = histsBA_high + temp_hists[0]
+            histsBC_low = histsBC_low + temp_hists[3]
+            histsBC_high = histsBC_high + temp_hists[2]
+            histsAC_low = histsAC_low + temp_hists[5]
+            histsAC_high = histsAC_high + temp_hists[4]
+
+            hists = np.array([histsBA_high, histsBA_low, histsBC_high, histsBC_low, histsAC_high, histsAC_low])
+        return(hists, bins)
+
     def testymctestface(self):
         """
         tests testy testfaces
@@ -245,29 +321,38 @@ class MultiSWARM():
 
 if __name__ == "__main__":
     object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
-    minfreq = 0
-    maxfreq = 1/3
-    hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
-
-
-
-    widthA = bins[0][1] - bins[0][0]
-    BA_hist = hists[0]/np.sum(hists[0]*widthA)
-
-    std = np.std(BA_hist*bins[0])
-    mean = np.mean(BA_hist*bins[0])
-    x = np.linspace(-1, 1, 1000)
-    pro = SWARMprocess()
-    gaussian = pro.gauss_curve(x, std = std, mean = mean)
-
-    print(std)
-    print(mean)
-
+    hists, bins = object.multi_histmake_lat(minfreq = 1/3, maxfreq = 2/3, bins_ = 50, lat0 = 75, lat1 = 90)
+    width = bins[0][1] - bins[0][0]
     plt.figure(1)
-    plt.bar(bins[0], BA_hist, width = 0.9*widthA)
-    plt.xlabel("relative difference B - A")
-    plt.ylabel("Normalized occurence")
-    plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
-    plt.plot(x, gaussian, "r")
-    plt.legend(["gaussian approximation", "B-A histogram"])
+    plt.bar(bins[0], hists[0], width = 0.9*width)
+    plt.title("high lat")
+    plt.figure(2)
+    plt.bar(bins[1], hists[1], width = 0.9*width)
+    plt.title("low lat")
     plt.show()
+    # minfreq = 0
+    # maxfreq = 1/3
+    # hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
+    #
+    #
+    #
+    # widthA = bins[0][1] - bins[0][0]
+    # BA_hist = hists[0]/np.sum(hists[0]*widthA)
+    #
+    # std = np.std(BA_hist*bins[0])
+    # mean = np.mean(BA_hist*bins[0])
+    # x = np.linspace(-1, 1, 1000)
+    # pro = SWARMprocess()
+    # gaussian = pro.gauss_curve(x, std = std, mean = mean)
+    #
+    # print(std)
+    # print(mean)
+    #
+    # plt.figure(1)
+    # plt.bar(bins[0], BA_hist, width = 0.9*widthA)
+    # plt.xlabel("relative difference B - A")
+    # plt.ylabel("Normalized occurence")
+    # plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
+    # plt.plot(x, gaussian, "r")
+    # plt.legend(["gaussian approximation", "B-A histogram"])
+    # plt.show()
