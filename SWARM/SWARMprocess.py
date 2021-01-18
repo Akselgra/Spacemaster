@@ -476,6 +476,15 @@ class SWARMprocess():
             diff = diff/normals
         return(diff)
 
+    def std_mean(self, hist, bin):
+        """
+        Takes a histogram hist and bins bin
+        calculates standard deviation and mean.
+        returns:
+            std, mean
+        """
+        return(np.std(hist*bin), np.mean(hist*bin))
+
 
 if __name__ == "__main__":
     pass

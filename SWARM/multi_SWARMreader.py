@@ -34,6 +34,7 @@ class MultiSWARM():
             year0 - int; year of first file
 
         """
+        self.pro = SWARMprocess()
         self.year0 = year0
         self.month0 = month0
         self.day0 = day0
@@ -186,9 +187,9 @@ class MultiSWARM():
             files = self.gen_filenames(i)
             data = GenSWARMread(files[0], files[1], files[2])
 
-            print(i)
+            # print(i)
             if data.samelength != True: #checks that data files are complete
-                print("data file %g was not complete" % i)
+                # print("data file %g was not complete" % i)
                 continue
 
             if maxfreq:
@@ -219,25 +220,7 @@ class MultiSWARM():
 
         Parameters:
             n - int; number of indices in time window used in fft_time_integral
-            t0 - flofor i in range(object.init_loop_index, object.end_loop_index):
-        files = object.gen_filenames(i)
-        genread = GenSWARMread(files[0], files[1], files[2])
-        if genread.samelength != True:
-            print("%g failed" % i)
-            continue
-        # binlist = np.linspace(-1, 1, 50)
-        # hists, bins = genread.lat_hist(lat_limit = 85, bins = binlist)
-        #
-        # print(hists[1])
-        # plt.figure(1)
-        # plt.bar(bins[0],hists[0], width = 0.9*(bins[0][1] - bins[0][0]))
-        # plt.figure(2)
-        # plt.bar(bins[1], hists[1], width = 0.9*(bins[1][1] - bins[1][0]))
-        # plt.show()
-
-        indisk = genread.lat_finder(85, 80)
-        plt.plot(genread.seconds[indisk[0][1]], genread.latA[indisk[0][1]], ".")
-        plt.show()at; start time
+            t0 - float; start time
             t1 - float; end time
             minfreq - float; lower integral limit
             maxfreq - float; higher integral limit
@@ -256,9 +239,9 @@ class MultiSWARM():
             files = self.gen_filenames(i)
             data = GenSWARMread(files[0], files[1], files[2])
 
-            print(i)
+            #print(i)
             if data.samelength != True: #checks that data files are complete
-                print("data file %g was not complete" % i)
+                #print("data file %g was not complete" % i)
                 continue
 
             if maxfreq:
@@ -287,32 +270,40 @@ class MultiSWARM():
             hists = np.array([histsBA_high, histsBA_low, histsBC_high, histsBC_low, histsAC_high, histsAC_low])
         return(hists, bins)
 
-    def testymctestface(self):
+    def freq_sig(self, df = 0.1, n = 100,\
+                 bins_ = 10, abs = False, norm = True):
         """
-        tests testy testfaces
+        Calculates standard deviation and mean as a function of frequency
+        returns:
+            freq0s - nparray; array containing lower integral limits
+            sigmas - nparray; array on the form [sigmasBA, sigmasBC, sigmasAC]
+            means - nparray; array on the form [meansBA, meansBC, meansAC]
         """
-        for i in range(self.init_loop_index, self.end_loop_index):
-            files = self.gen_filenames(i)
-            data = GenSWARMread(files[0], files[1], files[2])
-            if data.samelength != True:
-                continue
+        N = int(1/df)
+        freq0s = np.linspace(0, 1-df, N)
+        sigmas = np.zeros((3, N))
+        means = np.zeros_like(sigmas)
+        for i in range(len(freq0s)):
+            print(freq0s[i])
+            minfreq = freq0s[i]
+            maxfreq = freq0s[i]+df
+            hists, bins = self.multi_histmake(n = n, minfreq = minfreq , maxfreq = maxfreq,\
+                         bins_ = bins_, abs = abs, norm = norm)
+            for j in range(len(hists)):
+                d_bins = bins[j][1] - bins[j][0]
+                hists[j] = hists[j]/np.sum(hists[j]*d_bins)
+            BAstd, BAmean = self.pro.std_mean(hists[0], bins[0])
+            BCstd, BCmean = self.pro.std_mean(hists[1], bins[1])
+            ACstd, ACmean = self.pro.std_mean(hists[2], bins[2])
 
-            shifts = 7000
-            start = 0
-            stop = 20000
-            lat1 = data.latA
-            lat2 = data.latC
-            meandist = np.zeros(shifts)
-            indices = np.arange(shifts)
-
-            for j in range(shifts):
-                meandist[j] = np.mean(np.abs(lat1[start:stop] - lat2[start + j: stop + j]))
-
-            plt.plot(indices/2,1 - meandist/np.max(meandist))
-            plt.title("day %g" % (self.day0 + i))
-            plt.xlabel("Time shifted [s]")
-            plt.ylabel("normalized mean distance in latitude")
-            plt.show()
+            sigmas[0][i] = BAstd
+            sigmas[1][i] = BCstd
+            sigmas[2][i] = ACstd
+            means[0][i] = BAmean
+            means[1][i] = BCmean
+            means[2][i] = ACmean
+            
+        return freq0s, sigmas, means
 
 
 
@@ -321,15 +312,16 @@ class MultiSWARM():
 
 if __name__ == "__main__":
     object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
-    hists, bins = object.multi_histmake_lat(minfreq = 1/3, maxfreq = 2/3, bins_ = 50, lat0 = 75, lat1 = 90)
-    width = bins[0][1] - bins[0][0]
-    plt.figure(1)
-    plt.bar(bins[0], hists[0], width = 0.9*width)
-    plt.title("high lat")
-    plt.figure(2)
-    plt.bar(bins[1], hists[1], width = 0.9*width)
-    plt.title("low lat")
-    plt.show()
+    object.freq_sig(0.1)
+    # hists, bins = object.multi_histmake_lat(minfreq = 0, maxfreq = 1/3, bins_ = 50, lat0 = 75, lat1 = 90)
+    # width = bins[0][1] - bins[0][0]
+    # plt.figure(1)
+    # plt.bar(bins[0], hists[0], width = 0.9*width)
+    # plt.title("high lat")
+    # plt.figure(2)
+    # plt.bar(bins[1], hists[1], width = 0.9*width)
+    # plt.title("low lat")
+    # plt.show()
     # minfreq = 0
     # maxfreq = 1/3
     # hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
