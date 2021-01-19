@@ -276,7 +276,7 @@ class SWARMprocess():
         Gaussian bell function
         """
         first = 1/(std*np.sqrt(2*np.pi))
-        second = -0.5*(x - mean)**2/(std**2)
+        second = -0.5*((x - mean)/(std))**2
         return(first*np.exp(second))
 
     def cross_spectrum(self, u, v, fs = 2):
@@ -483,7 +483,9 @@ class SWARMprocess():
         returns:
             std, mean
         """
-        return(np.std(hist*bin), np.mean(hist*bin))
+        mean = np.sum(hist*bin)/np.sum(hist)
+        std = np.sqrt(np.sum((bin-mean)**2*hist)/np.sum(hist))
+        return(std, mean)
 
 
 if __name__ == "__main__":
