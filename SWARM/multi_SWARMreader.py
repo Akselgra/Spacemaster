@@ -229,8 +229,8 @@ class MultiSWARM():
             lat0 - float; low latitude limit
 
         returns:
-            hists; list of histograms [BC, BA, AC]
-            bins; list of bins [BC, BA, AC]
+            hists; list of histograms [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
+            bins; list of bins [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
         """
 
         binlist = np.linspace(-1, 1, bins_)
@@ -302,7 +302,58 @@ class MultiSWARM():
             means[0][i] = BAmean
             means[1][i] = BCmean
             means[2][i] = ACmean
-            
+
+
+        return freq0s, sigmas, means
+
+
+
+
+    def freq_sig_lat(self,df = 0.1, n = 100,\
+                 bins_ = 10, abs = False, norm = True, lat1 = 75, lat0 = 0):
+        """
+        Calculates standard deviation and mean as a function of frequency
+        returns:
+            freq0s - nparray; array containing lower integral limits
+            sigmas - nparray; array on the form [sigmasBA, sigmasBC, sigmasAC]
+            means - nparray; array on the form [meansBA, meansBC, meansAC]
+        """
+        N = int(1/df)
+        freq0s = np.linspace(0, 1-df, N)
+        sigmas = np.zeros((6, N))
+        means = np.zeros_like(sigmas)
+        for i in range(len(freq0s)):
+            print(freq0s[i])
+            minfreq = freq0s[i]
+            maxfreq = freq0s[i]+df
+            hists, bins = self.multi_histmake_lat(n = n, minfreq = minfreq , maxfreq = maxfreq,\
+                         bins_ = bins_, abs = abs, norm = norm, lat1 = lat1, lat0 = lat0)
+            for j in range(len(hists)):
+                d_bins = bins[j][1] - bins[j][0]
+                hists[j] = hists[j]/np.sum(hists[j]*d_bins)
+
+
+            BAstd_high, BAmean_high = self.pro.std_mean(hists[0], bins[0])
+            BAstd_low, BAmean_low = self.pro.std_mean(hists[1], bins[1])
+            BCstd_high, BCmean_high = self.pro.std_mean(hists[2], bins[2])
+            BCstd_low, BCmean_low = self.pro.std_mean(hists[3], bins[3])
+            ACstd_high, ACmean_high = self.pro.std_mean(hists[4], bins[4])
+            ACstd_low, ACmean_low = self.pro.std_mean(hists[5], bins[5])
+
+            sigmas[0][i] = BAstd_high
+            sigmas[1][i] = BAstd_low
+            sigmas[2][i] = BCstd_high
+            sigmas[3][i] = BCstd_low
+            sigmas[4][i] = ACstd_high
+            sigmas[5][i] = ACstd_low
+            means[0][i] = BAmean_high
+            means[1][i] = BAmean_low
+            means[2][i] = BCmean_high
+            means[3][i] = BCmean_low
+            means[4][i] = ACmean_high
+            means[5][i] = ACmean_low
+
+
         return freq0s, sigmas, means
 
 
@@ -312,7 +363,7 @@ class MultiSWARM():
 
 if __name__ == "__main__":
     object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
-    object.freq_sig(0.1)
+    # object.freq_sig(0.1)
     # hists, bins = object.multi_histmake_lat(minfreq = 0, maxfreq = 1/3, bins_ = 50, lat0 = 75, lat1 = 90)
     # width = bins[0][1] - bins[0][0]
     # plt.figure(1)
@@ -322,29 +373,28 @@ if __name__ == "__main__":
     # plt.bar(bins[1], hists[1], width = 0.9*width)
     # plt.title("low lat")
     # plt.show()
-    # minfreq = 0
-    # maxfreq = 1/3
-    # hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
-    #
-    #
-    #
-    # widthA = bins[0][1] - bins[0][0]
-    # BA_hist = hists[0]/np.sum(hists[0]*widthA)
-    #
-    # std = np.std(BA_hist*bins[0])
-    # mean = np.mean(BA_hist*bins[0])
-    # x = np.linspace(-1, 1, 1000)
-    # pro = SWARMprocess()
-    # gaussian = pro.gauss_curve(x, std = std, mean = mean)
-    #
-    # print(std)
-    # print(mean)
-    #
-    # plt.figure(1)
-    # plt.bar(bins[0], BA_hist, width = 0.9*widthA)
-    # plt.xlabel("relative difference B - A")
-    # plt.ylabel("Normalized occurence")
-    # plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
-    # plt.plot(x, gaussian, "r")
-    # plt.legend(["gaussian approximation", "B-A histogram"])
-    # plt.show()
+    minfreq = 2/3
+    maxfreq = 3/3
+    hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
+
+
+
+    widthA = bins[0][1] - bins[0][0]
+    BA_hist = hists[0]/np.sum(hists[0]*widthA)
+
+    x = np.linspace(-1, 1, 1000)
+    pro = SWARMprocess()
+    std, mean = pro.std_mean(hists[0], bins[0])
+    gaussian = pro.gauss_curve(x, std = std, mean = mean)
+
+    print(std)
+    print(mean)
+
+    plt.figure(1)
+    plt.bar(bins[0], BA_hist, width = 0.9*widthA)
+    plt.xlabel("relative difference B - A")
+    plt.ylabel("Normalized occurence")
+    plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
+    plt.plot(x, gaussian, "r")
+    plt.legend(["gaussian approximation", "B-A histogram"])
+    plt.show()
