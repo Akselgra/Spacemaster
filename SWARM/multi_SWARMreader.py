@@ -233,7 +233,11 @@ class MultiSWARM():
             bins; list of bins [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
         """
 
-        binlist = np.linspace(-1, 1, bins_)
+        if norm == True:
+            binlist = np.linspace(-1, 1, bins_)
+
+        else:
+            binlist = np.linspace(-1000000, 1000000, bins_)
 
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
@@ -268,6 +272,8 @@ class MultiSWARM():
             histsAC_high = histsAC_high + temp_hists[4]
 
             hists = np.array([histsBA_high, histsBA_low, histsBC_high, histsBC_low, histsAC_high, histsAC_low])
+            self.BA_shift = data.BA_shift
+            self.BC_shift = data.BC_shift
         return(hists, bins)
 
     def freq_sig(self, df = 0.1, n = 100,\

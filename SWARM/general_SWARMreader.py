@@ -243,7 +243,6 @@ class GenSWARMread(SWARMprocess):
         fft_diff_AC_low = self.relative_diff(fft_intA_low, fft_intC_low, abs, norm)
 
 
-
         #making histograms
         histBA_high, binsBA_high = np.histogram(fft_diff_BA_high, bins = bins)
         histBA_low, binsBA_low = np.histogram(fft_diff_BA_low, bins = bins)
@@ -268,7 +267,6 @@ class GenSWARMread(SWARMprocess):
 
         hists = [histBA_high, histBA_low, histBC_high, histBC_low, histAC_high, histAC_low]
         bins = [binsBA_high, binsBA_low, binsBC_high, binsBC_low, binsAC_high, binsAC_low]
-
 
 
         return(hists, bins)

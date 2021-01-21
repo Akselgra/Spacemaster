@@ -474,6 +474,7 @@ class SWARMprocess():
 
         if norm:
             diff = diff/normals
+
         return(diff)
 
     def std_mean(self, hist, bin):
@@ -489,4 +490,7 @@ class SWARMprocess():
 
 
 if __name__ == "__main__":
-    pass
+    pro = SWARMprocess()
+    x = np.array([3,150,0.7])
+    y = np.array([2, 100, 0.5])
+    print(pro.relative_diff(x, y, norm = False, abs = False))
