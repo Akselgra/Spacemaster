@@ -42,7 +42,7 @@ def sigma_plotter_lat():
 
 def spec_lat_hist_plotter():
     start = time.time()
-    object = multi_SWARMreader.MultiSWARM(2013, 12, 24, 2013, 12, 24)
+    object = multi_SWARMreader.MultiSWARM(2013, 12, 25, 2013, 12, 25)
     minfreq = 0
     maxfreq = 1
     hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
@@ -91,4 +91,4 @@ def spec_lat_hist_plotter():
     stop = time.time()
     print(stop-start)
 
-sigma_plotter_lat()
+spec_lat_hist_plotter()
