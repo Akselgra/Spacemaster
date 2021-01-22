@@ -95,10 +95,10 @@ def std_timeshift():
     start = time.time()
     minfreq = 1/3
     maxfreq = 2/3
-    day0 = 11
+    day0 = 9
     day1 = 31
-    lat0 = 65
-    lat1 = 90
+    lat0 = 75
+    lat1 = 85
     shift_list = []
     std_list = []
     k_high = []
