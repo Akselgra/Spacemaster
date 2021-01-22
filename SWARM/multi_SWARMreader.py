@@ -244,8 +244,12 @@ class MultiSWARM():
             data = GenSWARMread(files[0], files[1], files[2])
 
             #print(i)
+            self.samelength = True
             if data.samelength != True: #checks that data files are complete
                 #print("data file %g was not complete" % i)
+                self.samelength = data.samelength
+                if (self.end_loop_index - self.init_loop_index) == 1:
+                    return 0, 0
                 continue
 
             if maxfreq:
