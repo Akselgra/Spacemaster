@@ -106,7 +106,7 @@ def std_timeshift():
         object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
         hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
                                                 maxfreq = maxfreq, lat0 = lat0, lat1 = lat1,\
-                                                norm = True, n = 100)
+                                                norm = True, n = 10)
         if object.samelength != True:
             continue
 

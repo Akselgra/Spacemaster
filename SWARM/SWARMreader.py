@@ -240,4 +240,131 @@ def idek():
     plt.legend(["Distance", "lat A", "lat B", "lat diff", "long diff"])
     plt.show()
 
-timediff_inspect()
+def funky():
+    """
+    Integrated fourier at obvious spatial difference
+    """
+    start = 1100*2 #index of 16 minutes
+    stop = 1230*2 #index of 26 minutes
+    N = int(1e5)
+
+    classy = SWARMprocess()
+    latA = cdfA["Latitude"][:N]
+    latB = cdfB["Latitude"][:N]
+    latC = cdfC["Latitude"][:N]
+
+    ba_distshift = classy.timeshift_latitude(latB, latA, start, stop, shifts = 10000)
+    bc_distshift = classy.timeshift_latitude(latB, latC, start, stop, shifts = 10000)
+
+    NeA = cdfA["Ne"][start+ba_distshift:stop+ba_distshift]
+    NeC = cdfC["Ne"][start+bc_distshift:stop+bc_distshift]
+
+    NeB = cdfB["Ne"][start:stop]
+    seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
+    plt.plot(seconds, NeB/np.max(NeB), "b")
+    plt.plot(seconds, NeA/np.max(NeA), "g")
+    plt.plot(seconds, NeC/np.max(NeC), "r")
+
+    n = 85
+    minfreq = 0
+    maxfreq = 1/3
+    times, timyA = classy.fft_time_integral(NeA, n, 2, minfreq = minfreq, maxfreq = maxfreq)
+    times, timyB = classy.fft_time_integral(NeB, n, 2, minfreq = minfreq, maxfreq = maxfreq)
+    times, timyC = classy.fft_time_integral(NeC, n, 2, minfreq = minfreq, maxfreq = maxfreq)
+    times += start/2
+    plt.plot(times, timyA/np.max(timyA), "b.")
+    plt.plot(times, timyB/np.max(timyB), "g.")
+    plt.plot(times, timyC/np.max(timyC), "r.")
+    plt.show()
+
+
+def funky_fftint():
+    """
+    Specific integrated fft
+    """
+    start = 1160*2 #index of 16 minutes
+    stop = 1185*2 #index of 26 minutes
+    N = int(1e5)
+
+    classy = SWARMprocess()
+    latA = cdfA["Latitude"][:N]
+    latB = cdfB["Latitude"][:N]
+    latC = cdfC["Latitude"][:N]
+
+    ba_distshift = classy.timeshift_latitude(latB, latA, start, stop, shifts = 10000)
+    bc_distshift = classy.timeshift_latitude(latB, latC, start, stop, shifts = 10000)
+
+    NeA = cdfA["Ne"][start+ba_distshift:stop+ba_distshift]
+    NeC = cdfC["Ne"][start+bc_distshift:stop+bc_distshift]
+
+    NeB = cdfB["Ne"][start:stop]
+    seconds = classy.stamp_to_sec(cdfA["Timestamp"][start:stop])
+
+    fs = 2
+    n = len(NeA)
+
+    fftA = np.fft.fft(NeA)[:int(n/2)]
+    fftB = np.fft.fft(NeB)[:int(n/2)]
+    fftC = np.fft.fft(NeC)[:int(n/2)]
+    omegas = np.linspace(-1, 1, n)[:int(n/2)]
+    fftA = np.abs(fftA)
+    fftB = np.abs(fftB)
+    fftC = np.abs(fftC)
+
+    df = 0.1
+    deltaf = 0.1
+
+    nf = int((1- deltaf)/df)
+    f0s = np.linspace(0, 0.9, nf)
+    f1s = np.linspace(df, 1, nf)
+
+    A_ints = np.zeros_like(f0s)
+    B_ints = np.zeros_like(f0s)
+    C_ints = np.zeros_like(f0s)
+
+    d_omega = omegas[1] - omegas[0]
+    for i in range(len(f0s)):
+        minfreq = f0s[i]
+        maxfreq = f1s[i]
+        n_minfreq = int(minfreq/d_omega)
+        n_maxfreq = int(maxfreq/d_omega)
+        A_ints[i] = np.sum(fftA[n_minfreq:n_maxfreq])*d_omega
+        B_ints[i] = np.sum(fftB[n_minfreq:n_maxfreq])*d_omega
+        C_ints[i] = np.sum(fftC[n_minfreq:n_maxfreq])*d_omega
+
+
+    plt.figure(0)
+    plt.plot(seconds, NeB)
+    plt.plot(seconds, NeA)
+    plt.plot(seconds, NeC)
+    plt.xlabel("Time of sat B [s]")
+    plt.ylabel("Electron density [cm⁻¹]")
+    plt.title("SWARM EFI LP data")
+
+    plt.figure(1)
+    plt.plot(f0s + deltaf/2, A_ints, "-o")
+    plt.plot(f0s + deltaf/2, B_ints, "-o")
+    plt.plot(f0s + deltaf/2, C_ints, "-o")
+    plt.legend(["A", "B", "C"])
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Integrated fourier")
+    plt.title("Integrated fourier at spatial difference")
+
+
+    BAdiff = classy.relative_diff(B_ints, A_ints, abs = False, norm = 1)
+    BCdiff = classy.relative_diff(B_ints, C_ints, abs = False, norm = 1)
+    ACdiff = classy.relative_diff(A_ints, C_ints, abs = False, norm = 1)
+
+    plt.figure(2)
+    plt.plot(f0s + deltaf/2, BAdiff, "-o")
+    plt.plot(f0s + deltaf/2, BCdiff, "-o")
+    plt.plot(f0s + deltaf/2, ACdiff, "-o")
+    plt.legend(["BAdiff", "BCdiff", "ACdiff"])
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("normalized difference in integrated fourier")
+    plt.title("Difference in integrated fourier at spatial difference")
+    plt.show()
+
+
+
+funky_fftint()
