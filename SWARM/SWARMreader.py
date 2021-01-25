@@ -272,9 +272,14 @@ def funky():
     times, timyB = classy.fft_time_integral(NeB, n, 2, minfreq = minfreq, maxfreq = maxfreq)
     times, timyC = classy.fft_time_integral(NeC, n, 2, minfreq = minfreq, maxfreq = maxfreq)
     times += start/2
-    plt.plot(times, timyA/np.max(timyA), "b.")
-    plt.plot(times, timyB/np.max(timyB), "g.")
-    plt.plot(times, timyC/np.max(timyC), "r.")
+
+    diffBA = classy.relative_diff(timyB, timyA, abs = False)
+    diffBC = classy.relative_diff(timyB, timyC, abs = False)
+    diffAC = classy.relative_diff(timyA, timyC, abs = False)
+
+    plt.plot(times, diffBA, "b.")
+    plt.plot(times, diffBC, "g.")
+    plt.plot(times, diffAC, "r.")
     plt.show()
 
 
@@ -282,7 +287,7 @@ def funky_fftint():
     """
     Specific integrated fft
     """
-    start = 1160*2 #index of 16 minutes
+    start = 1165*2 #index of 16 minutes
     stop = 1185*2 #index of 26 minutes
     N = int(1e5)
 
@@ -356,6 +361,7 @@ def funky_fftint():
     ACdiff = classy.relative_diff(A_ints, C_ints, abs = False, norm = 1)
 
     plt.figure(2)
+    plt.axis([0, 1, -1, 1])
     plt.plot(f0s + deltaf/2, BAdiff, "-o")
     plt.plot(f0s + deltaf/2, BCdiff, "-o")
     plt.plot(f0s + deltaf/2, ACdiff, "-o")
