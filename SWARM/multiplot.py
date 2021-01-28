@@ -22,9 +22,13 @@ def sigma_plotter():
 
 def sigma_plotter_lat():
     df = 0.05
+    f0 = 0.1
+    f1 = 0.9
+    pole = "north"
     start = time.time()
-    object = multi_SWARMreader.MultiSWARM(2013, 12, 25, 2013, 12, 25)
-    freq0s, sigmas, means = object.freq_sig_lat(df = df, n = 100, bins_ = 50, lat1 = 90, lat0 = 75)
+    object = multi_SWARMreader.MultiSWARM(2013, 12, 9, 2013, 12, 25)
+    freq0s, sigmas, means = object.freq_sig_lat(df = df, n = 400, bins_ = 50, lat1 = 90, lat0 = 75,
+                                                f0 = f0, f1 = f1, pole = pole)
 
     plt.plot(freq0s, sigmas[0])
     plt.plot(freq0s, sigmas[1])
@@ -35,7 +39,7 @@ def sigma_plotter_lat():
     plt.xlabel("Lower integral limit")
     plt.ylabel("STD")
     plt.legend(["BAH", "BAL", "BCH", "BCL", "ACH", "ACL"])
-    plt.title("standard deviations of histograms, df = %g, 25.12.13" % df)
+    plt.title("standard deviations of histograms, df = %g" % df)
     plt.show()
     stop = time.time()
     print(stop-start)
@@ -93,12 +97,12 @@ def spec_lat_hist_plotter():
 
 def std_timeshift():
     start = time.time()
-    minfreq = 1/3
-    maxfreq = 2/3
+    minfreq = 0.1
+    maxfreq = 0.9
     day0 = 9
     day1 = 31
+    lat1 = 90
     lat0 = 75
-    lat1 = 85
     shift_list = []
     std_list = []
     k_high = []
@@ -106,7 +110,7 @@ def std_timeshift():
         object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
         hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
                                                 maxfreq = maxfreq, lat0 = lat0, lat1 = lat1,\
-                                                norm = True, n = 10)
+                                                norm = True, n = 100, pole = "north")
         if object.samelength != True:
             continue
 
@@ -170,4 +174,4 @@ def std_timeshift():
     stop = time.time()
     print(stop-start)
 
-std_timeshift()
+sigma_plotter_lat()

@@ -124,7 +124,7 @@ class GenSWARMread(SWARMprocess):
         return(hists, bins)
 
 
-    def lat_finder(self, lat1, lat0 = 0):
+    def lat_finder(self, lat1, lat0 = 0, pole = "both"):
         """
         Splits data set in high and low latitude regions
         split by lat
@@ -135,17 +135,45 @@ class GenSWARMread(SWARMprocess):
                            and 0 being the region between lat1 and lat0
         """
 
-        lowerA = np.abs(self.latA) < lat1
-        higherA = np.abs(self.latA) > lat0
-        is_poleA = lowerA * higherA
+        if pole == "both":
+            lowerA = np.abs(self.latA) < lat1
+            higherA = np.abs(self.latA) > lat0
+            is_poleA = lowerA * higherA
 
-        lowerB = np.abs(self.latB) < lat1
-        higherB = np.abs(self.latB) > lat0
-        is_poleB = lowerB * higherB
+            lowerB = np.abs(self.latB) < lat1
+            higherB = np.abs(self.latB) > lat0
+            is_poleB = lowerB * higherB
 
-        lowerC = np.abs(self.latC) < lat1
-        higherC = np.abs(self.latC) > lat0
-        is_poleC = lowerC * higherC
+            lowerC = np.abs(self.latC) < lat1
+            higherC = np.abs(self.latC) > lat0
+            is_poleC = lowerC * higherC
+
+        elif pole == "north":
+            lowerA = (self.latA) < lat1
+            higherA = (self.latA) > lat0
+            is_poleA = lowerA * higherA
+
+            lowerB = (self.latB) < lat1
+            higherB = (self.latB) > lat0
+            is_poleB = lowerB * higherB
+
+            lowerC = (self.latC) < lat1
+            higherC = (self.latC) > lat0
+            is_poleC = lowerC * higherC
+
+        elif pole == "south":
+            lowerA = (self.latA) > lat1
+            higherA = (self.latA) < lat0
+            is_poleA = lowerA * higherA
+
+            lowerB = (self.latB) > lat1
+            higherB = (self.latB) < lat0
+            is_poleB = lowerB * higherB
+
+            lowerC = (self.latC) > lat1
+            higherC = (self.latC) < lat0
+            is_poleC = lowerC * higherC
+
 
 
 
@@ -174,7 +202,8 @@ class GenSWARMread(SWARMprocess):
 
 
     def lat_hist(self, n = 100, minfreq = 0, maxfreq = True,\
-                 bins = 10, abs = False, norm = True, lat_limit = 75, lat0 = 0):
+                 bins = 10, abs = False, norm = True, lat_limit = 75, lat0 = 0,\
+                 pole = "both"):
         """
         makes 2 histograms for each combination of satellites
         by splitting data into high and low latitude.
@@ -188,7 +217,7 @@ class GenSWARMread(SWARMprocess):
             maxfreq = self.fs/2
 
         #splitting by latitude
-        indisk = self.lat_finder(lat_limit, lat0)
+        indisk = self.lat_finder(lat_limit, lat0, pole = pole)
         high_NeA = self.NeA[indisk[0][1]]
         low_NeA = self.NeA[indisk[0][0]]
 
@@ -278,69 +307,16 @@ class GenSWARMread(SWARMprocess):
 
 
 if __name__ == "__main__":
-    day = "29"
+    day = "11"
     data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
     cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path)
-    hists, bins = object.histmake(minfreq = 0, maxfreq = 0.33)
-    BA_hist1 = hists[0]
-    BA_bins1 = bins[0]
-    width1 = BA_bins1[1] - BA_bins1[0]
-
-    hists, bins = object.histmake(minfreq = 0.33, maxfreq = 0.66)
-    BA_hist2 = hists[0]
-    BA_bins2 = bins[0]
-    width2 = BA_bins2[1] - BA_bins2[0]
-
-    hists, bins = object.histmake(minfreq = 0.66, maxfreq = 1)
-    BA_hist3 = hists[0]
-    BA_bins3 = bins[0]
-    width3 = BA_bins3[1] - BA_bins3[0]
-
-    df1 = BA_bins1[1] - BA_bins1[0]
-    norm1 = np.sum(BA_hist1)*df1
-
-    df2 = BA_bins2[1] - BA_bins2[0]
-    norm2 = np.sum(BA_hist2)*df2
-
-    df3 = BA_bins3[1] - BA_bins3[0]
-    norm3 = np.sum(BA_hist3)*df3
-
-    plt.figure(1)
-    plt.bar(BA_bins1, BA_hist1/norm1, width = width1*0.9)
-    plt.title("F: 0 - 0.33")
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurance rate")
-    plt.savefig("Figures/testhist_F_0_033.png")
-
-    plt.figure(2)
-    plt.bar(BA_bins2, BA_hist2/norm3, width = width2*0.9)
-    plt.title("F: 0.33 - 0.66")
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurence rate")
-    plt.savefig("Figures/testhist_F_033_066.png")
-
-    plt.figure(3)
-    plt.bar(BA_bins3, BA_hist3/norm3, width = width3*0.9)
-    plt.title("F: 0.66 - 1")
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurence rate")
-    plt.savefig("Figures/testhist_F_066_1.png")
-    plt.show()
-
-    plt.plot(BA_bins1, BA_hist1/norm1)
-    plt.plot(BA_bins2, BA_hist2/norm2)
-    plt.plot(BA_bins3, BA_hist3/norm3)
-    plt.legend(["0 - 0.33", "0.33 - 0.66", "0.66 - 1"])
-    plt.show()
-
-    BC_hist = hists[1]
-    BC_bins = bins[1]
-    dw = BC_bins[1] - BC_bins[0]
-    norm = np.sum(BC_hist)*dw
-
-    plt.plot(BA_bins3, BA_hist3/norm3)
-    plt.plot(BC_bins, BC_hist/norm)
+    indisk = object.lat_finder(-90, -75, pole = "south")
+    pole = object.latA[indisk[0][1]]
+    times = object.seconds[indisk[0][1]]
+    print(indisk[0][1])
+    plt.plot(times, pole, "o")
+    plt.plot(object.seconds[indisk[0][0]], object.latA[indisk[0][0]], "ro")
     plt.show()
