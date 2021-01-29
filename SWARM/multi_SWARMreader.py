@@ -282,7 +282,7 @@ class MultiSWARM():
         return(hists, bins)
 
     def freq_sig(self, df = 0.1, n = 100,\
-                 bins_ = 10, abs = False, norm = True):
+                 bins_ = 10, abs = False, norm = True, f0 = 0, f1 = 1):
         """
         Calculates standard deviation and mean as a function of frequency
         returns:
@@ -290,8 +290,8 @@ class MultiSWARM():
             sigmas - nparray; array on the form [sigmasBA, sigmasBC, sigmasAC]
             means - nparray; array on the form [meansBA, meansBC, meansAC]
         """
-        N = int(1/df)
-        freq0s = np.linspace(0, 1-df, N)
+        N = int((f1 - f0)/df)
+        freq0s = np.linspace(f0, f1-df, N)
         sigmas = np.zeros((3, N))
         means = np.zeros_like(sigmas)
         for i in range(len(freq0s)):
