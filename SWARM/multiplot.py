@@ -101,7 +101,7 @@ def spec_lat_hist_plotter():
 
 def std_timeshift():
     start = time.time()
-    minfreq = 0.1
+    minfreq = 0.7
     maxfreq = 0.9
     day0 = 9
     day1 = 31
@@ -151,6 +151,8 @@ def std_timeshift():
 
     p = np.polyfit(shift_list, std_list, deg = 1)
     a = p[0]; b = p[1]
+    print("Slope of regression is %g" % a)
+    print("Constant of linear regression is %g" % b)
     xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
     plt.figure(1)
     plt.plot(xs, xs*a + b)
@@ -178,4 +180,4 @@ def std_timeshift():
     stop = time.time()
     print(stop-start)
 
-sigma_plotter()
+std_timeshift()
