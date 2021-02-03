@@ -180,4 +180,103 @@ def std_timeshift():
     stop = time.time()
     print(stop-start)
 
-std_timeshift()
+def std_timeshift_n():
+    start = time.time()
+    minfreq = 0.5
+    maxfreq = 0.7
+    day0 = 9
+    day1 = 31
+    lat1 = 90
+    lat0 = 75
+    shift_list = []
+    std_list = []
+    k_high = []
+
+    a_list_list = []
+    b_list_list = []
+
+    minfreqs = [0.1, 0.3, 0.5, 0.7]
+    maxfreqs = [0.3, 0.5, 0.7, 0.9]
+
+    nlist = np.linspace(10, 600, 20)
+    for f in range(len(minfreqs)):
+        a_list = []
+        b_list = []
+        for n in nlist:
+            print("work is %g%% done" % ((n/nlist[-1]/4 + f/4)*100))
+            for day in range(day0, day1):
+                object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
+                hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreqs[f],\
+                                                        maxfreq = maxfreqs[f], lat0 = lat0, lat1 = lat1,\
+                                                        norm = True, n = n, pole = "north")
+                if object.samelength != True:
+                    continue
+
+
+
+                means = np.zeros(len(bins))
+                stds = np.zeros_like(means)
+                for i in range(len(bins)):
+                    dbins = bins[i][1]-bins[i][0]
+                    hists[i] = hists[i]/np.sum(hists[i]*dbins)
+                    curr_std, curr_mean = object.pro.std_mean(hists[i], bins[i])
+                    means[i] = curr_mean
+                    stds[i] = curr_std
+
+
+                BA_shift = object.BA_shift
+                BC_shift = object.BC_shift
+                AC_shift = BC_shift - BA_shift
+                BA_shift = BA_shift/2
+                BC_shift = BC_shift/2
+                AC_shift = AC_shift/2
+                shift_list.append(BA_shift)
+                std_list.append(stds[0])
+                shift_list.append(BC_shift)
+                std_list.append(stds[2])
+                shift_list.append(AC_shift)
+                std_list.append(stds[4])
+                if day == 14 or day == 25:
+                    for j in range(3):
+                        k_high.append(1)
+                else:
+                    for j in range(3):
+                        k_high.append(0)
+
+            p = np.polyfit(shift_list, std_list, deg = 1)
+            a = p[0]; b = p[1]
+            a_list.append(a)
+            b_list.append(b)
+        a_list_list.append(a_list)
+        b_list_list.append(b_list)
+
+
+    legend = []
+    plt.figure(0)
+    for i in range(len(a_list_list)):
+        plt.plot(nlist/2, a_list_list[i])
+        legend.append("f: %g - %g" % (minfreqs[i], maxfreqs[i]))
+
+    plt.xlabel("Window size [s]")
+    plt.ylabel("linear regression coefficient a")
+    plt.title("temporal regression component as function of window size")
+    plt.legend(legend)
+
+    plt.figure(1)
+    for i in range(len(b_list_list)):
+        plt.plot(nlist/2, b_list_list[i])
+
+    plt.xlabel("Window size [s]")
+    plt.ylabel("linear regression constant b")
+    plt.title("spatial regression component as function of window size")
+    plt.legend(legend)
+    plt.show()
+
+
+
+
+    stop = time.time()
+    print(stop-start)
+
+
+std_timeshift_n()

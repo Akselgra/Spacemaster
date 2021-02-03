@@ -25,6 +25,8 @@ cdfA = pycdf.CDF(cdfA_path)
 cdfB = pycdf.CDF(cdfB_path)
 cdfC = pycdf.CDF(cdfC_path)
 
+print(cdfA["Radius"][:100])
+
 def correlation_plotter(cdfA = pycdf.CDF(cdfA_path), cdfB = pycdf.CDF(cdfB_path), cdfC = pycdf.CDF(cdfC_path)):
     N = int(1e5)
     NeA = cdfA["Ne"][:N]
@@ -373,4 +375,4 @@ def funky_fftint():
 
 
 
-funky_fftint()
+#funky_fftint()

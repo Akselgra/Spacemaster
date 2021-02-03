@@ -10,6 +10,7 @@ usrname = getuser()
 import os
 os.environ["CDF_LIB"] = "/home/" + usrname +  "/Libraries/cdf/cdf36_3-dist/lib"
 from spacepy import pycdf
+import aacgmv2
 
 
 class GenSWARMread(SWARMprocess):
@@ -53,9 +54,20 @@ class GenSWARMread(SWARMprocess):
             self.radB = self.cdfB["Radius"][:N]
             self.radC = self.cdfC["Radius"][:N]
 
+            #finding altitudes of sattellites
+            r_earth_A = self.earthrad(self.latA)*1000
+            r_earth_B = self.earthrad(self.latB)*1000
+            r_earth_C = self.earthrad(self.latC)*1000
+
+            self.altA = self.radA - r_earth_A
+            self.altB = self.radB - r_earth_B
+            self.altC = self.radC - r_earth_C
+
             #Setting time to seconds after midnight
             self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:N])
             self.stamps = self.cdfA["Timestamp"][:N]
+
+
 
             #self.fs = 2
             self.fs = 1/(self.seconds[1] - self.seconds[0])
@@ -65,6 +77,26 @@ class GenSWARMread(SWARMprocess):
 
         else:
             self.samelength = False
+
+    def mlat(self, lats, longs, alts, stamps):
+        """
+        Calculates magnetic latitudes
+        """
+        mlats = np.zeros_like(lats)
+        for i in range(len(mlats)):
+            mlats[i] = aacgmv2.get_aacgm_coord(lats[i], longs[i], alts[i], stamps[i])[0]
+
+        return(mlats)
+
+    def mlats(self):
+        """
+        calls mlat for each satellite and creates mlat variables
+        """
+        self.mlatA = self.mlat(self.latA, self.longA, self.altA/1000, self.stamps)
+        self.mlatB = self.mlat(self.latB, self.longB, self.altB/1000, self.stamps)
+        self.mlatC = self.mlat(self.latC, self.longC, self.altC/1000, self.stamps)
+
+
     def histmake(self, n = 100, t0 = 0, t1 = 85000, minfreq = 0, maxfreq = True,\
                  bins = 10, abs = False, norm = True):
         """
@@ -313,10 +345,4 @@ if __name__ == "__main__":
     cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path)
-    indisk = object.lat_finder(-90, -75, pole = "south")
-    pole = object.latA[indisk[0][1]]
-    times = object.seconds[indisk[0][1]]
-    print(indisk[0][1])
-    plt.plot(times, pole, "o")
-    plt.plot(object.seconds[indisk[0][0]], object.latA[indisk[0][0]], "ro")
-    plt.show()
+    object.mlats()

@@ -163,6 +163,22 @@ class SWARMprocess():
 
         return(r)
 
+    def earthrad(self, lat, degrees = True):
+        """
+        Calculates earths radius at given latitude
+        """
+        if degrees:
+            lat = lat/180*np.pi
+
+        polerad = 6356.752 #km
+        equatorrad = 6378.137 #km
+
+        first = (equatorrad**2*np.cos(lat))**2
+        second = (polerad**2*np.sin(lat))**2
+        third = (equatorrad*np.cos(lat))**2
+        fourth = (polerad*np.sin(lat))**2
+        return(np.sqrt((first + second)/(third + fourth)))
+
     def reshape(self, array, shape):
         """
         Takes 1d array and shape
@@ -491,6 +507,6 @@ class SWARMprocess():
 
 if __name__ == "__main__":
     pro = SWARMprocess()
-    x = np.array([3,150,0.7])
-    y = np.array([2, 100, 0.5])
-    print(pro.relative_diff(x, y, norm = False, abs = False))
+    lat = 60
+    rad = pro.earthrad(lat)
+    print(rad)
