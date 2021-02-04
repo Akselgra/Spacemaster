@@ -188,9 +188,7 @@ def std_timeshift_n():
     day1 = 31
     lat1 = 90
     lat0 = 75
-    shift_list = []
-    std_list = []
-    k_high = []
+
 
     a_list_list = []
     b_list_list = []
@@ -198,12 +196,16 @@ def std_timeshift_n():
     minfreqs = [0.1, 0.3, 0.5, 0.7]
     maxfreqs = [0.3, 0.5, 0.7, 0.9]
 
-    nlist = np.linspace(10, 600, 20)
+
+    nlist = np.linspace(10, 600, 80)
     for f in range(len(minfreqs)):
         a_list = []
         b_list = []
         for n in nlist:
-            print("work is %g%% done" % ((n/nlist[-1]/4 + f/4)*100))
+            print("work is %g%% done" % ((n/nlist[-1]/len(minfreqs) + f/(len(minfreqs)))*100))
+            shift_list = []
+            std_list = []
+            k_high = []
             for day in range(day0, day1):
                 object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
                 hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreqs[f],\
@@ -247,6 +249,8 @@ def std_timeshift_n():
             a = p[0]; b = p[1]
             a_list.append(a)
             b_list.append(b)
+        a_list = np.array(a_list)
+        b_list = np.array(b_list)
         a_list_list.append(a_list)
         b_list_list.append(b_list)
 
