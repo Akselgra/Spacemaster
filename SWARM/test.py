@@ -16,7 +16,5 @@
 # print(testy["glats"].attrs)
 
 import numpy as np
-nlist = np.linspace(10, 600, 80)
-
-for n in nlist:
-    print(n)
+a = float("nan")
+print(a == a)

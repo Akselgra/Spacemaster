@@ -214,7 +214,7 @@ class MultiSWARM():
 
     def multi_histmake_lat(self, n = 100, minfreq = 0, maxfreq = True,\
                  bins_ = 10, abs = False, norm = True, lat1 = 75, lat0 = 0,\
-                 pole = "both"):
+                 pole = "both", mlat = False):
         """
         make histograms of relative difference in integrated fouriers using
         multiple dates of data
@@ -228,6 +228,8 @@ class MultiSWARM():
             bins_ - int; number of bin edges.
             lat1 - float; high latitude limit
             lat0 - float; low latitude limit
+            pole - string; "north", "south" or "both". Decides what pole we are looking at.
+            mlat - bool; if True, uses magnetic latitudes
 
         returns:
             hists; list of histograms [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
@@ -267,7 +269,8 @@ class MultiSWARM():
 
             temp_hists, bins = data.lat_hist(n = n, minfreq = minfreq, maxfreq = maxfreq,\
                                         bins = binlist, abs = abs, norm = norm,\
-                                        lat_limit = lat1, lat0 = lat0, pole = pole)
+                                        lat_limit = lat1, lat0 = lat0, pole = pole,\
+                                        mlat = mlat)
 
             histsBA_low = histsBA_low + temp_hists[1]
             histsBA_high = histsBA_high + temp_hists[0]
@@ -322,7 +325,7 @@ class MultiSWARM():
 
     def freq_sig_lat(self,df = 0.1, n = 100,\
                  bins_ = 10, abs = False, norm = True, lat1 = 75, lat0 = 0,
-                 f0 = 0, f1 = 1, pole = "both"):
+                 f0 = 0, f1 = 1, pole = "both", mlat = False):
         """
         Calculates standard deviation and mean as a function of frequency
         returns:
@@ -339,7 +342,7 @@ class MultiSWARM():
             minfreq = freq0s[i]
             maxfreq = freq0s[i]+df
             hists, bins = self.multi_histmake_lat(n = n, minfreq = minfreq , maxfreq = maxfreq,\
-                         bins_ = bins_, abs = abs, norm = norm, lat1 = lat1, lat0 = lat0, pole = pole)
+                         bins_ = bins_, abs = abs, norm = norm, lat1 = lat1, lat0 = lat0, pole = pole, mlat = mlat)
             for j in range(len(hists)):
                 d_bins = bins[j][1] - bins[j][0]
                 hists[j] = hists[j]/np.sum(hists[j]*d_bins)

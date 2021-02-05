@@ -106,7 +106,8 @@ def std_timeshift():
     day0 = 9
     day1 = 31
     lat1 = 90
-    lat0 = 75
+    lat0 = 77
+    mlat = True
     shift_list = []
     std_list = []
     k_high = []
@@ -114,7 +115,7 @@ def std_timeshift():
         object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
         hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
                                                 maxfreq = maxfreq, lat0 = lat0, lat1 = lat1,\
-                                                norm = True, n = 400, pole = "north")
+                                                norm = True, n = 400, pole = "north", mlat = mlat)
         if object.samelength != True:
             continue
 
@@ -159,7 +160,7 @@ def std_timeshift():
     plt.plot(shift_list, std_list, "ko")
     plt.xlabel("Time between satellites [s]")
     plt.ylabel("Standard deviation of histograms")
-    plt.title("Stds per day, integral limits: %g to %g" % (minfreq, maxfreq))
+    plt.title("Stds per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
     plt.legend(["Linear regression", "data points"])
 
 
@@ -188,6 +189,7 @@ def std_timeshift_n():
     day1 = 31
     lat1 = 90
     lat0 = 75
+    mlat = True
 
 
     a_list_list = []
@@ -197,7 +199,7 @@ def std_timeshift_n():
     maxfreqs = [0.3, 0.5, 0.7, 0.9]
 
 
-    nlist = np.linspace(10, 600, 80)
+    nlist = np.linspace(10, 600, 10)
     for f in range(len(minfreqs)):
         a_list = []
         b_list = []
@@ -210,7 +212,7 @@ def std_timeshift_n():
                 object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
                 hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreqs[f],\
                                                         maxfreq = maxfreqs[f], lat0 = lat0, lat1 = lat1,\
-                                                        norm = True, n = n, pole = "north")
+                                                        norm = True, n = n, pole = "north", mlat = mlat)
                 if object.samelength != True:
                     continue
 
@@ -283,4 +285,4 @@ def std_timeshift_n():
     print(stop-start)
 
 
-std_timeshift_n()
+std_timeshift()

@@ -35,9 +35,8 @@ class GenSWARMread(SWARMprocess):
         self.samelength = True
 
         if len(self.cdfA["Ne"]) == len(self.cdfB["Ne"]) == len(self.cdfC["Ne"]):
-            if N:
+            if N == True:
                 N = len(self.cdfA["Ne"])
-
             self.NeA = self.cdfA["Ne"][:N]
             self.NeB = self.cdfB["Ne"][:N]
             self.NeC = self.cdfC["Ne"][:N]
@@ -82,10 +81,15 @@ class GenSWARMread(SWARMprocess):
         """
         Calculates magnetic latitudes
         """
-        mlats = np.zeros_like(lats)
-        for i in range(len(mlats)):
-            mlats[i] = aacgmv2.get_aacgm_coord(lats[i], longs[i], alts[i], stamps[i])[0]
+        # mlats = np.zeros_like(lats)
+        # for i in range(len(mlats)):
+        #     mlat = aacgmv2.get_aacgm_coord(lats[i], longs[i], alts[i], stamps[i])[0]
+        #     if mlat != mlat:
+        #         mlats[i] = lats[i]
+        #     else:
+        #         mlats[i] = mlat
 
+        mlats = aacgmv2.get_aacgm_coord_arr(lats, longs, alts, stamps[0])[0]
         return(mlats)
 
     def mlats(self):
@@ -233,9 +237,88 @@ class GenSWARMread(SWARMprocess):
 
 
 
+
+    def mlat_finder(self, lat1, lat0, pole = "north"):
+        """
+        Splits data set in high and low latitude regions
+        split by geomagnetic latitude
+        returns:
+            indisk - list; list on the form [[A0, A1],[B0, B1],[C0,C1]]
+                           where A0...C1 are arrays of indices
+                           with 1 being the region between lat0 and lat1
+                           and 0 being the region between lat1 and lat0
+        """
+
+        self.mlats()
+        if pole == "both":
+            lowerA = np.abs(self.mlatA) < lat1
+            higherA = np.abs(self.mlatA) > lat0
+            is_poleA = lowerA * higherA
+
+            lowerB = np.abs(self.mlatB) < lat1
+            higherB = np.abs(self.mlatB) > lat0
+            is_poleB = lowerB * higherB
+
+            lowerC = np.abs(self.mlatC) < lat1
+            higherC = np.abs(self.mlatC) > lat0
+            is_poleC = lowerC * higherC
+
+        elif pole == "north":
+            lowerA = (self.mlatA) < lat1
+            higherA = (self.mlatA) > lat0
+            is_poleA = lowerA * higherA
+
+            lowerB = (self.mlatB) < lat1
+            higherB = (self.mlatB) > lat0
+            is_poleB = lowerB * higherB
+
+            lowerC = (self.mlatC) < lat1
+            higherC = (self.mlatC) > lat0
+            is_poleC = lowerC * higherC
+
+        elif pole == "south":
+            lowerA = (self.mlatA) > lat1
+            higherA = (self.mlatA) < lat0
+            is_poleA = lowerA * higherA
+
+            lowerB = (self.mlatB) > lat1
+            higherB = (self.mlatB) < lat0
+            is_poleB = lowerB * higherB
+
+            lowerC = (self.mlatC) > lat1
+            higherC = (self.mlatC) < lat0
+            is_poleC = lowerC * higherC
+
+
+
+
+        # is_poleA = np.logical_not(lat0 < np.abs(self.latA) < lat)
+        # is_poleB = np.logical_not(lat0 < np.abs(self.latB) < lat)
+        # is_poleC = np.logical_not(lat0 < np.abs(self.latC) < lat)
+
+
+
+        high_lat_A = np.where(is_poleA == 1)
+        high_lat_B = np.where(is_poleB == 1)
+        high_lat_C = np.where(is_poleC == 1)
+
+        low_lat_A = np.where(is_poleA == 0)
+        low_lat_B = np.where(is_poleB == 0)
+        low_lat_C = np.where(is_poleC == 0)
+
+        indsA = [low_lat_A, high_lat_A]
+        indsB = [low_lat_B, high_lat_B]
+        indsC = [low_lat_C, high_lat_C]
+
+        indisk = [indsA, indsB, indsC]
+
+        return indisk
+
+
+
     def lat_hist(self, n = 100, minfreq = 0, maxfreq = True,\
                  bins = 10, abs = False, norm = True, lat_limit = 75, lat0 = 0,\
-                 pole = "both"):
+                 pole = "both", mlat = False):
         """
         makes 2 histograms for each combination of satellites
         by splitting data into high and low latitude.
@@ -249,7 +332,10 @@ class GenSWARMread(SWARMprocess):
             maxfreq = self.fs/2
 
         #splitting by latitude
-        indisk = self.lat_finder(lat_limit, lat0, pole = pole)
+        if mlat == True:
+            indisk = self.mlat_finder(lat_limit, lat0, pole = pole)
+        else:
+            indisk = self.lat_finder(lat_limit, lat0, pole = pole)
         high_NeA = self.NeA[indisk[0][1]]
         low_NeA = self.NeA[indisk[0][0]]
 
@@ -344,5 +430,28 @@ if __name__ == "__main__":
     cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
     cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
-    object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path)
+    from time import time
+    start = time()
+    object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path, N = 50000)
+    second = time()
     object.mlats()
+    stop = time()
+    print("Initializing took %g seconds" % (second - start))
+    print("Converting to mlats took %g seconds" % (stop - second))
+
+    indisk = object.lat_finder(90, 83, pole = "north")
+    poleA = indisk[0][1]
+    timeA = object.seconds[poleA]
+    mlatA = object.mlatA[poleA]
+    indices = np.arange(len(mlatA))
+    plt.plot(indices, mlatA)
+    plt.show()
+    # latdiff = object.mlatA - object.latA
+    # plt.figure(0)
+    # plt.plot(object.seconds, object.mlatA)
+    # plt.plot(object.seconds, object.latA)
+    # plt.legend(["mlat", "lat"])
+    #
+    # plt.figure(1)
+    # plt.plot(object.latA, latdiff)
+    # plt.show()
