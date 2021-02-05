@@ -163,6 +163,22 @@ class SWARMprocess():
 
         return(r)
 
+    def earthrad(self, lat, degrees = True):
+        """
+        Calculates earths radius at given latitude
+        """
+        if degrees:
+            lat = lat/180*np.pi
+
+        polerad = 6356.752 #km
+        equatorrad = 6378.137 #km
+
+        first = (equatorrad**2*np.cos(lat))**2
+        second = (polerad**2*np.sin(lat))**2
+        third = (equatorrad*np.cos(lat))**2
+        fourth = (polerad*np.sin(lat))**2
+        return(np.sqrt((first + second)/(third + fourth)))
+
     def reshape(self, array, shape):
         """
         Takes 1d array and shape
@@ -276,7 +292,7 @@ class SWARMprocess():
         Gaussian bell function
         """
         first = 1/(std*np.sqrt(2*np.pi))
-        second = -0.5*(x - mean)**2/(std**2)
+        second = -0.5*((x - mean)/(std))**2
         return(first*np.exp(second))
 
     def cross_spectrum(self, u, v, fs = 2):
@@ -446,6 +462,51 @@ class SWARMprocess():
 
         return(times, CSD_int)
 
+    def relative_diff(self, array1, array2, abs = True, norm = True):
+        """
+        Takes 2 arrays and returns relative difference
+        |array1 - array2|/max(array1, array2)
+
+        parameters:
+            array1 - array
+            array2 - array
+            abs - bool; if True, will take absolute value
+            norm - bool; if True, will normalize
+        returns:
+            diff - array
+        """
+
+        assert len(array1)==len(array2), "array1 and array2 must be of equal length"
+
+        if abs:
+            diff = np.abs(array1 - array2)
+        else:
+            diff = array1 - array2
+
+        normals = np.zeros_like(array1) #normalization array
+
+        for i in range(len(normals)):
+            normals[i] = np.max(np.array([array1[i], array2[i]]))
+
+        if norm:
+            diff = diff/normals
+
+        return(diff)
+
+    def std_mean(self, hist, bin):
+        """
+        Takes a histogram hist and bins bin
+        calculates standard deviation and mean.
+        returns:
+            std, mean
+        """
+        mean = np.sum(hist*bin)/np.sum(hist)
+        std = np.sqrt(np.sum((bin-mean)**2*hist)/np.sum(hist))
+        return(std, mean)
+
 
 if __name__ == "__main__":
-    pass
+    pro = SWARMprocess()
+    lat = 60
+    rad = pro.earthrad(lat)
+    print(rad)
