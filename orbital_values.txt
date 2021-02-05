@@ -1,0 +1,11 @@
+alt_11 = 507 km
+orb_vel_11 = 7600 m/s
+BAdiff_11 = 25.5 s
+BCdiff_11 = 76.5 s
+ACdiff_11 = 51.0 s
+
+alt_30 = 507 km
+orb_vel_30 = 7600 m/s
+BAdiff_30 = 59 s
+BCdiff_30 = 165.5 s
+ACdiff_30 = 106.5 s
