@@ -53,6 +53,8 @@ class GenSWARMread(SWARMprocess):
             self.radB = self.cdfB["Radius"][:N]
             self.radC = self.cdfC["Radius"][:N]
 
+            self.vel = self.cdfB["U_orbit"][:N]
+
             #finding altitudes of sattellites
             r_earth_A = self.earthrad(self.latA)*1000
             r_earth_B = self.earthrad(self.latB)*1000
@@ -90,6 +92,8 @@ class GenSWARMread(SWARMprocess):
         #         mlats[i] = mlat
 
         mlats = aacgmv2.get_aacgm_coord_arr(lats, longs, alts, stamps[0])[0]
+        temp_inds = np.nonzero(np.isnan(mlats))
+        mlats[temp_inds] = lats[temp_inds]
         return(mlats)
 
     def mlats(self):
@@ -425,27 +429,18 @@ class GenSWARMread(SWARMprocess):
 
 
 if __name__ == "__main__":
-    day = "11"
+    day_ = "30"
     data_path = "/home/" + usrname +  "/Documents/Master/Swarm_Data"
-    cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIA_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
-    cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
-    cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day+"T000000_201312"+day+"T235959_0501_MDR_EFI_LP.cdf"
+    cdfA_path = data_path + "/Sat_A/SW_OPER_EFIA_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501.CDF/SW_OPER_EFIA_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501_MDR_EFI_LP.cdf"
+    cdfB_path = data_path + "/Sat_B/SW_OPER_EFIB_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501.CDF/SW_OPER_EFIB_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501_MDR_EFI_LP.cdf"
+    cdfC_path = data_path + "/Sat_C/SW_OPER_EFIC_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501.CDF/SW_OPER_EFIC_LP_1B_201312"+day_+"T000000_201312"+day_+"T235959_0501_MDR_EFI_LP.cdf"
     from time import time
     start = time()
     object = GenSWARMread(cdfA_path, cdfB_path, cdfC_path, N = 50000)
-    second = time()
-    object.mlats()
-    stop = time()
-    print("Initializing took %g seconds" % (second - start))
-    print("Converting to mlats took %g seconds" % (stop - second))
-
-    indisk = object.lat_finder(90, 83, pole = "north")
-    poleA = indisk[0][1]
-    timeA = object.seconds[poleA]
-    mlatA = object.mlatA[poleA]
-    indices = np.arange(len(mlatA))
-    plt.plot(indices, mlatA)
-    plt.show()
+    print("Altitude at day " + day_ + ": %g" % (np.mean(object.altA)/1000))
+    print("Time difference BA at day "+ day_+ ": %g" % (object.BA_shift/2))
+    print("Time difference BC at day "+ day_+ ": %g" % (object.BC_shift/2))
+    print("Orbital velocity at day " + day_+ ": %g" % np.mean(object.vel))
     # latdiff = object.mlatA - object.latA
     # plt.figure(0)
     # plt.plot(object.seconds, object.mlatA)

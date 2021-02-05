@@ -235,7 +235,7 @@ class MultiSWARM():
             hists; list of histograms [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
             bins; list of bins [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
         """
-
+        
         if norm == True:
             binlist = np.linspace(-1, 1, bins_)
 

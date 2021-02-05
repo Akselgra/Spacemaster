@@ -50,12 +50,12 @@ def sigma_plotter_lat():
 
 def spec_lat_hist_plotter():
     start = time.time()
-    object = multi_SWARMreader.MultiSWARM(2013, 12, 10, 2013, 12, 10)
-    minfreq = 0
-    maxfreq = 1
+    object = multi_SWARMreader.MultiSWARM(2013, 12, 25, 2013, 12, 25)
+    minfreq = 0.3
+    maxfreq = 0.5
     hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
-                                            maxfreq = maxfreq, lat0 = 75, lat1 = 90,\
-                                            norm = True, n = 100)
+                                            maxfreq = maxfreq, lat0 = 77, lat1 = 90,\
+                                            norm = True, n = 300, mlat = True)
 
 
 
@@ -70,30 +70,48 @@ def spec_lat_hist_plotter():
 
 
     xs = np.linspace(np.min(bins[0]), np.max(bins[0]), 1000)
-    for i in range(len(hists)):
-        gauss = object.pro.gauss_curve(x = xs, mean = means[i], std = stds[i])
-        plt.figure(i)
-        width = bins[i][1] - bins[i][0]
-        plt.plot(xs, gauss, "r")
-        plt.bar(bins[i], hists[i], width = 0.9*width)
-        plt.xlabel("Relative difference")
-        plt.ylabel("Normalized occurence")
-        plt.legend(["Gauss approximation", "Histogram"])
-        stringies = ["B-A high", "B-A low", "B-C high", "B-C low", "A-C high", "A-C low"]
-        plt.title(stringies[i])
+
+    fig, axs = plt.subplots(2, 3)
+
+    for j in range(3):
+        for i in [0, 1]:
+            k = 2*j+i
+            gauss = object.pro.gauss_curve(x = xs, mean = means[k], std = stds[k])
+            axs[i, j].plot(xs, gauss, "r")
+            width = bins[k][1] - bins[k][0]
+            axs[i, j].bar(bins[k], hists[k], width = 0.9*width)
+            # axs[i, j].xlabel("Relative difference")
+            # axs[i, j].ylabel("Normalized occurence")
+            # axs[i, j].legend(["Gauss approximation", "Histogram"])
+            stringies = ["B-A high", "B-A low", "B-C high", "B-C low", "A-C high", "A-C low"]
+            axs[i, j].set_title("std = %g" % stds[k] +", " + stringies[k])
+    for ax in axs.flat:
+        ax.set(xlabel="relative diff", ylabel="normalized occurence")
+
+    # for i in range(len(hists)):
+    #     gauss = object.pro.gauss_curve(x = xs, mean = means[i], std = stds[i])
+    #     plt.figure(i)
+    #     width = bins[i][1] - bins[i][0]
+    #     plt.plot(xs, gauss, "r")
+    #     plt.bar(bins[i], hists[i], width = 0.9*width)
+    #     plt.xlabel("Relative difference")
+    #     plt.ylabel("Normalized occurence")
+    #     plt.legend(["Gauss approximation", "Histogram"])
+    #     stringies = ["B-A high", "B-A low", "B-C high", "B-C low", "A-C high", "A-C low"]
+    #     plt.title(stringies[i])
 
     plt.show()
 
-    BA_shift = object.BA_shift
-    BC_shift = object.BC_shift
-    AC_shift = BC_shift - BA_shift
-    BA_shift = BA_shift/2
-    BC_shift = BC_shift/2
-    AC_shift = AC_shift/2
-    plt.plot([BA_shift, AC_shift, BC_shift], [stds[0], stds[4], stds[2]], "o-")
-    plt.xlabel("Time difference between satellites")
-    plt.ylabel("standard deviation in high latitude histograms")
-    plt.show()
+    # BA_shift = object.BA_shift
+    # BC_shift = object.BC_shift
+    # AC_shift = BC_shift - BA_shift
+    # BA_shift = BA_shift/2
+    # BC_shift = BC_shift/2
+    # AC_shift = AC_shift/2
+    # plt.plot([BA_shift, AC_shift, BC_shift], [stds[0], stds[4], stds[2]], "o-")
+    # plt.xlabel("Time difference between satellites")
+    # plt.ylabel("standard deviation in high latitude histograms")
+    # plt.show()
 
 
     stop = time.time()
@@ -101,8 +119,8 @@ def spec_lat_hist_plotter():
 
 def std_timeshift():
     start = time.time()
-    minfreq = 0.1
-    maxfreq = 0.3
+    minfreq = 0.3
+    maxfreq = 0.5
     day0 = 9
     day1 = 31
     lat1 = 90
@@ -285,4 +303,4 @@ def std_timeshift_n():
     print(stop-start)
 
 
-std_timeshift()
+spec_lat_hist_plotter()
