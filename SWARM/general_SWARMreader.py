@@ -92,6 +92,7 @@ class GenSWARMread(SWARMprocess):
         #         mlats[i] = mlat
 
         mlats = aacgmv2.get_aacgm_coord_arr(lats, longs, alts, stamps[0])[0]
+        # mlats, mlons, mrads = aacgmv2.convert_latlon_arr(lats, longs, alts, stamps[0])[0]
         temp_inds = np.nonzero(np.isnan(mlats))
         mlats[temp_inds] = lats[temp_inds]
         return(mlats)

@@ -50,9 +50,9 @@ def sigma_plotter_lat():
 
 def spec_lat_hist_plotter():
     start = time.time()
-    object = multi_SWARMreader.MultiSWARM(2013, 12, 25, 2013, 12, 25)
-    minfreq = 0.3
-    maxfreq = 0.5
+    object = multi_SWARMreader.MultiSWARM(2013, 12, 14, 2013, 12, 14)
+    minfreq = 0.1
+    maxfreq = 0.3
     hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
                                             maxfreq = maxfreq, lat0 = 77, lat1 = 90,\
                                             norm = True, n = 300, mlat = True)
@@ -119,8 +119,8 @@ def spec_lat_hist_plotter():
 
 def std_timeshift():
     start = time.time()
-    minfreq = 0.3
-    maxfreq = 0.5
+    minfreq = 0.1
+    maxfreq = 0.3
     day0 = 9
     day1 = 31
     lat1 = 90
@@ -133,7 +133,7 @@ def std_timeshift():
         object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
         hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
                                                 maxfreq = maxfreq, lat0 = lat0, lat1 = lat1,\
-                                                norm = True, n = 400, pole = "north", mlat = mlat)
+                                                norm = True, n = 300, pole = "north", mlat = mlat)
         if object.samelength != True:
             continue
 
