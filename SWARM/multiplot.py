@@ -303,4 +303,76 @@ def std_timeshift_n():
     print(stop-start)
 
 
-spec_lat_hist_plotter()
+def multi_std_timeshift():
+    start = time.time()
+    minfreq = 0.1
+    maxfreq = 0.3
+    day0 = 9
+    day1 = 31
+    lat1 = 90
+    lat0 = 77
+    mlat = True
+    ns = [80, 300]
+    colors = ["k", "r"]
+    for k in range(len(ns)):
+        shift_list = []
+        std_list = []
+        k_high = []
+        for day in range(day0, day1):
+            object = multi_SWARMreader.MultiSWARM(2013, 12, day, 2013, 12, day)
+            hists, bins = object.multi_histmake_lat(bins_ = 50, minfreq = minfreq,\
+                                                    maxfreq = maxfreq, lat0 = lat0, lat1 = lat1,\
+                                                    norm = True, n = ns[k], pole = "north", mlat = mlat)
+            if object.samelength != True:
+                continue
+
+
+
+            means = np.zeros(len(bins))
+            stds = np.zeros_like(means)
+            for i in range(len(bins)):
+                dbins = bins[i][1]-bins[i][0]
+                hists[i] = hists[i]/np.sum(hists[i]*dbins)
+                curr_std, curr_mean = object.pro.std_mean(hists[i], bins[i])
+                means[i] = curr_mean
+                stds[i] = curr_std
+
+
+            BA_shift = object.BA_shift
+            BC_shift = object.BC_shift
+            AC_shift = BC_shift - BA_shift
+            BA_shift = BA_shift/2
+            BC_shift = BC_shift/2
+            AC_shift = AC_shift/2
+            shift_list.append(BA_shift)
+            std_list.append(stds[0])
+            shift_list.append(BC_shift)
+            std_list.append(stds[2])
+            shift_list.append(AC_shift)
+            std_list.append(stds[4])
+            if day == 14 or day == 25:
+                for j in range(3):
+                    k_high.append(1)
+            else:
+                for j in range(3):
+                    k_high.append(0)
+
+        p = np.polyfit(shift_list, std_list, deg = 1)
+        a = p[0]; b = p[1]
+        print("Slope of regression is %g" % a)
+        print("Constant of linear regression is %g" % b)
+        xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+        plt.figure(1)
+        plt.plot(xs, xs*a + b, colors[k])
+        plt.plot(shift_list, std_list, colors[k] + "o")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("Standard deviation of histograms")
+    plt.title("Stds per day, f: %g - %g" % (minfreq, maxfreq))
+    plt.legend(["n = 80", "n = 80", "n = 300", "n = 300"])
+    plt.show()
+
+    stop = time.time()
+    print(stop-start)
+
+
+multi_std_timeshift()

@@ -5,10 +5,10 @@ pro = SWARMprocess.SWARMprocess()
 N = 170000
 n = 400
 def bob(n):
-    size = int(N/n*2)
+    size = int(n/2)
     t = np.linspace(20, 160, 100)
     rands = []
-    spatial = 0.2 + 0.2*(400-n)/400
+    spatial = 0.2 + 0*(400-n)/400
     for i in range(len(t)):
         temporal = 0.002*t[i]
         rands.append(np.random.normal(scale = spatial + temporal, size = size))
