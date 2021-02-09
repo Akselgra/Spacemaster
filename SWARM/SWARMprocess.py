@@ -516,7 +516,6 @@ class SWARMprocess():
         diff = diff.astype(int)
         inds = np.nonzero(diff)[0]
         vals = diff[inds]
-        print(vals)
 
         for i in range(len(inds)):
             inds[i] = inds[i] + 1
@@ -572,7 +571,7 @@ class SWARMprocess():
 
         A = np.delete(A_filled, indices)
         B = np.delete(B_filled, indices)
-        
+
         return A, B
 if __name__ == "__main__":
     pro = SWARMprocess()
