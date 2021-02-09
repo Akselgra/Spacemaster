@@ -16,5 +16,7 @@
 # print(testy["glats"].attrs)
 
 import numpy as np
-a = float("nan")
-print(a == a)
+
+m = np.array([3,4,6,7,10,15])
+ind = np.array([1, 2])
+print(m[ind])

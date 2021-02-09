@@ -18,7 +18,7 @@ class GenSWARMread(SWARMprocess):
     Generalized class for reading SWARM data
     """
 
-    def __init__(self, filenameA, filenameB, filenameC, N = True):
+    def __init__(self, filenameA, filenameB, filenameC, N = True, compare = False):
         """
         Constructor
         parameters:
@@ -37,6 +37,7 @@ class GenSWARMread(SWARMprocess):
         if len(self.cdfA["Ne"]) == len(self.cdfB["Ne"]) == len(self.cdfC["Ne"]):
             if N == True:
                 N = len(self.cdfA["Ne"])
+
             self.NeA = self.cdfA["Ne"][:N]
             self.NeB = self.cdfB["Ne"][:N]
             self.NeC = self.cdfC["Ne"][:N]
@@ -55,6 +56,11 @@ class GenSWARMread(SWARMprocess):
 
             self.vel = self.cdfB["U_orbit"][:N]
 
+            self.velA = self.cdfA["U_orbit"][:N]
+            self.velB = self.cdfB["U_orbit"][:N]
+            self.velC = self.cdfC["U_orbit"][:N]
+
+
             #finding altitudes of sattellites
             r_earth_A = self.earthrad(self.latA)*1000
             r_earth_B = self.earthrad(self.latB)*1000
@@ -68,16 +74,83 @@ class GenSWARMread(SWARMprocess):
             self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:N])
             self.stamps = self.cdfA["Timestamp"][:N]
 
+            if compare == True:
+                self.secondsA = self.seconds
+                self.stampsA = self.stamps
+
+                self.secondsB = self.stamp_to_sec(self.cdfB["Timestamp"][:N])
+                self.stampsB = self.cdfB["Timestamp"][:N]
+
+                self.secondsC = self.stamp_to_sec(self.cdfC["Timestamp"][:N])
+                self.stampsC = self.cdfC["Timestamp"][:N]
 
 
-            #self.fs = 2
-            self.fs = 1/(self.seconds[1] - self.seconds[0])
+
+            self.fs = 2
+            # self.fs = 1/(self.seconds[1] - self.seconds[0])
 
             self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
             self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
 
         else:
             self.samelength = False
+
+            #slicing specificly when there are holes in the data
+            if N == True:
+                NA = len(self.cdfA["Ne"]); NB = len(self.cdfB["Ne"]); NC = len(self.cdfC["Ne"])
+            else:
+                NA = N; NB = N; NC = N
+
+            self.NeA = self.cdfA["Ne"][:NA]
+            self.NeB = self.cdfB["Ne"][:NB]
+            self.NeC = self.cdfC["Ne"][:NC]
+
+            self.longA = self.cdfA["Longitude"][:NA]
+            self.longB = self.cdfB["Longitude"][:NB]
+            self.longC = self.cdfC["Longitude"][:NC]
+
+            self.latA = self.cdfA["Latitude"][:NA]
+            self.latB = self.cdfB["Latitude"][:NB]
+            self.latC = self.cdfC["Latitude"][:NC]
+
+            self.radA = self.cdfA["Radius"][:NA]
+            self.radB = self.cdfB["Radius"][:NB]
+            self.radC = self.cdfC["Radius"][:NC]
+
+            self.velB = self.cdfB["U_orbit"][:NB]
+            self.velA = self.cdfA["U_orbit"][:NA]
+            self.velC = self.cdfC["U_orbit"][:NC]
+
+            #finding altitudes of sattellites
+            r_earth_A = self.earthrad(self.latA)*1000
+            r_earth_B = self.earthrad(self.latB)*1000
+            r_earth_C = self.earthrad(self.latC)*1000
+
+            self.altA = self.radA - r_earth_A
+            self.altB = self.radB - r_earth_B
+            self.altC = self.radC - r_earth_C
+
+            #Setting time to seconds after midnight
+            self.seconds = self.stamp_to_sec(self.cdfA["Timestamp"][:NA])
+            self.stamps = self.cdfA["Timestamp"][:NA]
+
+            self.secondsA = self.seconds
+            self.stampsA = self.stamps
+
+            self.secondsB = self.stamp_to_sec(self.cdfB["Timestamp"][:NB])
+            self.stampsB = self.cdfB["Timestamp"][:NB]
+
+            self.secondsC = self.stamp_to_sec(self.cdfC["Timestamp"][:NC])
+            self.stampsC = self.cdfC["Timestamp"][:NC]
+
+
+
+            self.fs = 2
+            # self.fs = 1/(self.seconds[1] - self.seconds[0])
+
+
+
+
 
     def mlat(self, lats, longs, alts, stamps):
         """

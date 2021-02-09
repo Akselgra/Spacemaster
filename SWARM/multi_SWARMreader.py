@@ -11,6 +11,8 @@ usrname = getuser()
 import os
 os.environ["CDF_LIB"] = "/home/" + usrname +  "/Libraries/cdf/cdf36_3-dist/lib"
 from spacepy import pycdf
+from scipy.io import savemat
+from scipy.io import loadmat
 
 
 class MultiSWARM():
@@ -161,6 +163,123 @@ class MultiSWARM():
 
         return(files)
 
+    def writefile(self):
+        """
+        Shapes CDF files and writes them as .mat files.
+        """
+        #testing
+
+        for i in range(self.init_loop_index, self.end_loop_index):
+            files = self.gen_filenames(i)
+            data = GenSWARMread(files[0], files[1], files[2], compare = True)
+            # data.mlats()
+            NA = len(data.NeA); NB = len(data.NeB); NC = len(data.NeC);
+            N = np.min([NA, NB, NC])
+
+
+            NeA = data.NeA
+            NeB = data.NeB
+            NeC = data.NeC
+
+            longA = data.longA
+            longB = data.longB
+            longC = data.longC
+
+            latA = data.latA
+            latB = data.latB
+            latC = data.latC
+
+            radA = data.radA
+            radB = data.radB
+            radC = data.radC
+
+            velA = data.velA
+            velB = data.velB
+            velC = data.velC
+
+            altA = data.altA
+            altB = data.altB
+            altC = data.altC
+
+            secondsA = data.secondsA
+            secondsB = data.secondsB
+            secondsC = data.secondsC
+
+            stampsA = data.stampsA
+            stampsB = data.stampsB
+            stampsC = data.stampsC
+
+            # mlatA = data.mlatA
+            # mlatB = data.mlatB
+            # mlatC = data.mlatC
+
+            fs = data.fs
+
+            secondsA, secondsB = self.pro.holemake(NeA, NeB, secondsA, secondsB, fs)
+
+
+
+            # Adiff = secondsA[1:] - secondsA[:-1]
+            #
+            # Bdiff = secondsB[1:] - secondsB[:-1]
+            #
+            # Adiff = (Adiff - 1/fs)*fs
+            # Bdiff = (Bdiff - 1/fs)*fs
+            # Adiff = Adiff.astype(int)
+            # Bdiff = Bdiff.astype(int)
+            #
+            # Ainds = np.nonzero(Adiff)[0]
+            # Binds = np.nonzero(Bdiff)[0]
+            #
+            # Avals = Adiff[Ainds]
+            # Bvals = Bdiff[Binds]
+            #
+            #
+            # for a in range(len(Ainds)):
+            #     Ainds[a] = Ainds[a] +  1
+            # for b in range(len(Binds)):
+            #     Binds[b] = Binds[b] +  1
+            #
+            # A_slice = []
+            # B_slice = []
+            #
+            # A_slice.append(secondsA[:Ainds[0]])
+            # B_slice.append(secondsB[:Binds[0]])
+            #
+            # #fixing A
+            # for k in range(len(A_ind0s)-1):
+            #     A_slice.append(np.zeros(Avals[k]))
+            #     A_slice.append(secondsA[Ainds[k]:Ainds[k+1]])
+            #
+            # A_slice.append(np.zeros(Avals[-1]))
+            # A_slice.append(secondsA[Ainds[-1]:])
+            #
+            #
+            # secondsA = np.array([])
+            # for slice in A_slice:
+            #     secondsA = np.concatenate((secondsA, slice))
+            #
+            # #fixing B
+            # for l in range(len(Binds)-1):
+            #     B_slice.append(np.zeros(Bvals[l]))
+            #     B_slice.append(secondsB[Binds[l]:Binds[l+1]])
+            #
+            # B_slice.append(np.zeros(Bvals[-1]))
+            # B_slice.append(secondsB[Binds[-1]:])
+            #
+            # secondsB = np.array([])
+            # for slice in B_slice:
+            #     secondsB = np.concatenate((secondsB, slice))
+
+            # path = self.data_path + "/test"
+            # if not os.path.exists(path):
+            #     os.makedirs(path)
+            # mdic = {"NeA": data.NeA, "NeB": data.NeB, "NeC": data.NeC,\
+            #         "longA": data.longA, "longB": data.longB, ""}
+            # savemat(path, mdic)
+
+
+
 
     def multi_histmake(self, n = 100, minfreq = 0, maxfreq = True,\
                  bins_ = 10, abs = False, norm = True):
@@ -235,12 +354,13 @@ class MultiSWARM():
             hists; list of histograms [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
             bins; list of bins [BA_high, BA_low, BC_high, BC_low, AC_high, AC_low]
         """
-        
+
         if norm == True:
             binlist = np.linspace(-1, 1, bins_)
 
         else:
-            binlist = np.linspace(-1000000, 1000000, bins_)
+            # binlist = np.linspace(-1000000, 1000000, bins_)
+            binlist = np.linspace(-250000, 250000, bins_)
 
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
@@ -377,39 +497,5 @@ class MultiSWARM():
 
 
 if __name__ == "__main__":
-    object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
-    # object.freq_sig(0.1)
-    # hists, bins = object.multi_histmake_lat(minfreq = 0, maxfreq = 1/3, bins_ = 50, lat0 = 75, lat1 = 90)
-    # width = bins[0][1] - bins[0][0]
-    # plt.figure(1)
-    # plt.bar(bins[0], hists[0], width = 0.9*width)
-    # plt.title("high lat")
-    # plt.figure(2)
-    # plt.bar(bins[1], hists[1], width = 0.9*width)
-    # plt.title("low lat")
-    # plt.show()
-    minfreq = 2/3
-    maxfreq = 3/3
-    hists, bins = object.multi_histmake(bins_ = 200, minfreq = minfreq, maxfreq = maxfreq)
-
-
-
-    widthA = bins[0][1] - bins[0][0]
-    BA_hist = hists[0]/np.sum(hists[0]*widthA)
-
-    x = np.linspace(-1, 1, 1000)
-    pro = SWARMprocess()
-    std, mean = pro.std_mean(hists[0], bins[0])
-    gaussian = pro.gauss_curve(x, std = std, mean = mean)
-
-    print(std)
-    print(mean)
-
-    plt.figure(1)
-    plt.bar(bins[0], BA_hist, width = 0.9*widthA)
-    plt.xlabel("relative difference B - A")
-    plt.ylabel("Normalized occurence")
-    plt.title("B - A. integral limits: %g to %g" % (minfreq, maxfreq))
-    plt.plot(x, gaussian, "r")
-    plt.legend(["gaussian approximation", "B-A histogram"])
-    plt.show()
+    object = MultiSWARM(2013, 12, 13, 2013, 12, 13)
+    object.writefile()

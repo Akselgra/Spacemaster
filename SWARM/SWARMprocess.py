@@ -504,7 +504,76 @@ class SWARMprocess():
         std = np.sqrt(np.sum((bin-mean)**2*hist)/np.sum(hist))
         return(std, mean)
 
+    def holefill(self, A, seconds, fs):
+        """
+        Takes time series along with array of time values.
+        Both arrays have holes.
+        Fills holes with zeros.
+        """
 
+        diff = seconds[1:] - seconds[:-1] #difference in seconds
+        diff = (diff - 1/fs)*fs #difference in indices
+        diff = diff.astype(int)
+        inds = np.nonzero(diff)[0]
+        vals = diff[inds]
+        print(vals)
+
+        for i in range(len(inds)):
+            inds[i] = inds[i] + 1
+
+        slices = []
+        slices.append(A[:inds[0]])#adding first slice
+
+        for i in range(len(inds)-1):
+            slices.append(np.zeros(vals[i]))
+            slices.append(A[inds[i]:inds[i+1]])
+
+        slices.append(np.zeros(vals[-1]))#adding last slices
+        slices.append(A[inds[-1]:])
+
+        #rebuilding with filled holes
+        A = np.array([])
+        for slice in slices:
+            A = np.concatenate((A, slice))
+
+        return(A)
+
+    def holemake(self, A, B, secondsA, secondsB, fs):
+        """
+        Equalizes holes in time series A and B
+        parameters:
+            A:
+                array; array with holes
+            B:
+                array; array with holes
+            secondsA:
+                array; array with time values of time series. Used to find holes.
+            secondsB:
+                array; array with time values of time series. Used to find holes.
+            fs:
+                float; sampling frequency of time series
+        returns:
+            A:
+                Array with holes equal to holes in B
+            B:
+                Array with holes equal to holes in A
+        """
+        secondsA_filled = self.holefill(secondsA, secondsA, fs)
+        secondsB_filled = self.holefill(secondsB, secondsB, fs)
+        A_filled = self.holefill(A, secondsA, fs)
+        B_filled = self.holefill(B, secondsB, fs)
+
+        A_holes = np.where(secondsA_filled == 0)[0]
+        B_holes = np.where(secondsB_filled == 0)[0]
+
+        bob = np.intersect1d(A_holes, B_holes)
+        bobby = np.setxor1d(A_holes, B_holes)
+        indices = np.concatenate((bob, bobby))
+
+        A = np.delete(A_filled, indices)
+        B = np.delete(B_filled, indices)
+        
+        return A, B
 if __name__ == "__main__":
     pro = SWARMprocess()
     lat = 60
