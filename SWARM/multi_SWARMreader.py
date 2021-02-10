@@ -173,7 +173,7 @@ class MultiSWARM():
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
             data = GenSWARMread(files[0], files[1], files[2], compare = True)
-            # data.mlats()
+            data.mlats()
             NA = len(data.NeA); NB = len(data.NeB); NC = len(data.NeC);
             N = np.min([NA, NB, NC])
 
@@ -210,17 +210,17 @@ class MultiSWARM():
             stampsB = data.stampsB
             stampsC = data.stampsC
 
-            # mlatA = data.mlatA
-            # mlatB = data.mlatB
-            # mlatC = data.mlatC
-            #
-            # mlongA = data.mlongA
-            # mlongB = data.mlongB
-            # mlongC = data.mlongC
-            #
-            # mltA = data.mltA
-            # mltB = data.mltB
-            # mltC = data.mltC
+            mlatA = data.mlatA
+            mlatB = data.mlatB
+            mlatC = data.mlatC
+
+            mlongA = data.mlongA
+            mlongB = data.mlongB
+            mlongC = data.mlongC
+
+            mltA = data.mltA
+            mltB = data.mltB
+            mltC = data.mltC
 
             fs = data.fs
 
