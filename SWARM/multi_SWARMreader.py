@@ -173,7 +173,7 @@ class MultiSWARM():
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
             data = GenSWARMread(files[0], files[1], files[2], compare = True)
-            data.mlats()
+            # data.mlats()
             NA = len(data.NeA); NB = len(data.NeB); NC = len(data.NeC);
             N = np.min([NA, NB, NC])
 
@@ -210,23 +210,24 @@ class MultiSWARM():
             stampsB = data.stampsB
             stampsC = data.stampsC
 
-            mlatA = data.mlatA
-            mlatB = data.mlatB
-            mlatC = data.mlatC
-
-            mlongA = data.mlongA
-            mlongB = data.mlongB
-            mlongC = data.mlongC
-
-            mltA = data.mltA
-            mltB = data.mltB
-            mltC = data.mltC
+            # mlatA = data.mlatA
+            # mlatB = data.mlatB
+            # mlatC = data.mlatC
+            #
+            # mlongA = data.mlongA
+            # mlongB = data.mlongB
+            # mlongC = data.mlongC
+            #
+            # mltA = data.mltA
+            # mltB = data.mltB
+            # mltC = data.mltC
 
             fs = data.fs
 
             velA = np.reshape(velA, len(velA))
             velB = np.reshape(velB, len(velB))
             velC = np.reshape(velC, len(velC))
+
 
             #equalizing holes
             NeA, NeB, NeC = self.pro.equalizer(NeA, NeB, NeC, secondsA, secondsB, secondsC, fs)
@@ -240,6 +241,7 @@ class MultiSWARM():
             mlongA, mlongB, mlongC = self.pro.equalizer(mlongA, mlongB, mlongC, secondsA, secondsB, secondsC, fs)
             mltA, mltB, mltC = self.pro.equalizer(mltA, mltB, mltC, secondsA, secondsB, secondsC, fs)
             secondsA, secondsB, secondsC = self.pro.equalizer(secondsA, secondsB, secondsC, secondsA, secondsB, secondsC, fs)
+
 
 
             day = self.day0 + i
@@ -258,7 +260,7 @@ class MultiSWARM():
                     "longA":longA, "longB":longB, "longC":longC,\
                     "latA":latA, "latB":latB, "latC":latC,\
                     "radA":radA, "radB":radB, "radC":radC,\
-                    "velA":velA, "velB":velB, "velB":velB,\
+                    "velA":velA, "velB":velB, "velC":velC,\
                     "altA":altA, "altB":altB, "altC":altC,\
                     #"stampsA":stampsA, "stampsB":stampsB, "stampsC":stampsC,\
                     "mlatA":mlatA, "mlatB":mlatB, "mlatC":mlatC,\
@@ -486,5 +488,5 @@ class MultiSWARM():
 
 
 if __name__ == "__main__":
-    object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
+    object = MultiSWARM(2013, 12, 9, 2013, 12, 9)
     object.writefile()

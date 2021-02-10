@@ -521,6 +521,7 @@ class SWARMprocess():
             inds[i] = inds[i] + 1
 
         slices = []
+        slices.append(np.zeros(int(fs*seconds[0])))
         slices.append(A[:inds[0]])#adding first slice
 
         for i in range(len(inds)-1):
@@ -529,12 +530,12 @@ class SWARMprocess():
 
         slices.append(np.zeros(vals[-1]))#adding last slices
         slices.append(A[inds[-1]:])
+        slices.append(np.zeros(int(np.abs(seconds[-1] - 24*60*60)*fs)))
 
         #rebuilding with filled holes
         A = np.array([])
         for slice in slices:
             A = np.concatenate((A, slice))
-
         return(A)
 
     def holemake(self, A, B, secondsA, secondsB, fs):
