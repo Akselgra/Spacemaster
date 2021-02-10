@@ -1,5 +1,5 @@
 Data files from SWARM.\n
-.mat files containing data from the ESA SWARM mission.\n
+.mat files containing data from the ESA SWARM mission. \n
 Each .mat file contains one day of data for all 3 SWARM satellites.\n
 Data is obtained by processing original CDF files. Geomagnetic coordinates are obtained using the aacgmv2 library.\n
 Data includes:\n
