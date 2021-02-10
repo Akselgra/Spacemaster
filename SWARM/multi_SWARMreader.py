@@ -168,7 +168,6 @@ class MultiSWARM():
         Shapes CDF files and writes them as .mat files.
         Hardcoded for december 2013.
         """
-        #testing
 
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
@@ -488,5 +487,5 @@ class MultiSWARM():
 
 
 if __name__ == "__main__":
-    object = MultiSWARM(2013, 12, 9, 2013, 12, 9)
+    object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
     object.writefile()
