@@ -166,6 +166,7 @@ class MultiSWARM():
     def writefile(self):
         """
         Shapes CDF files and writes them as .mat files.
+        Hardcoded for december 2013.
         """
         #testing
 
@@ -223,9 +224,9 @@ class MultiSWARM():
 
             fs = data.fs
 
-            velA = np.reshape(velA, np.max(np.array([len(velA), len(velA[0])])))
-            velB = np.reshape(velB, np.max(np.array([len(velB), len(velB[0])])))
-            velC = np.reshape(velC, np.max(np.array([len(velC), len(velC[0])])))
+            velA = np.reshape(velA, len(velA))
+            velB = np.reshape(velB, len(velB))
+            velC = np.reshape(velC, len(velC))
 
             #equalizing holes
             NeA, NeB, NeC = self.pro.equalizer(NeA, NeB, NeC, secondsA, secondsB, secondsC, fs)
@@ -241,9 +242,18 @@ class MultiSWARM():
             secondsA, secondsB, secondsC = self.pro.equalizer(secondsA, secondsB, secondsC, secondsA, secondsB, secondsC, fs)
 
 
-            path = self.data_path + "/test"
+            day = self.day0 + i
+            if day < 10:
+                day = "0%g" % day
+            else:
+                day = "%g" % day
+
+            path = "/home/" + usrname +  "/Documents/Master/Spacemaster/SWARM/Data/matfiles"
+            file = path + "/201312" + day + ".mat"
+
             if not os.path.exists(path):
                 os.makedirs(path)
+
             mdic = {"NeA":NeA, "NeB":NeB, "NeC":NeC,\
                     "longA":longA, "longB":longB, "longC":longC,\
                     "latA":latA, "latB":latB, "latC":latC,\
@@ -255,7 +265,7 @@ class MultiSWARM():
                     "mlongA":mlongA, "mlongB":mlongB, "mlongC":mlongC,\
                     "mltA":mltA, "mltB":mltB, "mltC":mltC,\
                     "secondsA":secondsA, "secondsB":secondsB, "secondsC":secondsC}
-            savemat(path, mdic)
+            savemat(file, mdic)
 
 
 
@@ -476,5 +486,5 @@ class MultiSWARM():
 
 
 if __name__ == "__main__":
-    object = MultiSWARM(2013, 12, 13, 2013, 12, 13)
+    object = MultiSWARM(2013, 12, 9, 2013, 12, 31)
     object.writefile()
