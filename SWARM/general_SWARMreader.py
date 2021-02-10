@@ -117,8 +117,8 @@ class GenSWARMread(SWARMprocess):
             self.radB = self.cdfB["Radius"][:NB]
             self.radC = self.cdfC["Radius"][:NC]
 
-            self.velB = self.cdfB["U_orbit"][:NB]
             self.velA = self.cdfA["U_orbit"][:NA]
+            self.velB = self.cdfB["U_orbit"][:NB]
             self.velC = self.cdfC["U_orbit"][:NC]
 
             #finding altitudes of sattellites
@@ -154,29 +154,23 @@ class GenSWARMread(SWARMprocess):
 
     def mlat(self, lats, longs, alts, stamps):
         """
-        Calculates magnetic latitudes
+        Calculates geomagnetic coordinates
         """
-        # mlats = np.zeros_like(lats)
-        # for i in range(len(mlats)):
-        #     mlat = aacgmv2.get_aacgm_coord(lats[i], longs[i], alts[i], stamps[i])[0]
-        #     if mlat != mlat:
-        #         mlats[i] = lats[i]
-        #     else:
-        #         mlats[i] = mlat
-
-        mlats = aacgmv2.get_aacgm_coord_arr(lats, longs, alts, stamps[0])[0]
-        # mlats, mlons, mrads = aacgmv2.convert_latlon_arr(lats, longs, alts, stamps[0])[0]
+        mlats, mlongs, mlts = aacgmv2.get_aacgm_coord_arr(lats, longs, alts, stamps[0])
         temp_inds = np.nonzero(np.isnan(mlats))
         mlats[temp_inds] = lats[temp_inds]
-        return(mlats)
+        mlongs[temp_inds] = longs[temp_inds]
+        zeros = np.zeros_like(lats)
+        mlts[temp_inds] = zeros[temp_inds]
+        return(mlats, mlongs, mlts)
 
     def mlats(self):
         """
-        calls mlat for each satellite and creates mlat variables
+        calls mlat for each satellite and creates geomagnetic variables
         """
-        self.mlatA = self.mlat(self.latA, self.longA, self.altA/1000, self.stamps)
-        self.mlatB = self.mlat(self.latB, self.longB, self.altB/1000, self.stamps)
-        self.mlatC = self.mlat(self.latC, self.longC, self.altC/1000, self.stamps)
+        self.mlatA, self.mlongA, self.mltA = self.mlat(self.latA, self.longA, self.altA/1000, self.stamps)
+        self.mlatB, self.mlongB, self.mltB = self.mlat(self.latB, self.longB, self.altB/1000, self.stamps)
+        self.mlatC, self.mlongC, self.mltC = self.mlat(self.latC, self.longC, self.altC/1000, self.stamps)
 
 
     def histmake(self, n = 100, t0 = 0, t1 = 85000, minfreq = 0, maxfreq = True,\

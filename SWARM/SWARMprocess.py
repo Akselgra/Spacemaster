@@ -573,6 +573,50 @@ class SWARMprocess():
         B = np.delete(B_filled, indices)
 
         return A, B
+
+    def equalizer(self, A, B, C, t_A, t_B, t_C, fs = 2):
+        """
+        Takes 3 time series A, B and C along with
+        sampling times t_A, t_B and t_C.
+        Finds holes in sampling times and makes equivalent times in time series.
+        Assumes sampling times to be syncronized.
+        The great equalizer.
+        parameters:
+            A:
+                array; Time series A
+            B:
+                array; Time series B
+            C:
+                array; Time series C
+            t_A:
+                array; sampling times for time series A
+            t_B:
+                array; sampling times for time series B
+            t_C:
+                array; sampling times for time series C
+            fs:
+                float: Sampling frequency
+            returns:
+                new_A:
+                    array; equalized A
+                new_B:
+                    array; equalized B
+                new_C:
+                    array; equalized C
+        """
+        holed_t_A, holed_t_B = self.holemake(t_A, t_B, t_A, t_B, fs)
+        holyholed_t_A, holyholed_t_C = self.holemake(holed_t_A, t_C, holed_t_A, t_C, fs)
+        holyholed_t_A, holyholed_t_B = self.holemake(holyholed_t_A, t_B, holyholed_t_A, t_B, fs)
+
+        holed_A, holed_B = self.holemake(A, B, t_A, t_B, fs)
+        holyholed_A, holyholed_C = self.holemake(holed_A, C, holed_t_A, t_C, fs)
+        holyholed_A, holyholed_B = self.holemake(holyholed_A, B, holyholed_t_A, t_B, fs)
+
+        new_A = holyholed_A
+        new_B = holyholed_B
+        new_C = holyholed_C
+
+        return(new_A, new_B, new_C)
 if __name__ == "__main__":
     pro = SWARMprocess()
     lat = 60

@@ -172,7 +172,7 @@ class MultiSWARM():
         for i in range(self.init_loop_index, self.end_loop_index):
             files = self.gen_filenames(i)
             data = GenSWARMread(files[0], files[1], files[2], compare = True)
-            # data.mlats()
+            data.mlats()
             NA = len(data.NeA); NB = len(data.NeB); NC = len(data.NeC);
             N = np.min([NA, NB, NC])
 
@@ -209,74 +209,53 @@ class MultiSWARM():
             stampsB = data.stampsB
             stampsC = data.stampsC
 
-            # mlatA = data.mlatA
-            # mlatB = data.mlatB
-            # mlatC = data.mlatC
+            mlatA = data.mlatA
+            mlatB = data.mlatB
+            mlatC = data.mlatC
+
+            mlongA = data.mlongA
+            mlongB = data.mlongB
+            mlongC = data.mlongC
+
+            mltA = data.mltA
+            mltB = data.mltB
+            mltC = data.mltC
 
             fs = data.fs
 
-            secondsA, secondsB = self.pro.holemake(NeA, NeB, secondsA, secondsB, fs)
+            velA = np.reshape(velA, np.max(np.array([len(velA), len(velA[0])])))
+            velB = np.reshape(velB, np.max(np.array([len(velB), len(velB[0])])))
+            velC = np.reshape(velC, np.max(np.array([len(velC), len(velC[0])])))
+
+            #equalizing holes
+            NeA, NeB, NeC = self.pro.equalizer(NeA, NeB, NeC, secondsA, secondsB, secondsC, fs)
+            longA, longB, longC = self.pro.equalizer(longA, longB, longC, secondsA, secondsB, secondsC, fs)
+            latA, latB, latC = self.pro.equalizer(latA, latB, latC, secondsA, secondsB, secondsC, fs)
+            radA, radB, radC = self.pro.equalizer(radA, radB, radC, secondsA, secondsB, secondsC, fs)
+            velA, velB, velC = self.pro.equalizer(velA, velB, velC, secondsA, secondsB, secondsC, fs)
+            altA, altB, altC = self.pro.equalizer(altA, altB, altC, secondsA, secondsB, secondsC, fs)
+            stampsA, stampsB, stampsC = self.pro.equalizer(stampsA, stampsB, stampsC, secondsA, secondsB, secondsC, fs)
+            mlatA, mlatB, mlatC = self.pro.equalizer(mlatA, mlatB, mlatC, secondsA, secondsB, secondsC, fs)
+            mlongA, mlongB, mlongC = self.pro.equalizer(mlongA, mlongB, mlongC, secondsA, secondsB, secondsC, fs)
+            mltA, mltB, mltC = self.pro.equalizer(mltA, mltB, mltC, secondsA, secondsB, secondsC, fs)
+            secondsA, secondsB, secondsC = self.pro.equalizer(secondsA, secondsB, secondsC, secondsA, secondsB, secondsC, fs)
 
 
-
-            # Adiff = secondsA[1:] - secondsA[:-1]
-            #
-            # Bdiff = secondsB[1:] - secondsB[:-1]
-            #
-            # Adiff = (Adiff - 1/fs)*fs
-            # Bdiff = (Bdiff - 1/fs)*fs
-            # Adiff = Adiff.astype(int)
-            # Bdiff = Bdiff.astype(int)
-            #
-            # Ainds = np.nonzero(Adiff)[0]
-            # Binds = np.nonzero(Bdiff)[0]
-            #
-            # Avals = Adiff[Ainds]
-            # Bvals = Bdiff[Binds]
-            #
-            #
-            # for a in range(len(Ainds)):
-            #     Ainds[a] = Ainds[a] +  1
-            # for b in range(len(Binds)):
-            #     Binds[b] = Binds[b] +  1
-            #
-            # A_slice = []
-            # B_slice = []
-            #
-            # A_slice.append(secondsA[:Ainds[0]])
-            # B_slice.append(secondsB[:Binds[0]])
-            #
-            # #fixing A
-            # for k in range(len(A_ind0s)-1):
-            #     A_slice.append(np.zeros(Avals[k]))
-            #     A_slice.append(secondsA[Ainds[k]:Ainds[k+1]])
-            #
-            # A_slice.append(np.zeros(Avals[-1]))
-            # A_slice.append(secondsA[Ainds[-1]:])
-            #
-            #
-            # secondsA = np.array([])
-            # for slice in A_slice:
-            #     secondsA = np.concatenate((secondsA, slice))
-            #
-            # #fixing B
-            # for l in range(len(Binds)-1):
-            #     B_slice.append(np.zeros(Bvals[l]))
-            #     B_slice.append(secondsB[Binds[l]:Binds[l+1]])
-            #
-            # B_slice.append(np.zeros(Bvals[-1]))
-            # B_slice.append(secondsB[Binds[-1]:])
-            #
-            # secondsB = np.array([])
-            # for slice in B_slice:
-            #     secondsB = np.concatenate((secondsB, slice))
-
-            # path = self.data_path + "/test"
-            # if not os.path.exists(path):
-            #     os.makedirs(path)
-            # mdic = {"NeA": data.NeA, "NeB": data.NeB, "NeC": data.NeC,\
-            #         "longA": data.longA, "longB": data.longB, ""}
-            # savemat(path, mdic)
+            path = self.data_path + "/test"
+            if not os.path.exists(path):
+                os.makedirs(path)
+            mdic = {"NeA":NeA, "NeB":NeB, "NeC":NeC,\
+                    "longA":longA, "longB":longB, "longC":longC,\
+                    "latA":latA, "latB":latB, "latC":latC,\
+                    "radA":radA, "radB":radB, "radC":radC,\
+                    "velA":velA, "velB":velB, "velB":velB,\
+                    "altA":altA, "altB":altB, "altC":altC,\
+                    #"stampsA":stampsA, "stampsB":stampsB, "stampsC":stampsC,\
+                    "mlatA":mlatA, "mlatB":mlatB, "mlatC":mlatC,\
+                    "mlongA":mlongA, "mlongB":mlongB, "mlongC":mlongC,\
+                    "mltA":mltA, "mltB":mltB, "mltC":mltC,\
+                    "secondsA":secondsA, "secondsB":secondsB, "secondsC":secondsC}
+            savemat(path, mdic)
 
 
 
