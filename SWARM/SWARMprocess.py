@@ -504,7 +504,7 @@ class SWARMprocess():
         std = np.sqrt(np.sum((bin-mean)**2*hist)/np.sum(hist))
         return(std, mean)
 
-    def holefill(self, A, seconds, fs):
+    def holefill(self, A, seconds, fs = 2):
         """
         Takes time series along with array of time values.
         Both arrays have holes.
