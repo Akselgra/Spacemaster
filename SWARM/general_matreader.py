@@ -243,6 +243,63 @@ class MatReader(SWARMprocess):
             indsA = [low_lat_A, high_lat_A]
 
             return indsA
+        
+    
+    def histmake(self, n, minfreq, maxfreq, bins_, lat1, lat0, abs = False, norm = True,\
+                 pole = "north"):
+        """
+        Makes histogram of integrated fourier spectrum for the given
+        latitude region.
+        Parameters:
+            n - int; window size
+            minfreq - float; lower integral limit
+            maxfreq - float; higher integral limit
+            bins_ - array or int; bins to be given to numpy.histogram
+            abs - bool; if True, will calculate absolute difference
+            norm - bool; if true, will normalize relative difference
+            lat1 - float; higher latitude limit
+            lat0 - float; lower altitude limit
+            pole - string; "both" for both poles, "north" for north pole,
+                            "south" for south pole.
+        
+        returns:
+            hists - list; list of histograms on the form [BA, BC, AC]
+            bins - list; values of the middle of the bins.
+        """
+        
+        inds = self.mlat_finder(lat1, lat0, pole)[1]
+        NeA = self.NeA[inds]
+        NeB = self.NeB[inds]
+        NeC = self.NeC[inds]
+        secondsA = self.secondsA[inds]
+        secondsB = self.secondsB[inds]
+        secondsC = self.secondsC[inds]
+        
+        timesA, fftA = self.fft_time_holes_integral(signal = NeA,\
+                       seconds = secondsA, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+            
+        timesB, fftB = self.fft_time_holes_integral(signal = NeB,\
+                       seconds = secondsB, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+        
+        timesC, fftC = self.fft_time_holes_integral(signal = NeC,\
+                       seconds = secondsC, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+            
+        BAdiff = self.relative_diff(fftB, fftA, norm = norm, abs = abs)
+        BCdiff = self.relative_diff(fftB, fftC, norm = norm, abs = abs)
+        ACdiff = self.relative_diff(fftA, fftC, norm = norm, abs = abs)
+        
+        BAhist, bins = np.histogram(BAdiff, bins = bins_)
+        BChist, bins = np.histogram(BCdiff, bins = bins_)
+        AChist, bins = np.histogram(ACdiff, bins = bins_)
+        
+        bins = (bins[1:] + bins[:-1])/2
+        hists = [BAhist, BChist, AChist]
+        
+        return(hists, bins)
+        
 
 if __name__ == "__main__":
 
@@ -250,6 +307,11 @@ if __name__ == "__main__":
         is_larger = np.nonzero(hours > 24)
         hours[is_larger] = hours[is_larger] - 24
         return(hours)
-    file = "Data/matfiles/20131212.mat"
+    file = "Data/matfiles/20131210.mat"
     object = MatReader(file)
+    hists, bins = object.histmake(100, 0.1, 0.9, np.linspace(-1, 1, 50),75,65)
+    BAhist = hists[0]
+    width = bins[1] - bins[0]
+    plt.bar(bins, BAhist, width = width)
+    plt.show()
     

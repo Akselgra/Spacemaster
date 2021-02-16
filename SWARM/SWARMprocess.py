@@ -206,9 +206,9 @@ class SWARMprocess():
         new_array = np.zeros(np.shape(array))
         #setting the boundaries
         for i in range(mean_range):
-            new_array[i] = 0
+            new_array[i] = np.mean(array[:i+1])
         for i in range(1, mean_range+1):
-            new_array[-i] = 0
+            new_array[-i] = np.mean(array[-i:])
 
         for i in range(mean_range, len(array)-(mean_range)):
             new_array[i] = np.mean(array[i - mean_range:i + mean_range+1])
@@ -371,7 +371,12 @@ class SWARMprocess():
             ffts - array containing fourier transforms
         """
 
+        mean_length = 10
+        if mean_length > n/4:
+            mean_length = int(n/4)
         N = len(signal)
+        
+        
 
         m = 0
         n_temp = 0
@@ -390,7 +395,7 @@ class SWARMprocess():
                 continue
             times.append(np.mean(curr_time))
             curr_dat = signal[ind1:ind2]
-            curr_dat = self.meanie(curr_dat, 10)
+            curr_dat = self.meanie(curr_dat, mean_length)
             curr_dat = curr_dat*np.hanning(len(curr_dat))
             ffts.append(np.fft.fft(curr_dat)[:int(n/2)])
 
@@ -702,6 +707,12 @@ class SWARMprocess():
         return(new_A, new_B, new_C)
 if __name__ == "__main__":
     pro = SWARMprocess()
-    lat = 60
-    rad = pro.earthrad(lat)
-    print(rad)
+    import matplotlib.pyplot as plt
+    array = np.arange(20)
+    print(array)
+    plt.plot(array)
+    plt.show()
+    array = pro.meanie(array, mean_range = 10)
+    print(array)
+    plt.plot(array)
+    plt.show()
