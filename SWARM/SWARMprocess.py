@@ -353,6 +353,54 @@ class SWARMprocess():
         Freqs, Times = np.meshgrid(freqs, times)
 
         return(Freqs, Times, ffts)
+    
+    
+    def fft_time_holes(self, signal, seconds, n, fs):
+        """
+        Splits signal into n windows and calculates fourier transform of each
+        uses 50% overlap
+        Checks for holes in time intervals, skips those with holes.
+        parameters:
+            signal - signal to be processed
+            seconds - time of sampling in seconds
+            n - width of window
+            fs - sampling frequency
+        returns:
+            Freqs - 2D array with frequency coordinates
+            Times - 2D array with times coordinates
+            ffts - array containing fourier transforms
+        """
+
+        N = len(signal)
+
+        m = 0
+        n_temp = 0
+        while n_temp + int(n/2) <= N:
+            m += 1
+            n_temp += int(n/2)
+
+        ffts = []
+        times = []
+        for i in range(1, m):
+            ind1 = int(n/2)*(i - 1)
+            ind2 = int(n/2)*(i + 1)
+            curr_time = seconds[ind1:ind2]
+            curr_timediff = (curr_time[1:] - curr_time[:-1])-(1/fs)
+            if np.sum(curr_timediff) > 5:
+                continue
+            times.append(np.mean(curr_time))
+            curr_dat = signal[ind1:ind2]
+            curr_dat = self.meanie(curr_dat, 10)
+            curr_dat = curr_dat*np.hanning(len(curr_dat))
+            ffts.append(np.fft.fft(curr_dat)[:int(n/2)])
+
+        ffts = np.array(ffts)
+
+        times = np.array(times)
+        freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        Freqs, Times = np.meshgrid(freqs, times)
+
+        return(Freqs, Times, ffts)
 
     def CSD_time(self, u, v, n, fs):
         """
@@ -397,7 +445,7 @@ class SWARMprocess():
 
     def fft_time_integral(self, signal, n, fs, minfreq = 0, maxfreq = 1):
         """
-        Calls fft_time and integrates results over frequency.
+        Calls fft_time_holes and integrates results over frequency.
         parameters:
             signal - signal to be processed
             n - width of window
@@ -414,6 +462,40 @@ class SWARMprocess():
         N = len(signal)
 
         Freqs, Times, ffts = self.fft_time(signal, n, fs)
+
+        ffts = np.abs(ffts) + 1e-16
+        freqs = Freqs[0, :]
+        df = freqs[1] - freqs[0]
+        times = Times[:, 0]
+
+        N_maxfreq = int(maxfreq/df)
+        N_minfreq = int(minfreq/df)
+
+        temp_ffts = ffts[:int(len(times)), N_minfreq:N_maxfreq]
+        fourier_int = np.sum(temp_ffts, axis = 1)*df
+
+        return(times, fourier_int)
+    
+    
+    
+    def fft_time_holes_integral(self, signal, seconds, n, fs, minfreq = 0, maxfreq = 1):
+        """
+        Calls fft_time and integrates results over frequency.
+        parameters:
+            signal - signal to be processed
+            seconds - sampling time of signal in seconds
+            n - width of window
+            fs - sampling frequency
+            minfreq - min integral limit
+            maxfreq - max integral limit
+        returns:
+            times - array of time points
+            fourier_int - array with integrated fourier values
+        """
+
+        assert maxfreq<=(fs/2), "maxfreq must be lower or equal nyquist frequency"
+
+        Freqs, Times, ffts = self.fft_time_holes(signal, seconds, n, fs)
 
         ffts = np.abs(ffts) + 1e-16
         freqs = Freqs[0, :]

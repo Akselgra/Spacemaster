@@ -59,11 +59,10 @@ class MatReader(SWARMprocess):
 
         self.fs = 2
 
-        time0 = time()
-        # self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
-        # self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
-        time1 = time()
-        print(time1 - time0)
+        self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
+        self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
+
+        self.shifter()
 
 
     def shifter(self):
@@ -75,8 +74,8 @@ class MatReader(SWARMprocess):
         B[t] -> B[t]
         C[t] -> C[t - t_BC]
         """
-        self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
-        self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
+        #self.BA_shift = self.timeshift_latitude(self.latB, self.latA)
+        #self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
 
 
 
@@ -90,7 +89,7 @@ class MatReader(SWARMprocess):
         NeC = self.holefill(self.NeC, secondsC)
 
         start = 0
-        stop = len(NeA) - np.max(np.array([object.BA_shift, object.BC_shift]))
+        stop = len(NeA) - np.max(np.array([self.BA_shift, self.BC_shift]))
 
         startA = start + self.BA_shift
         stopA = stop + self.BA_shift
@@ -213,21 +212,44 @@ class MatReader(SWARMprocess):
         self.secondsB = secondsB[inds]
         self.secondsC = secondsC[inds]
 
+    def mlat_finder(self, lat1, lat0, pole = "north"):
+            """
+            Splits data set in high and low latitude regions
+            split by geomagnetic latitude
+            returns:
+                indsA - list; list on the form [A0, A1]
+                               where A0...C1 are arrays of indices
+                               with 1 being the region between lat0 and lat1
+                               and 0 being the region between lat1 and lat0
+            """
+
+            if pole == "both":
+                lowerA = np.abs(self.mlatA) < lat1
+                higherA = np.abs(self.mlatA) > lat0
+                is_poleA = lowerA * higherA
+
+            elif pole == "north":
+                lowerA = (self.mlatA) < lat1
+                higherA = (self.mlatA) > lat0
+                is_poleA = lowerA * higherA
+
+            elif pole == "south":
+                lowerA = (self.mlatA) > lat1
+                higherA = (self.mlatA) < lat0
+                is_poleA = lowerA * higherA
+
+            high_lat_A = np.where(is_poleA == 1)
+            low_lat_A = np.where(is_poleA == 0)
+            indsA = [low_lat_A, high_lat_A]
+
+            return indsA
 
 if __name__ == "__main__":
-    time2 = time()
-    file = "Data/matfiles/20131220.mat"
+
+    def hour_round(hours):
+        is_larger = np.nonzero(hours > 24)
+        hours[is_larger] = hours[is_larger] - 24
+        return(hours)
+    file = "Data/matfiles/20131212.mat"
     object = MatReader(file)
-
-    plt.figure(0)
-    plt.plot(object.secondsA)
-    plt.plot(object.secondsB)
-    object.shifter()
-
-    plt.figure(1)
-    plt.plot(object.mlatA)
-    plt.plot(object.mlatB)
-
-    plt.figure(2)
-    plt.plot(object.latA - object.latB)
-    plt.show()
+    
