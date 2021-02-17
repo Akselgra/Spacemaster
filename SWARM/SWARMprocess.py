@@ -376,7 +376,7 @@ class SWARMprocess():
             mean_length = int(n/4)
         N = len(signal)
         
-        
+        import matplotlib.pyplot as plt
 
         m = 0
         n_temp = 0
@@ -390,14 +390,15 @@ class SWARMprocess():
             ind1 = int(n/2)*(i - 1)
             ind2 = int(n/2)*(i + 1)
             curr_time = seconds[ind1:ind2]
-            curr_timediff = (curr_time[1:] - curr_time[:-1])-(1/fs)
+            curr_timediff = np.array((curr_time[1:] - curr_time[:-1])-(1/fs)).astype(int)
             if np.sum(curr_timediff) > 5:
                 continue
+            curr_time = seconds[ind1:ind2]
             times.append(np.mean(curr_time))
             curr_dat = signal[ind1:ind2]
             curr_dat = self.meanie(curr_dat, mean_length)
             curr_dat = curr_dat*np.hanning(len(curr_dat))
-            ffts.append(np.fft.fft(curr_dat)[:int(n/2)])
+            ffts.append(np.fft.fft(curr_dat)[:int(len(curr_dat)/2)])
 
         ffts = np.array(ffts)
 

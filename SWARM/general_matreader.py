@@ -64,7 +64,6 @@ class MatReader(SWARMprocess):
 
         self.shifter()
 
-
     def shifter(self):
         """
         shifts data so as to minimize distance in latitude.
@@ -243,8 +242,8 @@ class MatReader(SWARMprocess):
             indsA = [low_lat_A, high_lat_A]
 
             return indsA
-        
-    
+
+
     def histmake(self, n, minfreq, maxfreq, bins_, lat1, lat0, abs = False, norm = True,\
                  pole = "north"):
         """
@@ -261,12 +260,12 @@ class MatReader(SWARMprocess):
             lat0 - float; lower altitude limit
             pole - string; "both" for both poles, "north" for north pole,
                             "south" for south pole.
-        
+
         returns:
             hists - list; list of histograms on the form [BA, BC, AC]
-            bins - list; values of the middle of the bins.
+            bins - list; center of bin values.
         """
-        
+
         inds = self.mlat_finder(lat1, lat0, pole)[1]
         NeA = self.NeA[inds]
         NeB = self.NeB[inds]
@@ -274,32 +273,32 @@ class MatReader(SWARMprocess):
         secondsA = self.secondsA[inds]
         secondsB = self.secondsB[inds]
         secondsC = self.secondsC[inds]
-        
+
         timesA, fftA = self.fft_time_holes_integral(signal = NeA,\
                        seconds = secondsA, n = n, fs = self.fs, minfreq\
                        = minfreq, maxfreq = maxfreq)
-            
+
         timesB, fftB = self.fft_time_holes_integral(signal = NeB,\
                        seconds = secondsB, n = n, fs = self.fs, minfreq\
                        = minfreq, maxfreq = maxfreq)
-        
+
         timesC, fftC = self.fft_time_holes_integral(signal = NeC,\
                        seconds = secondsC, n = n, fs = self.fs, minfreq\
                        = minfreq, maxfreq = maxfreq)
-            
+
         BAdiff = self.relative_diff(fftB, fftA, norm = norm, abs = abs)
         BCdiff = self.relative_diff(fftB, fftC, norm = norm, abs = abs)
         ACdiff = self.relative_diff(fftA, fftC, norm = norm, abs = abs)
-        
+
         BAhist, bins = np.histogram(BAdiff, bins = bins_)
         BChist, bins = np.histogram(BCdiff, bins = bins_)
         AChist, bins = np.histogram(ACdiff, bins = bins_)
-        
+
         bins = (bins[1:] + bins[:-1])/2
         hists = [BAhist, BChist, AChist]
-        
+
         return(hists, bins)
-        
+
 
 if __name__ == "__main__":
 
@@ -307,11 +306,37 @@ if __name__ == "__main__":
         is_larger = np.nonzero(hours > 24)
         hours[is_larger] = hours[is_larger] - 24
         return(hours)
-    file = "Data/matfiles/20131210.mat"
+    file = "Data/matfiles/20131214.mat"
     object = MatReader(file)
+    inds = object.mlat_finder(75, 65)
+    NeA = object.NeA[inds[1]]
+    secondsA = object.secondsA[inds[1]]
+    times, fourier_int = object.fft_time_holes_integral(NeA, secondsA, 100, 2, minfreq = 0.1, maxfreq = 0.9)
+
+    plt.figure(0)
+    plt.plot(times/60/60, fourier_int, ".")
+    plt.xlabel("UTC")
+    plt.ylabel("integrated fourier")
+
+    plt.figure(1)
+    plt.xlabel("MLT")
+    plt.ylabel("Ne")
+    plt.plot(object.mltA[inds[1]], NeA, ".")
+
+    def hour(x):
+        inds = np.nonzero(x > 24)
+        x[inds] -= 24
+        return x
+
+    plt.figure(2)
+    plt.plot(object.mlatA, hour(object.mltA + object.secondsA/60/60))
+    plt.xlabel("Geomagnetic Latitude")
+    plt.ylabel("Magnetic Local Time")
+    plt.show()
+    """
     hists, bins = object.histmake(100, 0.1, 0.9, np.linspace(-1, 1, 50),75,65)
     BAhist = hists[0]
     width = bins[1] - bins[0]
     plt.bar(bins, BAhist, width = width)
     plt.show()
-    
+    """
