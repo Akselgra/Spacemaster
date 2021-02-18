@@ -1,7 +1,9 @@
-import multi_SWARMreader
+
+import SWARMprocess
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+pro = SWARMprocess.SWARMprocess()
 
 def sigma_plotter():
     f0 = 0.1
@@ -375,4 +377,3 @@ def multi_std_timeshift():
     print(stop-start)
 
 
-std_timeshift()

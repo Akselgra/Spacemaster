@@ -286,6 +286,7 @@ class MatReader(SWARMprocess):
                        seconds = secondsC, n = n, fs = self.fs, minfreq\
                        = minfreq, maxfreq = maxfreq)
 
+        
         BAdiff = self.relative_diff(fftB, fftA, norm = norm, abs = abs)
         BCdiff = self.relative_diff(fftB, fftC, norm = norm, abs = abs)
         ACdiff = self.relative_diff(fftA, fftC, norm = norm, abs = abs)

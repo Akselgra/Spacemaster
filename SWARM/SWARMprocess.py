@@ -353,8 +353,8 @@ class SWARMprocess():
         Freqs, Times = np.meshgrid(freqs, times)
 
         return(Freqs, Times, ffts)
-    
-    
+
+
     def fft_time_holes(self, signal, seconds, n, fs):
         """
         Splits signal into n windows and calculates fourier transform of each
@@ -375,8 +375,6 @@ class SWARMprocess():
         if mean_length > n/4:
             mean_length = int(n/4)
         N = len(signal)
-        
-        import matplotlib.pyplot as plt
 
         m = 0
         n_temp = 0
@@ -390,8 +388,8 @@ class SWARMprocess():
             ind1 = int(n/2)*(i - 1)
             ind2 = int(n/2)*(i + 1)
             curr_time = seconds[ind1:ind2]
-            curr_timediff = np.array((curr_time[1:] - curr_time[:-1])-(1/fs)).astype(int)
-            if np.sum(curr_timediff) > 5:
+            curr_timediff = np.round((curr_time[1:] - curr_time[:-1])-(1/fs))
+            if np.sum(curr_timediff) > 2:
                 continue
             curr_time = seconds[ind1:ind2]
             times.append(np.mean(curr_time))
@@ -405,7 +403,6 @@ class SWARMprocess():
         times = np.array(times)
         freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
         Freqs, Times = np.meshgrid(freqs, times)
-
         return(Freqs, Times, ffts)
 
     def CSD_time(self, u, v, n, fs):
@@ -481,9 +478,9 @@ class SWARMprocess():
         fourier_int = np.sum(temp_ffts, axis = 1)*df
 
         return(times, fourier_int)
-    
-    
-    
+
+
+
     def fft_time_holes_integral(self, signal, seconds, n, fs, minfreq = 0, maxfreq = 1):
         """
         Calls fft_time and integrates results over frequency.
