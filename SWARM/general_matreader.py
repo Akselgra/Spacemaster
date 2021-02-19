@@ -286,7 +286,7 @@ class MatReader(SWARMprocess):
                        seconds = secondsC, n = n, fs = self.fs, minfreq\
                        = minfreq, maxfreq = maxfreq)
 
-        
+
         BAdiff = self.relative_diff(fftB, fftA, norm = norm, abs = abs)
         BCdiff = self.relative_diff(fftB, fftC, norm = norm, abs = abs)
         ACdiff = self.relative_diff(fftA, fftC, norm = norm, abs = abs)
@@ -311,28 +311,35 @@ if __name__ == "__main__":
     object = MatReader(file)
     inds = object.mlat_finder(75, 65)
     NeA = object.NeA[inds[1]]
+    NeB = object.NeB[inds[1]]
     secondsA = object.secondsA[inds[1]]
-    times, fourier_int = object.fft_time_holes_integral(NeA, secondsA, 100, 2, minfreq = 0.1, maxfreq = 0.9)
+    secondsB = object.secondsB[inds[1]]
+    times, fourier_int = object.fft_time_holes_integral(NeA, secondsA, 250, 2, minfreq = 0.1, maxfreq = 0.3)
+    timesB, fourier_intB = object.fft_time_holes_integral(NeB, secondsB, 250, 2, minfreq = 0.1, maxfreq = 0.3)
+
 
     plt.figure(0)
-    plt.plot(times/60/60, fourier_int, ".")
+    plt.plot(timesB, fourier_int/np.max(fourier_int), "b.")
+    plt.plot(timesB, fourier_intB/np.max(fourier_int), "k.")
+    plt.legend(["A", "B"])
     plt.xlabel("UTC")
     plt.ylabel("integrated fourier")
 
-    plt.figure(1)
-    plt.xlabel("MLT")
-    plt.ylabel("Ne")
-    plt.plot(object.mltA[inds[1]], NeA, ".")
+    # plt.xlabel("UTC")
+    # plt.ylabel("Ne")
+    plt.plot(object.secondsB[inds[1]], object.meanie(NeA, 10)/np.max(object.meanie(NeA, 10)), "b")
+    plt.plot(object.secondsB[inds[1]], object.meanie(NeB, 10)/np.max(object.meanie(NeB, 10)), "k")
+    plt.legend(["A", "B", "NeA", "NeB"])
 
     def hour(x):
         inds = np.nonzero(x > 24)
         x[inds] -= 24
         return x
 
-    plt.figure(2)
-    plt.plot(object.mlatA, hour(object.mltA + object.secondsA/60/60))
-    plt.xlabel("Geomagnetic Latitude")
-    plt.ylabel("Magnetic Local Time")
+    # plt.figure(2)
+    # plt.plot(object.mlatA, hour(object.mltA + object.secondsA/60/60))
+    # plt.xlabel("Geomagnetic Latitude")
+    # plt.ylabel("Magnetic Local Time")
     plt.show()
     """
     hists, bins = object.histmake(100, 0.1, 0.9, np.linspace(-1, 1, 50),75,65)
