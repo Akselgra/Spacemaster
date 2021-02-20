@@ -75,12 +75,14 @@ def triangle_combiner(x, widths, mids, vals):
     return(temp_arr)
 
 if __name__ == "__main__":
+    minfreq = 0.025
+    maxfreq = 0.05
     fs = 2
     t = 5000
     n = int(fs*t)
     times = np.linspace(0, t, n)
     freqs = np.linspace(-fs/2, fs/2, n)
-    widths = np.array([1, 3, 6, 9, 12])*25
+    widths = np.array([2, 3, 6, 9, 12])*25
     mids = np.array([100, 300, 500, 700, 900])*5
     vals = np.array([1, 1, 1, 1, 1])
     # widths = np.array([1])
@@ -90,16 +92,25 @@ if __name__ == "__main__":
 
     plt.figure(0)
     plt.plot(times, triangles)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Data")
+    plt.title("Synthetic data")
     Freqs, Times, ffts = pro.fft_time_holes(triangles, times, n = 200, fs = fs)
     ffts += 1e-16
 
     plt.figure(1)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Frequency [Hz]")
+    plt.title("Time-Frequency fourier coefficients")
     plt.pcolormesh(Times, Freqs, np.log10(np.abs(ffts)), cmap = "gist_ncar")
     plt.colorbar()
 
     times, fourier_int = pro.fft_time_holes_integral(triangles, times, n = 200, fs = fs,\
-                                                    minfreq = 0.05, maxfreq = 0.1)
+                                                    minfreq = minfreq, maxfreq = maxfreq)
 
     plt.figure(2)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Integrated fourier coeffiencts")
+    plt.title("integral from f = %g to f = %g" % (minfreq, maxfreq))
     plt.plot(times, fourier_int)
     plt.show()
