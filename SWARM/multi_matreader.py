@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from general_matreader import MatReader
 import os
 from scipy.io import loadmat
+from scipy.io import savemat
 
 
 
@@ -25,6 +26,8 @@ class MultiMat():
         assert (day0 >= day_0 and day0 <= day_1), "day0 must be between %g and %g." % (day_0, day_1)
         assert (day1 >= day_0 and day1 <= day_1), "day1 must be between %g and %g" % (day_0, day_1)
         assert (day1 >= day0), "day1 must be larger or equal to day0"
+        
+        self.day_0 = day_0
         
         self.data_path = data_path #path to .mat files
         
@@ -100,6 +103,9 @@ class MultiMat():
         self.BC_shift = infile.BC_shift
         hists = np.array([histsBA, histsBC, histsAC])
         return(hists, bins)
+    
+            
+            
         
         
         
@@ -110,11 +116,5 @@ class MultiMat():
 if __name__ == "__main__":
     pro = SWARMprocess()
     object = MultiMat(9, 31)
-    hists, bins = object.multi_histmake(100, 0.2, 0.4, 50, 75, 65)
-    width = bins[1] - bins[0]
-    hists[0] = hists[0]/np.sum(hists[0]*width)
-    std, mean = pro.std_mean(hists[0], bins)
-    xs = np.linspace(-1, 1, 1000)
-    plt.bar(bins, hists[0], width = width)
-    plt.plot(xs, pro.gauss_curve(xs, mean, std), "r")
-    plt.show()
+
+    

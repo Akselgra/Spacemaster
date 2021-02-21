@@ -1,5 +1,7 @@
+from scipy.io import loadmat
+from scipy.io import savemat
 import numpy as np
 
-def f(x):
-    return(f(x))
-print(f(5))
+
+infile = loadmat("Data/matfiles/20131209.mat")
+print(infile["NeA"])
