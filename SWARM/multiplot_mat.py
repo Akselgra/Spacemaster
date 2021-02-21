@@ -84,5 +84,37 @@ def std_timeshift_mat():
     
     stop = time.time()
     print(stop-start)
+    
 
-std_timeshift_mat()
+def sigma_plotter_mat():
+    """
+    plots std as a function of frequency
+    """
+    f0 = 0
+    f1 = 1
+    n = 100
+    df = 0.1
+    jump = 0.1
+    lat1 = 77
+    lat0 = 65
+    start = time.time()
+    object = multi_matreader.MultiMat(9, 31)
+    freq0s, sigmas, means = object.freq_sig(df = df, jump = jump, n = n,\
+                                            f0 = f0, f1 = f1, bins_ = 50,\
+                                            abs = False, norm = True,\
+                                            lat1 = lat1, lat0 = lat0,\
+                                                pole = "north")
+
+    plt.plot(freq0s, sigmas[0])
+    plt.plot(freq0s, sigmas[1])
+    plt.plot(freq0s, sigmas[2])
+    plt.xlabel("Lower integral limit")
+    plt.ylabel("STD")
+    plt.legend(["B-A", "B-C", "A-C"])
+    plt.title("standard deviations of histograms, df = %g" % df)
+    plt.show()
+    stop = time.time()
+    print(stop-start)
+    
+
+sigma_plotter_mat()

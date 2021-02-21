@@ -308,7 +308,7 @@ if __name__ == "__main__":
         is_larger = np.nonzero(hours > 24)
         hours[is_larger] = hours[is_larger] - 24
         return(hours)
-    file = "Data/matfiles/20131214.mat"
+    file = "Data/matfiles/20131217.mat"
     object = MatReader(file)
     inds = object.mlat_finder(75, 65)
     NeA = object.NeA[inds[1]]

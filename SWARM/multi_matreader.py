@@ -33,6 +33,7 @@ class MultiMat():
         
         self.init_loop_index = day0 - day_0
         self.end_loop_index = day1 - day_0 + 1
+        self.pro = SWARMprocess()
         
         
     def filepath(self, ind):
@@ -61,7 +62,7 @@ class MultiMat():
         multiple dates of data
 
         Parameters:
-            n - int; number of indices in time window used in fft_time_integral
+            n - int; number of indices in time window used in fft_time_integral_holes
             minfreq - float; lower integral limit
             maxfreq - float; higher integral limit
             bins_ - int; number of bin edges.
@@ -104,27 +105,58 @@ class MultiMat():
         hists = np.array([histsBA, histsBC, histsAC])
         return(hists, bins)
     
-    
-    def shift_saver(self):
-        in_txt = open("Data/shifts.txt", "r")
+    def freq_sig(self, df, jump, n, bins_, abs, norm, lat1, lat0, f1, f0, pole):
+        """
+        Calculates standard deviation and mean as functions of frequency
+        Parameters:
+            df - float; Width of frequency band
+            jump - float; distance between center of frequency bands
+            n - int; number of indices in time window used in fft_time_integral_holes
+            f1 - float; final higher frequency limit
+            f0 - float; initial lower frequency limit
+            bins_ - int; number of bin edges.
+            lat1 - float; higher latitude limit
+            lat0 - float; lower latitude limit
+            abs - bool; if True, will calculate absolute difference
+            norm - bool; if true, will normalize relative difference
+            pole - string; "north", "south" or "both". Decides what pole we are looking at.
+        returns:
+            freq0s - nparray; array containing lower integral limits
+            sigmas - nparray; array on the form [sigmasBA, sigmasBC, sigmasAC]
+            means - nparray; array on the form [meansBA, meansBC, meansAC]
+        """
+        N = int((f1 - f0)/jump)
+        freq0s = np.linspace(f0, f1-df, N)
+        freq1s = freq0s + df
+        sigmas = np.zeros((3, N))
+        means = np.zeros_like(sigmas)
+        for i in range(len(freq0s)):
+            print(freq0s[i]/freq0s[-1])
+            minfreq = freq0s[i]
+            maxfreq = freq1s[i]
+            hists, bins = self.multi_histmake(n = n, minfreq = minfreq,\
+                                              maxfreq = maxfreq, bins_ = bins_,\
+                                              lat1 = lat1, lat0 = lat0,\
+                                              abs = abs, norm = norm, pole = pole)
+            for j in range(len(hists)):
+                width = bins[1] - bins[0]
+                hists[j] = hists[j]/np.sum(hists[j]*width)
+            
+            BA_std, BA_mean = self.pro.std_mean(hists[0], bins)
+            BC_std, BC_mean = self.pro.std_mean(hists[1], bins)
+            AC_std, AC_mean = self.pro.std_mean(hists[2], bins)
+            
+            sigmas[0][i] = BA_std
+            sigmas[1][i] = BC_std
+            sigmas[2][i] = AC_std
+            
+            means[0][i] = BA_mean
+            means[1][i] = BC_mean
+            means[2][i] = AC_mean
+            
         
-        for line in in_txt:
-            line = line.strip()
-            line = line.split(",")
-            try:
-                int(line[0])
-            except:
-                continue
-            for i in range(self.init_loop_index, self.end_loop_index):
-                if int(i + self.day_0) == int(line[0]):
-                    file = self.filepath(i)
-                    infile = loadmat(file)
-                    BA_shift = {"BA_shift":int(line[1])}
-                    BC_shift = {"BC_shift":int(line[2])}
-                    infile.update(BA_shift)
-                    infile.update(BC_shift)
-                    savemat(file, infile)
-                    print(i)
+        return(freq0s, sigmas, means)
+    
             
             
         
@@ -137,5 +169,5 @@ class MultiMat():
 if __name__ == "__main__":
     pro = SWARMprocess()
     object = MultiMat(9, 31)
-    object.shift_saver()
+
     
