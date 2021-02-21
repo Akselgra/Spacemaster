@@ -104,6 +104,27 @@ class MultiMat():
         hists = np.array([histsBA, histsBC, histsAC])
         return(hists, bins)
     
+    
+    def shift_saver(self):
+        in_txt = open("Data/shifts.txt", "r")
+        
+        for line in in_txt:
+            line = line.strip()
+            line = line.split(",")
+            try:
+                int(line[0])
+            except:
+                continue
+            for i in range(self.init_loop_index, self.end_loop_index):
+                if int(i + self.day_0) == int(line[0]):
+                    file = self.filepath(i)
+                    infile = loadmat(file)
+                    BA_shift = {"BA_shift":int(line[1])}
+                    BC_shift = {"BC_shift":int(line[2])}
+                    infile.update(BA_shift)
+                    infile.update(BC_shift)
+                    savemat(file, infile)
+                    print(i)
             
             
         
@@ -116,5 +137,5 @@ class MultiMat():
 if __name__ == "__main__":
     pro = SWARMprocess()
     object = MultiMat(9, 31)
-
+    object.shift_saver()
     

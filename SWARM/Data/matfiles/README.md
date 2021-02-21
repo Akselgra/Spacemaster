@@ -14,3 +14,5 @@ Data includes:
 * mlongA, mlongB, mlongC; - geomagnetic longitude coordinates
 * mltA, mltB, mltC; - magnetic local time
 * secondsA, secondsB, secondsC; - Time of measurement in seconds since midnight UTC.
+* BA_shift; - Time difference between satellites B and A
+* BC_shift; - Time difference between satellites B and C
