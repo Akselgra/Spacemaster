@@ -74,7 +74,7 @@ def triangle_combiner(x, widths, mids, vals):
         temp_arr = temp_arr +  curr_triang
     return(temp_arr)
 
-if __name__ == "__main__":
+def triple_test():
     minfreq = 0.025
     maxfreq = 0.05
     fs = 2
@@ -114,3 +114,33 @@ if __name__ == "__main__":
     plt.title("integral from f = %g to f = %g" % (minfreq, maxfreq))
     plt.plot(times, fourier_int)
     plt.show()
+    
+def triangle_plot():
+    fs = 2
+    t = 100
+    n = int(fs*t)
+    times = np.linspace(0, t, n)
+    freqs = np.linspace(-fs/2, fs/2, n)
+    width = 10
+    mid = 50
+    val = 1
+    ys = triangle(times, mid, width, val)
+    
+    
+    plt.plot(times, ys)
+    plt.title("Triangle pulse")
+    plt.ylabel("Measured unit")
+    plt.xlabel("Time [s]")
+    plt.show()
+    
+    fft = np.fft.fft(ys)/n
+    fft = np.roll(fft, int(n/2))
+    plt.plot(freqs, np.log10(np.abs(fft)))
+    plt.xlabel("frequency [Hz]")
+    plt.ylabel("log10(PSD)")
+    plt.title("Power spectrum density")
+    plt.show()
+    
+
+if __name__ == "__main__":
+    triangle_plot()

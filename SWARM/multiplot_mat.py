@@ -1,4 +1,5 @@
 import multi_matreader
+import general_matreader
 import SWARMprocess
 import numpy as np
 import matplotlib.pyplot as plt
@@ -95,8 +96,8 @@ def sigma_plotter_mat():
     n = 100
     df = 0.05
     jump = 0.01
-    lat1 = 77
-    lat0 = 65
+    lat1 = 90
+    lat0 = 77
     start = time.time()
     object = multi_matreader.MultiMat(14, 14)
     freq0s, sigmas, means = object.freq_sig(df = df, jump = jump, n = n,\
@@ -117,4 +118,36 @@ def sigma_plotter_mat():
     print(stop-start)
 
 
-sigma_plotter_mat()
+def plothing():
+    """
+    random plot
+    """
+    multi = multi_matreader.MultiMat(21, 21)
+    object = general_matreader.MatReader(multi.filepath(multi.init_loop_index))
+    start = 1325*2 #index of 16 minutes
+    stop = 1360*2 #index of 26 minutes
+    seconds = object.secondsA[start:stop]
+    NeA = object.NeA[start:stop]
+    plt.plot(seconds, NeA)
+    plt.xlabel("Time [s]")
+    plt.ylabel("NeA")
+    plt.title("Raw data from sat A")
+    plt.show()
+    
+    NeA = pro.meanie(NeA, 5)
+    plt.plot(seconds, NeA)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Ne")
+    plt.title("Data, rolling mean")
+    plt.show()
+    fs = 2
+    N = len(NeA)
+    freqs = np.linspace(-fs/2, fs/2, N)
+    fft = np.fft.fft(NeA)/N
+    fft = np.roll(fft, int(N/2))
+    plt.plot(freqs, np.log10(np.abs(fft)))
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Log10(Fourier Coefficients)")
+    plt.title("Power Spectral Density")
+    plt.show()
+plothing()
