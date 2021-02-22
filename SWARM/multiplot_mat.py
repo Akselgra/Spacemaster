@@ -125,29 +125,64 @@ def plothing():
     multi = multi_matreader.MultiMat(21, 21)
     object = general_matreader.MatReader(multi.filepath(multi.init_loop_index))
     start = 1325*2 #index of 16 minutes
-    stop = 1360*2 #index of 26 minutes
+    stop = 1375*2 #index of 26 minutes
     seconds = object.secondsA[start:stop]
     NeA = object.NeA[start:stop]
+    plt.figure(0)
     plt.plot(seconds, NeA)
     plt.xlabel("Time [s]")
     plt.ylabel("NeA")
     plt.title("Raw data from sat A")
-    plt.show()
-    
+    # plt.show()
+
+    plt.figure(1)
     NeA = pro.meanie(NeA, 5)
     plt.plot(seconds, NeA)
     plt.xlabel("Time [s]")
     plt.ylabel("Ne")
     plt.title("Data, rolling mean")
-    plt.show()
+    # plt.show()
+
     fs = 2
     N = len(NeA)
     freqs = np.linspace(-fs/2, fs/2, N)
     fft = np.fft.fft(NeA)/N
     fft = np.roll(fft, int(N/2))
+    plt.figure(2)
     plt.plot(freqs, np.log10(np.abs(fft)))
     plt.xlabel("Frequency [Hz]")
     plt.ylabel("Log10(Fourier Coefficients)")
     plt.title("Power Spectral Density")
     plt.show()
-plothing()
+
+def histplot():
+    """
+    plots histograms
+    """
+    day0 = 9
+    day1 = 31
+    object = multi_matreader.MultiMat(day0, day1)
+    n = 100
+    minfreq = 0.1
+    maxfreq = 0.3
+    bins_ = 100
+    lat1 = 90
+    lat0 = 1
+    hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
+                       abs = False, norm = True, pole = "north")
+
+    width = bins[1] - bins[0]
+    for j in range(len(hists)):
+        hists[j] = hists[j]/np.sum(hists[j]*width)
+
+    plt.figure(0)
+    plt.bar(bins, hists[0], width = width)
+
+    plt.figure(1)
+    plt.bar(bins, hists[1], width = width)
+
+    plt.figure(2)
+    plt.bar(bins, hists[2], width = width)
+    plt.show()
+
+histplot()

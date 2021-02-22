@@ -13,7 +13,7 @@ class MultiMat():
     class for reading multiple .mat files of SWARM data.
     Designed for December 2013
     """
-    
+
     def __init__(self, day0, day1, day_0 = 9, day_1 = 31,\
                  data_path = "Data/matfiles"):
         """
@@ -26,16 +26,16 @@ class MultiMat():
         assert (day0 >= day_0 and day0 <= day_1), "day0 must be between %g and %g." % (day_0, day_1)
         assert (day1 >= day_0 and day1 <= day_1), "day1 must be between %g and %g" % (day_0, day_1)
         assert (day1 >= day0), "day1 must be larger or equal to day0"
-        
+
         self.day_0 = day_0
-        
+
         self.data_path = data_path #path to .mat files
-        
+
         self.init_loop_index = day0 - day_0
         self.end_loop_index = day1 - day_0 + 1
         self.pro = SWARMprocess()
-        
-        
+
+
     def filepath(self, ind):
         """
         Takes an index ind and returns filepath for day of the given index in
@@ -46,17 +46,17 @@ class MultiMat():
         returns:
             filename - string; filename of day of index
         """
-        
+
         dirs = os.listdir(self.data_path)
         dirs.sort()
         filepath = self.data_path + "/" + dirs[ind]
         return(filepath)
-    
-    
+
+
 
     def multi_histmake(self, n, minfreq, maxfreq, bins_, lat1, lat0,\
                        abs = False, norm = True, pole = "north"):
-        
+
         """
         make histograms of relative difference in integrated fouriers using
         multiple dates of data
@@ -78,18 +78,18 @@ class MultiMat():
         """
         if norm == True:
             binlist = np.linspace(-1, 1, bins_)
-        
+
         else:
-            binlist = np.linspace(-250000, 250000, bins_)
-        
-        
+            binlist = np.linspace(-5000, 5000, bins_)
+
+
         histsBA = np.zeros_like(binlist[:-1])
         histsBC = np.zeros_like(histsBA)
         histsAC = np.zeros_like(histsBC)
         for i in range(self.init_loop_index, self.end_loop_index):
             file = self.filepath(i)
             infile = MatReader(file)
-            
+
             temp_hists, bins = infile.histmake(n = n, minfreq = minfreq,\
                                                maxfreq = maxfreq,\
                                                bins_ = binlist,\
@@ -99,12 +99,12 @@ class MultiMat():
             histsBA = histsBA + temp_hists[0]
             histsBC = histsBC + temp_hists[1]
             histsAC = histsAC + temp_hists[2]
-        
+
         self.BA_shift = infile.BA_shift
         self.BC_shift = infile.BC_shift
         hists = np.array([histsBA, histsBC, histsAC])
         return(hists, bins)
-    
+
     def freq_sig(self, df, jump, n, bins_, abs, norm, lat1, lat0, f1, f0, pole):
         """
         Calculates standard deviation and mean as functions of frequency
@@ -141,33 +141,31 @@ class MultiMat():
             for j in range(len(hists)):
                 width = bins[1] - bins[0]
                 hists[j] = hists[j]/np.sum(hists[j]*width)
-            
+
             BA_std, BA_mean = self.pro.std_mean(hists[0], bins)
             BC_std, BC_mean = self.pro.std_mean(hists[1], bins)
             AC_std, AC_mean = self.pro.std_mean(hists[2], bins)
-            
+
             sigmas[0][i] = BA_std
             sigmas[1][i] = BC_std
             sigmas[2][i] = AC_std
-            
+
             means[0][i] = BA_mean
             means[1][i] = BC_mean
             means[2][i] = AC_mean
-            
-        
+
+
         return(freq0s, sigmas, means)
-    
-            
-            
-        
-        
-        
-        
+
+
+
+
+
+
+
 
 
 
 if __name__ == "__main__":
     pro = SWARMprocess()
     object = MultiMat(9, 31)
-
-    
