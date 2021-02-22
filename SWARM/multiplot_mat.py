@@ -162,27 +162,42 @@ def histplot():
     day0 = 9
     day1 = 31
     object = multi_matreader.MultiMat(day0, day1)
-    n = 100
+    n = 50
     minfreq = 0.1
     maxfreq = 0.3
     bins_ = 100
-    lat1 = 90
-    lat0 = 1
+    lat1 = 77
+    lat0 = 65
     hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
                        abs = False, norm = True, pole = "north")
 
+    stds = np.zeros(len(hists))
+    means = np.zeros_like(stds)
     width = bins[1] - bins[0]
     for j in range(len(hists)):
         hists[j] = hists[j]/np.sum(hists[j]*width)
+        curr_std, curr_mean = object.pro.std_mean(hists[j], bins)
+        stds[j] = curr_std
+        means[j] = curr_mean
 
     plt.figure(0)
+    plt.title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
+    plt.xlabel("relative difference")
+    plt.ylabel("Normalized occurence")
     plt.bar(bins, hists[0], width = width)
 
     plt.figure(1)
+    plt.title("B - C, $\sigma$ = %g, $\mu$ = %g" % (stds[1], means[1]))
+    plt.xlabel("relative difference")
+    plt.ylabel("Normalized occurence")
     plt.bar(bins, hists[1], width = width)
 
     plt.figure(2)
+    plt.title("A - C, $\sigma$ = %g, $\mu$ = %g" % (stds[2], means[2]))
+    plt.xlabel("relative difference")
+    plt.ylabel("Normalized occurence")
     plt.bar(bins, hists[2], width = width)
     plt.show()
 
-histplot()
+
+plothing()

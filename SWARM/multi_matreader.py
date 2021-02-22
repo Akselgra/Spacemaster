@@ -169,3 +169,11 @@ class MultiMat():
 if __name__ == "__main__":
     pro = SWARMprocess()
     object = MultiMat(9, 31)
+    hists, bins = object.multi_histmake(100, 0.2, 0.4, 50, 75, 65)
+    width = bins[1] - bins[0]
+    hists[0] = hists[0]/np.sum(hists[0]*width)
+    std, mean = pro.std_mean(hists[0], bins)
+    xs = np.linspace(-1, 1, 1000)
+    plt.bar(bins, hists[0], width = width)
+    plt.plot(xs, pro.gauss_curve(xs, mean, std), "r")
+    plt.show()

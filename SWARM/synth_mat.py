@@ -114,7 +114,7 @@ def triple_test():
     plt.title("integral from f = %g to f = %g" % (minfreq, maxfreq))
     plt.plot(times, fourier_int)
     plt.show()
-    
+
 def triangle_plot():
     fs = 2
     t = 100
@@ -125,14 +125,14 @@ def triangle_plot():
     mid = 50
     val = 1
     ys = triangle(times, mid, width, val)
-    
-    
+
+
     plt.plot(times, ys)
     plt.title("Triangle pulse")
     plt.ylabel("Measured unit")
     plt.xlabel("Time [s]")
     plt.show()
-    
+
     fft = np.fft.fft(ys)/n
     fft = np.roll(fft, int(n/2))
     plt.plot(freqs, np.log10(np.abs(fft)))
@@ -140,7 +140,7 @@ def triangle_plot():
     plt.ylabel("log10(PSD)")
     plt.title("Power spectrum density")
     plt.show()
-    
+
 
 if __name__ == "__main__":
-    triangle_plot()
+    triple_test()
