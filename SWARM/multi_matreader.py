@@ -80,7 +80,7 @@ class MultiMat():
             binlist = np.linspace(-1, 1, bins_)
 
         else:
-            binlist = np.linspace(-5000, 5000, bins_)
+            binlist = np.linspace(-25000, 25000, bins_)
 
 
         histsBA = np.zeros_like(binlist[:-1])

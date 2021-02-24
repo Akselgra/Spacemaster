@@ -13,16 +13,16 @@ def std_timeshift_mat():
     maxfreq = 0.3
     day0 = 9
     day1 = 31
-    lat1 = 90
-    lat0 = 77
-    n = 100
+    lat1 = 77
+    lat0 = 65
+    n = 50
     shift_list = []
     std_list = []
     k_high = []
 
     for day in range(day0, day1+1):
         object = multi_matreader.MultiMat(day, day)
-        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 50, lat1 = lat1, lat0 = lat0)
+        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = False, pole = "north")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -199,5 +199,4 @@ def histplot():
     plt.bar(bins, hists[2], width = width)
     plt.show()
 
-
-plothing()
+std_timeshift_mat()

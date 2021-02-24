@@ -84,7 +84,7 @@ def triple_test():
     freqs = np.linspace(-fs/2, fs/2, n)
     widths = np.array([2, 3, 6, 9, 12])*25
     mids = np.array([100, 300, 500, 700, 900])*5
-    vals = np.array([1, 1, 1, 1, 1])
+    vals = np.array([10, 1, 1, 1, 1])
     # widths = np.array([1])
     # mids = np.array([50])
     # vals = np.array([1])
