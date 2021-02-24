@@ -166,10 +166,10 @@ def histplot():
     minfreq = 0.1
     maxfreq = 0.3
     bins_ = 100
-    lat1 = 77
-    lat0 = 65
+    lat1 = 60
+    lat0 = 0
     hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
-                       abs = False, norm = True, pole = "north")
+                       abs = False, norm = True, pole = "both")
 
     stds = np.zeros(len(hists))
     means = np.zeros_like(stds)
@@ -180,23 +180,36 @@ def histplot():
         stds[j] = curr_std
         means[j] = curr_mean
 
-    plt.figure(0)
-    plt.title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurence")
-    plt.bar(bins, hists[0], width = width)
+    xs = np.linspace(-1, 1, 1000)
+    gauss1 = object.pro.gauss_curve(xs, means[0], stds[0])
+    gauss2 = object.pro.gauss_curve(xs, means[1], stds[1])
+    gauss3 = object.pro.gauss_curve(xs, means[2], stds[2])
 
-    plt.figure(1)
-    plt.title("B - C, $\sigma$ = %g, $\mu$ = %g" % (stds[1], means[1]))
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurence")
-    plt.bar(bins, hists[1], width = width)
+    fig, axs = plt.subplots(3, 1)
+    axs[0].set_title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
+    axs[0].plot(xs, gauss1, "r")
+    axs[0].bar(bins, hists[0], width = width)
 
-    plt.figure(2)
-    plt.title("A - C, $\sigma$ = %g, $\mu$ = %g" % (stds[2], means[2]))
-    plt.xlabel("relative difference")
-    plt.ylabel("Normalized occurence")
-    plt.bar(bins, hists[2], width = width)
+    axs[1].set_title("B - C, $\sigma$ = %g, $\mu$ = %g" % (stds[1], means[1]))
+    axs[1].plot(xs, gauss2, "r")
+    axs[1].bar(bins, hists[1], width = width)
+
+    axs[2].set_title("A - C, $\sigma$ = %g, $\mu$ = %g" % (stds[2], means[2]))
+    axs[2].plot(xs, gauss3, "r")
+    axs[2].bar(bins, hists[2], width = width)
+
+
+    xlabels = ["relative difference","relative difference","relative difference"]
+    ylabels = ["Norm occ","Norm occ","Norm occ"]
+    for i in range(len(axs.flat)):
+        axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
+        axs.flat[i].set_aspect("equal", adjustable = "box")
+
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    for ax in axs.flat:
+        ax.label_outer()
+
+    plt.legend(["normal distribution", "data"])
     plt.show()
 
-std_timeshift_mat()
+histplot()

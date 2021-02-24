@@ -375,5 +375,3 @@ def multi_std_timeshift():
 
     stop = time.time()
     print(stop-start)
-
-
