@@ -22,7 +22,7 @@ def std_timeshift_mat():
 
     for day in range(day0, day1+1):
         object = multi_matreader.MultiMat(day, day)
-        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = False, pole = "north")
+        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = True, pole = "north")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -162,14 +162,14 @@ def histplot():
     day0 = 9
     day1 = 31
     object = multi_matreader.MultiMat(day0, day1)
-    n = 50
+    n = 100
     minfreq = 0.1
     maxfreq = 0.3
     bins_ = 100
-    lat1 = 60
-    lat0 = 0
+    lat1 = 77
+    lat0 = 65
     hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
-                       abs = False, norm = True, pole = "both")
+                       abs = False, norm = True, pole = "north")
 
     stds = np.zeros(len(hists))
     means = np.zeros_like(stds)
@@ -203,7 +203,9 @@ def histplot():
     ylabels = ["Norm occ","Norm occ","Norm occ"]
     for i in range(len(axs.flat)):
         axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
-        axs.flat[i].set_aspect("equal", adjustable = "box")
+        #axs.flat[i].set_aspect("equal", "box")
+        #axs.flat[i].set_xlim(-1, 1)
+        #axs.flat[i].set_ylim(0, 5)
 
     # Hide x labels and tick labels for top plots and y ticks for right plots.
     for ax in axs.flat:
@@ -212,4 +214,4 @@ def histplot():
     plt.legend(["normal distribution", "data"])
     plt.show()
 
-histplot()
+std_timeshift_mat()

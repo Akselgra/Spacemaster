@@ -63,6 +63,8 @@ class MatReader(SWARMprocess):
         # self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
         self.BA_shift = infile["BA_shift"][0][0]
         self.BC_shift = infile["BC_shift"][0][0]
+        
+        self.shifter()
 
 
     def shifter(self):

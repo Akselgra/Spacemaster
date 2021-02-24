@@ -103,6 +103,7 @@ class MultiMat():
         self.BA_shift = infile.BA_shift
         self.BC_shift = infile.BC_shift
         hists = np.array([histsBA, histsBC, histsAC])
+        
         return(hists, bins)
 
     def freq_sig(self, df, jump, n, bins_, abs, norm, lat1, lat0, f1, f0, pole):
