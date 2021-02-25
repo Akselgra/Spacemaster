@@ -9,12 +9,12 @@ pro = SWARMprocess.SWARMprocess()
 
 def std_timeshift_mat():
     start = time.time()
-    minfreq = 0.1
-    maxfreq = 0.3
+    minfreq = 0
+    maxfreq = 0.1
     day0 = 9
     day1 = 31
-    lat1 = 77
-    lat0 = 65
+    lat1 = 60
+    lat0 = 0
     n = 50
     shift_list = []
     std_list = []
@@ -22,7 +22,7 @@ def std_timeshift_mat():
 
     for day in range(day0, day1+1):
         object = multi_matreader.MultiMat(day, day)
-        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = True, pole = "north")
+        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = True, pole = "both")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -92,14 +92,14 @@ def sigma_plotter_mat():
     plots std as a function of frequency
     """
     f0 = 0
-    f1 = 0.2
+    f1 = 1
     n = 100
     df = 0.05
     jump = 0.01
     lat1 = 90
     lat0 = 77
     start = time.time()
-    object = multi_matreader.MultiMat(14, 14)
+    object = multi_matreader.MultiMat(9, 31)
     freq0s, sigmas, means = object.freq_sig(df = df, jump = jump, n = n,\
                                             f0 = f0, f1 = f1, bins_ = 50,\
                                             abs = False, norm = True,\
@@ -166,8 +166,8 @@ def histplot():
     minfreq = 0.1
     maxfreq = 0.3
     bins_ = 100
-    lat1 = 77
-    lat0 = 65
+    lat1 = 60
+    lat0 = 0
     hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
                        abs = False, norm = True, pole = "north")
 
@@ -214,4 +214,4 @@ def histplot():
     plt.legend(["normal distribution", "data"])
     plt.show()
 
-std_timeshift_mat()
+sigma_plotter_mat()
