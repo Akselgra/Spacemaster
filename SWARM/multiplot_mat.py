@@ -9,20 +9,22 @@ pro = SWARMprocess.SWARMprocess()
 
 def std_timeshift_mat():
     start = time.time()
-    minfreq = 0
-    maxfreq = 0.1
+    minfreq = 0.1
+    maxfreq = 0.3
     day0 = 9
     day1 = 31
-    lat1 = 60
-    lat0 = 0
-    n = 50
+    lat1 = 90
+    lat0 = 77
+    n = 100
     shift_list = []
     std_list = []
     k_high = []
 
     for day in range(day0, day1+1):
         object = multi_matreader.MultiMat(day, day)
-        hists, bins = object.multi_histmake(n = n, minfreq = minfreq, maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0, norm = True, pole = "both")
+        hists, bins = object.multi_histmake(n = n, minfreq = minfreq,\
+        maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0,\
+        norm = True, pole = "north")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -102,7 +104,7 @@ def sigma_plotter_mat():
     object = multi_matreader.MultiMat(9, 31)
     freq0s, sigmas, means = object.freq_sig(df = df, jump = jump, n = n,\
                                             f0 = f0, f1 = f1, bins_ = 50,\
-                                            abs = False, norm = True,\
+                                            abs = False, norm = False,\
                                             lat1 = lat1, lat0 = lat0,\
                                                 pole = "north")
 
@@ -166,8 +168,8 @@ def histplot():
     minfreq = 0.1
     maxfreq = 0.3
     bins_ = 100
-    lat1 = 60
-    lat0 = 0
+    lat1 = 90
+    lat0 = 77
     hists, bins = object.multi_histmake(n, minfreq, maxfreq, bins_, lat1, lat0,\
                        abs = False, norm = True, pole = "north")
 
@@ -185,7 +187,7 @@ def histplot():
     gauss2 = object.pro.gauss_curve(xs, means[1], stds[1])
     gauss3 = object.pro.gauss_curve(xs, means[2], stds[2])
 
-    fig, axs = plt.subplots(3, 1)
+    fig, axs = plt.subplots(1, 3)
     axs[0].set_title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
     axs[0].plot(xs, gauss1, "r")
     axs[0].bar(bins, hists[0], width = width)
@@ -214,4 +216,4 @@ def histplot():
     plt.legend(["normal distribution", "data"])
     plt.show()
 
-sigma_plotter_mat()
+histplot()
