@@ -14,7 +14,7 @@ def std_timeshift_mat():
     day0 = 9
     day1 = 31
     lat1 = 90
-    lat0 = 77
+    lat0 = 7
     n = 100
     shift_list = []
     std_list = []
@@ -24,7 +24,7 @@ def std_timeshift_mat():
         object = multi_matreader.MultiMat(day, day)
         hists, bins = object.multi_histmake(n = n, minfreq = minfreq,\
         maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0,\
-        norm = True, pole = "north")
+        norm = True, pole = "both")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -216,4 +216,4 @@ def histplot():
     plt.legend(["normal distribution", "data"])
     plt.show()
 
-histplot()
+std_timeshift_mat()

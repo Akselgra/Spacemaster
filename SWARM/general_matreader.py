@@ -64,7 +64,7 @@ class MatReader(SWARMprocess):
         self.BA_shift = infile["BA_shift"][0][0]
         self.BC_shift = infile["BC_shift"][0][0]
         
-        self.shifter()
+        #self.shifter()
 
 
     def shifter(self):
@@ -305,49 +305,74 @@ class MatReader(SWARMprocess):
 
 
 if __name__ == "__main__":
-
+    #file = "Data/matfiles/20131221.mat"
+    #object = MatReader(file)   
+    
+    
     def hour_round(hours):
         is_larger = np.nonzero(hours > 24)
         hours[is_larger] = hours[is_larger] - 24
         return(hours)
-    file = "Data/matfiles/20131217.mat"
-    object = MatReader(file)
-    inds = object.mlat_finder(75, 65)
-    NeA = object.NeA[inds[1]]
-    NeB = object.NeB[inds[1]]
-    secondsA = object.secondsA[inds[1]]
-    secondsB = object.secondsB[inds[1]]
-    times, fourier_int = object.fft_time_holes_integral(NeA, secondsA, 250, 2, minfreq = 0.1, maxfreq = 0.3)
-    timesB, fourier_intB = object.fft_time_holes_integral(NeB, secondsB, 250, 2, minfreq = 0.1, maxfreq = 0.3)
+    
+    #plotting function
+    def one_period_plot():
+        """
+        plots one period of electron density data
+        """
+        file = "Data/matfiles/20131221.mat"
+        object = MatReader(file)
+        
+        NeA = object.NeA
+        latA = object.latA
+        times = object.secondsA
+        mlt = object.mltA
+        ind1 = 2606
+        ind2 = 13940
+        T = ind2 - ind1
+        ind1 += int(T/2)
+        ind2 += int(T/2)
+        
+        latA = latA[ind1:ind2]
+        NeA = NeA[ind1:ind2]
+        times = times[ind1:ind2]
+        mlt = mlt[ind1:ind2]
+        mlt = hour_round(mlt)
+        
+        lats = np.zeros_like(latA)
+        lats[0] = latA[0]
+        for i in range(len(latA)-1):
+            dlat = latA[i+1] - latA[i]
+            if dlat < 0:
+                lats[i+1] = lats[i] - dlat
+            else:
+                lats[i+1] = lats[i] + dlat
+        
+        lats += 90
+        
+        xticks = np.array([-90, -60, -30, 30, 60, 77, 90, 103, 120, 150, 210, 240, 270]) + 90
+        plt.plot(lats, NeA)
+        plt.plot([0, 0], [0, np.max(NeA)], "k")
+        plt.plot([30, 30], [0, np.max(NeA)], "k")
+        plt.plot([60, 60], [0, np.max(NeA)], "k")
+        plt.plot([120, 120],[0, np.max(NeA)], "k")
+        plt.plot([150, 150], [0, np.max(NeA)], "k")
+        plt.plot([167, 167], [0, np.max(NeA)], "k")
+        plt.plot([193, 193], [0, np.max(NeA)], "k")
+        plt.plot([210, 210], [0, np.max(NeA)], "k")
+        plt.plot([240, 244], [0, np.max(NeA)], "k")
+        plt.plot([300, 300], [0, np.max(NeA)], "k")
+        plt.plot([330, 330], [0, np.max(NeA)], "k")
+        plt.plot([360, 360], [0, np.max(NeA)], "k")
+        plt.xticks(xticks)
+        plt.xlabel("Latitude going from 0 to 360 degrees, starting and ending at south pole")
+        plt.ylabel("Electron density [cm$^{-1}$]")
+        plt.title("One SWARM satellite period")
+        plt.show()
 
+        
+        print(lats[0])
+        print(lats[-1])
+        
+        
+    one_period_plot()
 
-    plt.figure(0)
-    plt.plot(timesB, fourier_int/np.max(fourier_int), "b.")
-    plt.plot(timesB, fourier_intB/np.max(fourier_int), "k.")
-    plt.legend(["A", "B"])
-    plt.xlabel("UTC")
-    plt.ylabel("integrated fourier")
-
-    # plt.xlabel("UTC")
-    # plt.ylabel("Ne")
-    plt.plot(object.secondsB[inds[1]], object.meanie(NeA, 10)/np.max(object.meanie(NeA, 10)), "b")
-    plt.plot(object.secondsB[inds[1]], object.meanie(NeB, 10)/np.max(object.meanie(NeB, 10)), "k")
-    plt.legend(["A", "B", "NeA", "NeB"])
-
-    def hour(x):
-        inds = np.nonzero(x > 24)
-        x[inds] -= 24
-        return x
-
-    # plt.figure(2)
-    # plt.plot(object.mlatA, hour(object.mltA + object.secondsA/60/60))
-    # plt.xlabel("Geomagnetic Latitude")
-    # plt.ylabel("Magnetic Local Time")
-    plt.show()
-    """
-    hists, bins = object.histmake(100, 0.1, 0.9, np.linspace(-1, 1, 50),75,65)
-    BAhist = hists[0]
-    width = bins[1] - bins[0]
-    plt.bar(bins, BAhist, width = width)
-    plt.show()
-    """

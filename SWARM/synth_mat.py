@@ -140,7 +140,57 @@ def triangle_plot():
     plt.ylabel("log10(PSD)")
     plt.title("Power spectrum density")
     plt.show()
+    
 
+def index_test():
+    fs = 2
+    t = 10000
+    n = int(fs*t)
+    times = np.linspace(0, t, n)
+    freqs = np.linspace(-fs/2, fs/2, n)
+    width1 = 10
+    width2 = 20
+    mid = 50
+    val = 1
+    ys1 = triangle(times, mid, width1, val)
+    ys2 = triangle(times, mid, width2, val)
+
+
+    plt.plot(times, ys1)
+    plt.plot(times, ys2)
+    plt.title("Triangle pulse")
+    plt.ylabel("Measured unit")
+    plt.xlabel("Time [s]")
+    plt.legend(["Triangle A", "Triangle B"])
+    plt.show()
+    
+    l = 0.7
+    
+    freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+    minfreq = 0.1 + l
+    maxfreq = 0.3 + l
+    fft1 = np.fft.fft(ys1)[:int(n/2)]/n*2
+    fft2 = np.fft.fft(ys2)[:int(n/2)]/n*2
+    fft1 = np.abs(fft1)
+    fft2 = np.abs(fft2)
+    
+    plt.plot(freqs, np.log10(fft1))
+    plt.plot(freqs, np.log10(fft2))
+    plt.title("Logarithmic PSD")
+    plt.legend(["Triangle A", "Triangle B"])
+    plt.xlabel("Frequency [Hz]")
+    plt.ylabel("Log10(PSD)")
+    plt.show()
+    
+    
+    df = freqs[1] - freqs[0]
+    N_maxfreq = int(maxfreq/df)
+    N_minfreq = int(minfreq/df)
+    
+    sum1 = np.sum(fft1[N_minfreq:N_maxfreq]*df)
+    sum2 = np.sum(fft2[N_minfreq:N_maxfreq]*df)
+    
+    print((sum1 - sum2)/np.max([sum1, sum2]))
 
 if __name__ == "__main__":
-    triple_test()
+    index_test()

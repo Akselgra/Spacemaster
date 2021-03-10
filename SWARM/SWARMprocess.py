@@ -330,6 +330,8 @@ class SWARMprocess():
             ffts - array containing fourier transforms
         """
 
+        if n < 2:
+            raise ValueError("n must be higher than 1")
         N = len(signal)
 
         m = 0
