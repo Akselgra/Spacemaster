@@ -163,6 +163,31 @@ class SWARMprocess():
 
         return(r)
 
+    def great_circle_distance(self, x1, y1, z1, x2, y2, z2, rad = False):
+        """
+        Takes coordinates of 2 bodies and finds great circle distance between them.
+        Assumes spherical coordinates.
+        If rad is set to False, converts radians into degrees.
+        x = latitude, y = longitude, z = radius
+        Assumes x1, ..., z2 are arrays
+        """
+        
+        if rad == False:
+            x1 = x1*np.pi/180
+            y1 = y1*np.pi/180
+            x2 = x2*np.pi/180
+            y2 = y2*np.pi/180
+        
+        dx = np.abs(x1 - x2)
+        dy = np.abs(y1 - y2)
+        
+        a = (np.cos(x2)*np.sin(dy))**2
+        b = (np.cos(x1) * np.sin(x2) - np.sin(x1)*np.cos(x2)*np.cos(dy))**2
+        c = np.sin(x1)*np.sin(x2) + np.cos(x1)*np.cos(x2)*np.cos(dy)
+        
+        return(np.mean([z1, z2]) * np.arctan2(np.sqrt(a + b), c))
+    
+    
     def earthrad(self, lat, degrees = True):
         """
         Calculates earths radius at given latitude

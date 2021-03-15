@@ -63,8 +63,8 @@ class MatReader(SWARMprocess):
         # self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
         self.BA_shift = infile["BA_shift"][0][0]
         self.BC_shift = infile["BC_shift"][0][0]
-        
-        #self.shifter()
+    
+        self.shifter()
 
 
     def shifter(self):
@@ -372,7 +372,75 @@ if __name__ == "__main__":
         
         print(lats[0])
         print(lats[-1])
+    
+    def distance_plot():
+        """
+        plots distance between data point
+        """
+        file = "Data/matfiles/20131231.mat"
+        object = MatReader(file)
+        
+        ind1 = 2606
+        ind2 = 13940
+        
+        #ind1 = 0
+        #ind2 = 150000
+        
+        times = object.secondsB[ind1:ind2]
+        
+        xA = object.latA[ind1:ind2]
+        yA = object.longA[ind1:ind2]
+        zA = object.radA[ind1:ind2]
+        
+        xB = object.latB[ind1:ind2]
+        yB = object.longB[ind1:ind2]
+        zB = object.radB[ind1:ind2]
+        
+        xC = object.latC[ind1:ind2]
+        yC = object.longC[ind1:ind2]
+        zC = object.radC[ind1:ind2]
         
         
-    one_period_plot()
+        dist_BA = object.great_circle_distance(xB, yB, zB, xA, yA, zA)
+        dist_BC = object.great_circle_distance(xB, yB, zB, xC, yC, zC)
+        
+        
+        plt.figure(0)
+        plt.plot(times, dist_BA)
+        plt.plot(times, dist_BC)
+        plt.title("distance in meters")
+        plt.xlabel("time of sat B [s]")
+        plt.ylabel("Distance [m]")
+        plt.legend(["B - A", "B - C"])
+        plt.figure(1)
+        
+        plt.plot(times, xB - xA)
+        plt.plot(times, xB - xC)
+        plt.title("difference in latitude")
+        plt.xlabel("time of sat B [s]")
+        plt.ylabel("difference in latitude [degrees]")
+        plt.legend(["B - A", "B - C"])
+        plt.show()
+        
+        plt.plot(times, yB - yA)
+        plt.plot(times, yB - yC)
+        #plt.axis([0, 7000, -10, 10])
+        plt.title("difference in longitude")
+        plt.xlabel("time of sat B [s]")
+        plt.ylabel("difference in latitude [degrees]")
+        plt.legend(["B - A", "B - C"])
+        plt.show()
+        
+        plt.plot(times, zB - zA)
+        plt.plot(times, zB - zC)
+        plt.title("Difference in altitude")
+        plt.xlabel("time of sat B [s]")
+        plt.ylabel("difference in altitude [m]")
+        plt.legend(["B - A", "B - C"])
+        plt.show()
+        
+        print("mean distance B-A = %g m" % np.mean(dist_BA))
+        print("mean distance B-C = %g m" % np.mean(dist_BC))
+        
+    distance_plot()
 

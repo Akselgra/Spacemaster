@@ -148,8 +148,8 @@ def index_test():
     n = int(fs*t)
     times = np.linspace(0, t, n)
     freqs = np.linspace(-fs/2, fs/2, n)
-    width1 = 10
-    width2 = 20
+    width1 = 11
+    width2 = 12
     mid = 50
     val = 1
     ys1 = triangle(times, mid, width1, val)
@@ -164,11 +164,11 @@ def index_test():
     plt.legend(["Triangle A", "Triangle B"])
     plt.show()
     
-    l = 0.7
+    l = 0
     
     freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
-    minfreq = 0.1 + l
-    maxfreq = 0.3 + l
+    minfreq = 0.2 + l
+    maxfreq = 0.9 + l
     fft1 = np.fft.fft(ys1)[:int(n/2)]/n*2
     fft2 = np.fft.fft(ys2)[:int(n/2)]/n*2
     fft1 = np.abs(fft1)
@@ -191,6 +191,7 @@ def index_test():
     sum2 = np.sum(fft2[N_minfreq:N_maxfreq]*df)
     
     print((sum1 - sum2)/np.max([sum1, sum2]))
+    print(1 - width1/width2)
 
 if __name__ == "__main__":
     index_test()
