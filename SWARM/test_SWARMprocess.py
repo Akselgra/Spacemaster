@@ -36,8 +36,31 @@ def test_maxdiff():
     testy = np.abs(calcdiff - diff) < eps
     msg = "Calculated difference is %g while true dist is %g" % (calcdiff, diff)
     assert testy, msg
+    
+    
+def test_great_circle_distance():
+    """
+    test function for great circle distance method in SWARMprocess
+    """
+    object = SWARMprocess()
+    r = object.Re #earth radius
+    lat1 = -2.5856855; long1 = -18.1962077
+    lat2 = -6.405082999999999; long2 = -18.0331106
+    
+    computed = object.great_circle_distance(lat1, long1, r, lat2, long2, r)/1000
+    expected = 425.08214222811756
+    
+    eps = 1
+    testy = np.abs(computed - expected) < eps
+    msg = "calculated great circle distance is not what we expected"
+    
+    print(computed)
+    print(expected)
+    assert testy, msg
+    
 
 print("Running tests")
 test_distance()
 test_maxdiff()
+test_great_circle_distance()
 print("Tests passed")

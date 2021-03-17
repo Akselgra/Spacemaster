@@ -178,14 +178,13 @@ class SWARMprocess():
             x2 = x2*np.pi/180
             y2 = y2*np.pi/180
 
-        dx = np.abs(x1 - x2)
         dy = np.abs(y1 - y2)
 
         a = (np.cos(x2)*np.sin(dy))**2
         b = (np.cos(x1) * np.sin(x2) - np.sin(x1)*np.cos(x2)*np.cos(dy))**2
         c = np.sin(x1)*np.sin(x2) + np.cos(x1)*np.cos(x2)*np.cos(dy)
 
-        return(np.mean([z1, z2]) * np.arctan2(np.sqrt(a + b), c))
+        return(z2 * np.arctan2(np.sqrt(a + b), c))
 
 
     def ITRF_ellipsoid_to_cartesian(self, phi, theta, r):

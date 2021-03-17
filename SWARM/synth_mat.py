@@ -144,54 +144,64 @@ def triangle_plot():
 
 def index_test():
     fs = 2
-    t = 10000
+    t = 1000
     n = int(fs*t)
     times = np.linspace(0, t, n)
     freqs = np.linspace(-fs/2, fs/2, n)
-    width1 = 11
-    width2 = 12
-    mid = 50
-    val = 1
-    ys1 = triangle(times, mid, width1, val)
-    ys2 = triangle(times, mid, width2, val)
+    widths = np.arange(5, 100)
+    indices = np.zeros(len(widths))
+    for i in range(len(widths)):
+        width1 = widths[i]
+        width2 = 100
+        mid = 200
+        val = 1
+        ys1 = triangle(times, mid, width1, val)
+        ys2 = triangle(times, mid, width2, val)
+    
+        """
+        plt.plot(times, ys1)
+        plt.plot(times, ys2)
+        plt.title("Triangle pulse")
+        plt.ylabel("Measured unit")
+        plt.xlabel("Time [s]")
+        plt.legend(["Triangle A", "Triangle B"])
+        plt.show()
+        """
+        l = 0
+        
+        freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        minfreq = 0.05 + l
+        maxfreq = 1 + l
+        fft1 = np.fft.fft(ys1)[:int(n/2)]/n*2
+        fft2 = np.fft.fft(ys2)[:int(n/2)]/n*2
+        fft1 = np.abs(fft1)
+        fft2 = np.abs(fft2)
+        """
+        plt.plot(freqs, np.log10(fft1))
+        plt.plot(freqs, np.log10(fft2))
+        plt.title("Logarithmic PSD")
+        plt.legend(["Triangle A", "Triangle B"])
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Log10(PSD)")
+        plt.show()
+        """        
+        
+        df = freqs[1] - freqs[0]
+        N_maxfreq = int(maxfreq/df)
+        N_minfreq = int(minfreq/df)
+        
+        sum1 = np.sum(fft1[N_minfreq:N_maxfreq]*df)
+        sum2 = np.sum(fft2[N_minfreq:N_maxfreq]*df)
+        
+        index = (sum1 - sum2)/np.max([sum1, sum2])
+        indices[i] = index
 
-
-    plt.plot(times, ys1)
-    plt.plot(times, ys2)
-    plt.title("Triangle pulse")
-    plt.ylabel("Measured unit")
-    plt.xlabel("Time [s]")
-    plt.legend(["Triangle A", "Triangle B"])
+    plt.plot(widths, indices)
+    plt.plot(widths, 1 - widths/width2)
+    plt.xlabel("Width of triangle A")
+    plt.ylabel("Unitless")
+    plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
     plt.show()
     
-    l = 0
-    
-    freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
-    minfreq = 0.2 + l
-    maxfreq = 0.9 + l
-    fft1 = np.fft.fft(ys1)[:int(n/2)]/n*2
-    fft2 = np.fft.fft(ys2)[:int(n/2)]/n*2
-    fft1 = np.abs(fft1)
-    fft2 = np.abs(fft2)
-    
-    plt.plot(freqs, np.log10(fft1))
-    plt.plot(freqs, np.log10(fft2))
-    plt.title("Logarithmic PSD")
-    plt.legend(["Triangle A", "Triangle B"])
-    plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Log10(PSD)")
-    plt.show()
-    
-    
-    df = freqs[1] - freqs[0]
-    N_maxfreq = int(maxfreq/df)
-    N_minfreq = int(minfreq/df)
-    
-    sum1 = np.sum(fft1[N_minfreq:N_maxfreq]*df)
-    sum2 = np.sum(fft2[N_minfreq:N_maxfreq]*df)
-    
-    print((sum1 - sum2)/np.max([sum1, sum2]))
-    print(1 - width1/width2)
-
 if __name__ == "__main__":
     index_test()

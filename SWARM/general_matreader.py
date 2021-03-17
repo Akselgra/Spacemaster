@@ -64,7 +64,7 @@ class MatReader(SWARMprocess):
         self.BA_shift = infile["BA_shift"][0][0]
         self.BC_shift = infile["BC_shift"][0][0]
 
-        # self.shifter()
+        self.shifter()
 
 
     def shifter(self):
@@ -379,12 +379,14 @@ if __name__ == "__main__":
         """
         file = "Data/matfiles/20131231.mat"
         object = MatReader(file)
+        
+        
 
         ind1 = 2606
         ind2 = 13940
 
-        # ind1 = 0
-        # ind2 = 150000
+        #ind1 = 0
+        #ind2 = 150000
 
         times = object.secondsB[ind1:ind2]
 
@@ -407,11 +409,11 @@ if __name__ == "__main__":
 
         plt.figure(0)
         plt.plot(times, dist_BA)
-        # plt.plot(times, dist_BC)
+        plt.plot(times, dist_BC)
         plt.title("distance in meters")
         plt.xlabel("time of sat B [s]")
         plt.ylabel("Distance [m]")
-        # plt.legend(["B - A", "B - C"])
+        plt.legend(["B - A", "B - C"])
         plt.figure(1)
 
         plt.plot(times, xB - xA)
@@ -439,8 +441,14 @@ if __name__ == "__main__":
         plt.ylabel("difference in altitude [m]")
         plt.legend(["B - A", "B - C"])
         plt.show()
+        
+        plt.plot(xA, dist_BA)
+        plt.show()
 
         print("mean distance B-A = %g m" % np.mean(dist_BA))
         print("mean distance B-C = %g m" % np.mean(dist_BC))
+        
+        print("velocity times timediff BA = %g" % (object.BA_shift*np.mean(object.velA)))
+        print("velocity times timediff BC = %g" % (object.BC_shift*np.mean(object.velC)))
 
     distance_plot()
