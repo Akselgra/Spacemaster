@@ -401,6 +401,9 @@ if __name__ == "__main__":
         xC = object.latC[ind1:ind2]
         yC = object.longC[ind1:ind2]
         zC = object.radC[ind1:ind2]
+        
+        mltA = object.mltA[ind1:ind2]
+        mltB = object.mltB[ind1:ind2]
 
 
         dist_BA = object.great_circle_distance(xB, yB, zB, xA, yA, zA)
@@ -443,6 +446,18 @@ if __name__ == "__main__":
         plt.show()
         
         plt.plot(xA, dist_BA)
+        plt.show()
+        
+        mltdiff = mltA - mltB
+        
+        for i in range(len(mltdiff)):
+            if mltdiff[i] > 24:
+                mltdiff[i] = mltdiff[i] - 24
+            elif mltdiff[i] < -24:
+                mltdiff[i] = mltdiff[i] + 24
+        
+        plt.plot(times, mltdiff)
+        plt.axis([0, 7000, -0.025, 0.025])
         plt.show()
 
         print("mean distance B-A = %g m" % np.mean(dist_BA))
