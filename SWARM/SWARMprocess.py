@@ -171,23 +171,62 @@ class SWARMprocess():
         x = latitude, y = longitude, z = radius
         Assumes x1, ..., z2 are arrays
         """
-        
+
         if rad == False:
             x1 = x1*np.pi/180
             y1 = y1*np.pi/180
             x2 = x2*np.pi/180
             y2 = y2*np.pi/180
-        
+
         dx = np.abs(x1 - x2)
         dy = np.abs(y1 - y2)
-        
+
         a = (np.cos(x2)*np.sin(dy))**2
         b = (np.cos(x1) * np.sin(x2) - np.sin(x1)*np.cos(x2)*np.cos(dy))**2
         c = np.sin(x1)*np.sin(x2) + np.cos(x1)*np.cos(x2)*np.cos(dy)
-        
+
         return(np.mean([z1, z2]) * np.arctan2(np.sqrt(a + b), c))
-    
-    
+
+
+    def ITRF_ellipsoid_to_cartesian(self, phi, theta, r):
+        """
+        Takes latitude phi, longitude theta and height r.
+        converts from ellipsoidic ITRF coordinates
+        to cartesian ITRF coordinates.
+        returns(x, y, z)
+        """
+        e_2 = 0.00669438002290
+        a = 6378137
+        N = a/np.sqrt(1 - e_2*np.sin(phi)**2)
+
+        x = (N + r)*np.cos(phi)*np.cos(theta)
+        y = (N + r)*np.cos(phi)*np.sin(theta)
+        z = ((1 - e_2)*N + r)*np.sin(phi)
+
+        return(x, y, z)
+
+    def ellipsoid_distance(self, x1, y1, z1, x2, y2, z2, rad = False):
+        """
+        Takes coordinates of 2 bodies and finds distance between them
+        Assumes ellipsoid coordinates.
+        If rad is set to False, converts radians into degrees.
+        x = latitude, y = longitude, z = radius
+        Assumes x1, ..., z2 are arrays
+        """
+        if rad == False:
+            x1 = x1*np.pi/180
+            y1 = y1*np.pi/180
+            x2 = x2*np.pi/180
+            y2 = y2*np.pi/180
+
+        x1, y1, z1 = self.ITRF_ellipsoid_to_cartesian(x1, y1, z1)
+        x2, y2, z2 = self.ITRF_ellipsoid_to_cartesian(x2, y2, z2)
+
+        x3 = x2 - x1
+        y3 = y2 - y1
+        z3 = z2 - z1
+        return(np.sqrt(x3**2 + y3**2 + z3**2))
+
     def earthrad(self, lat, degrees = True):
         """
         Calculates earths radius at given latitude

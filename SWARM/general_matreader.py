@@ -63,8 +63,8 @@ class MatReader(SWARMprocess):
         # self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
         self.BA_shift = infile["BA_shift"][0][0]
         self.BC_shift = infile["BC_shift"][0][0]
-    
-        self.shifter()
+
+        # self.shifter()
 
 
     def shifter(self):
@@ -306,14 +306,14 @@ class MatReader(SWARMprocess):
 
 if __name__ == "__main__":
     #file = "Data/matfiles/20131221.mat"
-    #object = MatReader(file)   
-    
-    
+    #object = MatReader(file)
+
+
     def hour_round(hours):
         is_larger = np.nonzero(hours > 24)
         hours[is_larger] = hours[is_larger] - 24
         return(hours)
-    
+
     #plotting function
     def one_period_plot():
         """
@@ -321,7 +321,7 @@ if __name__ == "__main__":
         """
         file = "Data/matfiles/20131221.mat"
         object = MatReader(file)
-        
+
         NeA = object.NeA
         latA = object.latA
         times = object.secondsA
@@ -331,13 +331,13 @@ if __name__ == "__main__":
         T = ind2 - ind1
         ind1 += int(T/2)
         ind2 += int(T/2)
-        
+
         latA = latA[ind1:ind2]
         NeA = NeA[ind1:ind2]
         times = times[ind1:ind2]
         mlt = mlt[ind1:ind2]
         mlt = hour_round(mlt)
-        
+
         lats = np.zeros_like(latA)
         lats[0] = latA[0]
         for i in range(len(latA)-1):
@@ -346,9 +346,9 @@ if __name__ == "__main__":
                 lats[i+1] = lats[i] - dlat
             else:
                 lats[i+1] = lats[i] + dlat
-        
+
         lats += 90
-        
+
         xticks = np.array([-90, -60, -30, 30, 60, 77, 90, 103, 120, 150, 210, 240, 270]) + 90
         plt.plot(lats, NeA)
         plt.plot([0, 0], [0, np.max(NeA)], "k")
@@ -369,59 +369,60 @@ if __name__ == "__main__":
         plt.title("One SWARM satellite period")
         plt.show()
 
-        
+
         print(lats[0])
         print(lats[-1])
-    
+
     def distance_plot():
         """
         plots distance between data point
         """
         file = "Data/matfiles/20131231.mat"
         object = MatReader(file)
-        
+
         ind1 = 2606
         ind2 = 13940
-        
-        #ind1 = 0
-        #ind2 = 150000
-        
+
+        # ind1 = 0
+        # ind2 = 150000
+
         times = object.secondsB[ind1:ind2]
-        
+
         xA = object.latA[ind1:ind2]
         yA = object.longA[ind1:ind2]
         zA = object.radA[ind1:ind2]
-        
+
         xB = object.latB[ind1:ind2]
         yB = object.longB[ind1:ind2]
         zB = object.radB[ind1:ind2]
-        
+
         xC = object.latC[ind1:ind2]
         yC = object.longC[ind1:ind2]
         zC = object.radC[ind1:ind2]
-        
-        
+
+
         dist_BA = object.great_circle_distance(xB, yB, zB, xA, yA, zA)
         dist_BC = object.great_circle_distance(xB, yB, zB, xC, yC, zC)
-        
-        
+
+
         plt.figure(0)
         plt.plot(times, dist_BA)
-        plt.plot(times, dist_BC)
+        # plt.plot(times, dist_BC)
         plt.title("distance in meters")
         plt.xlabel("time of sat B [s]")
         plt.ylabel("Distance [m]")
-        plt.legend(["B - A", "B - C"])
+        # plt.legend(["B - A", "B - C"])
         plt.figure(1)
-        
+
         plt.plot(times, xB - xA)
         plt.plot(times, xB - xC)
         plt.title("difference in latitude")
         plt.xlabel("time of sat B [s]")
         plt.ylabel("difference in latitude [degrees]")
         plt.legend(["B - A", "B - C"])
-        plt.show()
-        
+
+        plt.figure(2)
+
         plt.plot(times, yB - yA)
         plt.plot(times, yB - yC)
         #plt.axis([0, 7000, -10, 10])
@@ -430,7 +431,7 @@ if __name__ == "__main__":
         plt.ylabel("difference in latitude [degrees]")
         plt.legend(["B - A", "B - C"])
         plt.show()
-        
+
         plt.plot(times, zB - zA)
         plt.plot(times, zB - zC)
         plt.title("Difference in altitude")
@@ -438,9 +439,8 @@ if __name__ == "__main__":
         plt.ylabel("difference in altitude [m]")
         plt.legend(["B - A", "B - C"])
         plt.show()
-        
+
         print("mean distance B-A = %g m" % np.mean(dist_BA))
         print("mean distance B-C = %g m" % np.mean(dist_BC))
-        
-    distance_plot()
 
+    distance_plot()
