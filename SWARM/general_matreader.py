@@ -385,8 +385,8 @@ if __name__ == "__main__":
         ind1 = 2606
         ind2 = 13940
 
-        #ind1 = 0
-        #ind2 = 150000
+        ind1 = 0
+        ind2 = 150000
 
         times = object.secondsB[ind1:ind2]
 
@@ -446,6 +446,9 @@ if __name__ == "__main__":
         plt.show()
         
         plt.plot(xA, dist_BA)
+        plt.xlabel("Latitude [Degrees]")
+        plt.ylabel("Distance [m]")
+        plt.title("Distance over latitude")
         plt.show()
         
         mltdiff = mltA - mltB
@@ -456,14 +459,15 @@ if __name__ == "__main__":
             elif mltdiff[i] < -24:
                 mltdiff[i] = mltdiff[i] + 24
         
-        plt.plot(times, mltdiff)
-        plt.axis([0, 7000, -0.025, 0.025])
-        plt.show()
 
         print("mean distance B-A = %g m" % np.mean(dist_BA))
         print("mean distance B-C = %g m" % np.mean(dist_BC))
         
-        print("velocity times timediff BA = %g" % (object.BA_shift*np.mean(object.velA)))
-        print("velocity times timediff BC = %g" % (object.BC_shift*np.mean(object.velC)))
+        print("velocity times timediff BA = %g" % (object.BA_shift/2*np.mean(object.velA)))
+        print("velocity times timediff BC = %g" % (object.BC_shift/2*np.mean(object.velC)))
+        print(np.min(dist_BA))
+        print(object.BA_shift)
+        print(object.BC_shift - object.BA_shift)
+        print(np.mean(object.velA))
 
     distance_plot()

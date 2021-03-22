@@ -144,19 +144,19 @@ def triangle_plot():
 
 def index_test():
     fs = 2
-    t = 1000
+    t = 10000
     n = int(fs*t)
     times = np.linspace(0, t, n)
     freqs = np.linspace(-fs/2, fs/2, n)
-    widths = np.arange(5, 100)
+    widths = np.arange(5, 500)
     indices = np.zeros(len(widths))
     for i in range(len(widths)):
         width1 = widths[i]
         width2 = 100
-        mid = 200
+        mid = 1500
         val = 1
         ys1 = triangle(times, mid, width1, val)
-        ys2 = triangle(times, mid, width2, val)
+        ys2 = triangle(times, mid, width2, val)#*(width1/widths[-1]))
     
         """
         plt.plot(times, ys1)
@@ -170,7 +170,7 @@ def index_test():
         l = 0
         
         freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
-        minfreq = 0.05 + l
+        minfreq = 0.1 + l
         maxfreq = 1 + l
         fft1 = np.fft.fft(ys1)[:int(n/2)]/n*2
         fft2 = np.fft.fft(ys2)[:int(n/2)]/n*2
@@ -197,10 +197,12 @@ def index_test():
         indices[i] = index
 
     plt.plot(widths, indices)
-    plt.plot(widths, 1 - widths/width2)
+    #plt.plot(widths, 1 - widths/width2)
+    #plt.plot([width2, width2], [-1, 1], "k")
     plt.xlabel("Width of triangle A")
     plt.ylabel("Unitless")
-    plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
+    plt.grid("on")
+    #plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
     plt.show()
     
 if __name__ == "__main__":
