@@ -16,6 +16,7 @@ class MatReader(SWARMprocess):
                 string; name of .mat file to be read
         """
 
+        self.shifted = False #boolean to let us assert that indices are shifted.
         infile = loadmat(filename)
         self.NeA = infile["NeA"][0]
         self.NeB = infile["NeB"][0]
@@ -80,7 +81,7 @@ class MatReader(SWARMprocess):
         #self.BC_shift = self.timeshift_latitude(self.latB, self.latC)
 
 
-
+        self.shifted = True #changing boolean to True when function is called.
 
         secondsA = self.secondsA
         secondsB = self.secondsB
@@ -269,6 +270,8 @@ class MatReader(SWARMprocess):
             bins - list; center of bin values.
         """
 
+        assert shifted, "Data has not been index-shifted"
+        
         inds = self.mlat_finder(lat1, lat0, pole)[1]
         NeA = self.NeA[inds]
         NeB = self.NeB[inds]
