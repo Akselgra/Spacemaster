@@ -269,9 +269,9 @@ class SWARMprocess():
         new_array = np.zeros(np.shape(array))
         #setting the boundaries
         for i in range(mean_range):
-            new_array[i] = np.mean(array[:i+1])
+            new_array[i] = np.mean(array[:i+mean_range])
         for i in range(1, mean_range+1):
-            new_array[-i] = np.mean(array[-i:])
+            new_array[-i] = np.mean(array[-(i + mean_range):])
 
         for i in range(mean_range, len(array)-(mean_range)):
             new_array[i] = np.mean(array[i - mean_range:i + mean_range+1])
@@ -771,7 +771,8 @@ class SWARMprocess():
 if __name__ == "__main__":
     pro = SWARMprocess()
     import matplotlib.pyplot as plt
-    array = np.arange(20)
+    array = np.arange(20, 60)
+    array = np.sin(np.linspace(0, 2*np.pi, 50))
     print(array)
     plt.plot(array)
     plt.show()
