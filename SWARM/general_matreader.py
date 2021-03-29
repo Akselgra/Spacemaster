@@ -272,8 +272,9 @@ class MatReader(SWARMprocess):
         """
 
         assert self.shifted, "Data has not been index-shifted"
-        
+
         inds = self.mlat_finder(lat1, lat0, pole)[1]
+        self.inds = inds
         NeA = self.NeA[inds]
         NeB = self.NeB[inds]
         NeC = self.NeC[inds]
@@ -306,7 +307,7 @@ class MatReader(SWARMprocess):
         hists = [BAhist, BChist, AChist]
 
         return(hists, bins)
-    
+
     def velo_inspec(self, ind1 = 1150*2, ind2 = 1185*2):
         """
         Inspects the velocity of a large scale structure between times
@@ -315,21 +316,21 @@ class MatReader(SWARMprocess):
         NeA = self.NeA[ind1:ind2]
         NeB = self.NeB[ind1:ind2]
         NeC = self.NeC[ind1:ind2]
-        
+
         secondsA = self.secondsA[ind1:ind2]
         secondsB = self.secondsB[ind1:ind2]
         secondsC = self.secondsC[ind1:ind2]
-        
-        
+
+
         mlatA = self.mlatA[ind1:ind2]
         mlatB = self.mlatB[ind1:ind2]
         mlatC = self.mlatC[ind1:ind2]
-        
+
         mean_range = 5
         NeA = self.meanie(NeA, mean_range)
         NeB = self.meanie(NeB, mean_range)
         NeC = self.meanie(NeC, mean_range)
-        
+
         plt.figure(0)
         plt.plot(mlatB, NeB, "r")
         plt.plot(mlatA, NeA, "g")
@@ -338,81 +339,81 @@ class MatReader(SWARMprocess):
         plt.ylabel("Electron density [cm$^{-3}$]")
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case")
-        plt.savefig("Figures/matfigs/interesting_case.pdf")
-        
+        # plt.savefig("Figures/matfigs/interesting_case.pdf")
+
 
         dx = (secondsB[1] - secondsB[0])*self.velB[ind1]
         der_NeA = (NeA[1:] - NeA[:-1])/dx
         der_NeB = (NeB[1:] - NeB[:-1])/dx
         der_NeC = (NeC[1:] - NeC[:-1])/dx
-        
-        
+
+
         #doing a gaussian fit
         from scipy.optimize import curve_fit
-        
+
         def gaussian(x, amp, cen, wid):
             """1-d gaussian: gaussian(x, amp, cen, wid)"""
             return (amp / (np.sqrt(2*np.pi) * wid)) * np.exp(-(x-cen)**2 / (2*wid**2))
-        
+
         init_valsA = [4000, 1164, 0.5]
         init_valsB = [4000, 1162, 0.5]
         init_valsC = [4000, 1166, 0.5]
-        
+
         poptA, pcovA = curve_fit(gaussian, secondsB[:-1],der_NeA , p0=init_valsA)
         poptB, pcovB = curve_fit(gaussian, secondsB[:-1],der_NeB , p0=init_valsB)
         poptC, pcovC = curve_fit(gaussian, secondsB[:-1],der_NeC , p0=init_valsC)
-        
-        
+
+
         lats = np.linspace(mlatB[0], mlatB[-1], 100)
         times = np.linspace(secondsB[0], secondsB[-1], 100)
         yA = gaussian(times, poptA[0], poptA[1], poptA[2])
         yB = gaussian(times, poptB[0], poptB[1], poptB[2])
         yC = gaussian(times, poptC[0], poptC[1], poptC[2])
-        
-        
+
+
         plt.figure(1)
         plt.plot(lats, yB, "--r")
         plt.plot(mlatB[:-1], der_NeB, "r")
-        
+
         plt.plot(lats, yA, "--g")
         plt.plot(mlatA[:-1], der_NeA, "g")
-        
+
         plt.plot(lats, yC, "--b")
         plt.plot(mlatC[:-1], der_NeC, "b")
         plt.legend(["fit B", "B", "fit A", "A", "fit C", "C"])
-        
+
         plt.title("Density gradients")
         plt.xlabel("Geomagnetic latitude [Degrees]")
         plt.ylabel("Electron density gradient [$\Delta n_e/\Delta m$]")
-        plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
-        
-        
+        # plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
+
+
         vsat = np.mean(self.velA) #velocity of satellites
         sBA = self.BA_shift/2 #time delay BA
         sBC = self.BC_shift/2 #time delay BC
         sAC = (self.BC_shift - self.BA_shift)/2
-        
+
         nBA = poptB[1] - poptA[1] #time between tops in difference plot
         nBC = poptB[1] - poptC[1] #time between tops in difference plot
         nAC = poptA[1] - poptC[1]
-        
+
         vBA = vsat*(1 - (sBA / (sBA - nBA))) #finding bubble velocity
         vBC = vsat*(1 - (sBC / (sBC - nBC))) #finding bubble velocity
         vAC = vsat*(1 - (sAC / (sAC - nAC)))
-        
 
-        
+
+
         NBA = int(np.abs(nBA)*2)
         NBC = int(np.abs(nBC)*2)
-        
+
         fixed_NeA = self.NeA[ind1 + NBA: ind2 + NBA]
         fixed_NeB = self.NeB[ind1:ind2]
         fixed_NeC = self.NeC[ind1 + NBC: ind2 + NBC]
-        
+
         fixed_NeA = self.meanie(fixed_NeA, mean_range)
         fixed_NeB = self.meanie(fixed_NeB, mean_range)
         fixed_NeC = self.meanie(fixed_NeC, mean_range)
-        
+
         plt.figure(2)
         plt.plot(mlatB, fixed_NeB, "r")
         plt.plot(mlatB, fixed_NeA, "g")
@@ -421,9 +422,9 @@ class MatReader(SWARMprocess):
         plt.ylabel("Electron density [cm$^{-3}$]")
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case, shifted")
-        plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
-        
-        
+        # plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
+
+
         print("Bubble velocity calculated from BA = %g [m/s]" % vBA)
         print("Bubble velocity calculated from BC = %g [m/s]" % vBC)
         print("Bubble velocity calculated from AC = %g [m/s]" % vAC)
@@ -433,41 +434,41 @@ class MatReader(SWARMprocess):
         print(sBA)
         print(sBC)
         print(sAC)
-        
-        
-        
-        
+
+
+
+
 
 
 
 
 if __name__ == "__main__":
-    fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
-    inches_per_pt = 1.0/72.27               # Convert pt to inches
-    golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
-    fig_width = fig_width_pt*inches_per_pt  # width in inches
-    fig_height =fig_width*golden_mean       # height in inches
-    fig_size = [fig_width,fig_height]
-    
-    plt.rcParams.update({
-        "text.usetex": True,
-        "font.family": "Roman",
-    #    "font.family": "sans-serif",
-    #    "font.sans-serif": ["Helvetica"],
-        'font.size' : 10,
-        'axes.labelsize' : 10,
-        'font.size' : 10,
-    #    'text.fontsize' : 10,
-        'legend.fontsize': 10,
-        'xtick.labelsize' : 10,
-        'ytick.labelsize' : 10,
-        'figure.figsize': fig_size
-    })
-    #matplotlib.use('pgf')
-    
-    file = "Data/matfiles/20131221.mat"
-    object = MatReader(file)
-    object.velo_inspec()
+    # fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
+    # inches_per_pt = 1.0/72.27               # Convert pt to inches
+    # golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
+    # fig_width = fig_width_pt*inches_per_pt  # width in inches
+    # fig_height =fig_width*golden_mean       # height in inches
+    # fig_size = [fig_width,fig_height]
+    #
+    # plt.rcParams.update({
+    #     "text.usetex": True,
+    #     "font.family": "Roman",
+    # #    "font.family": "sans-serif",
+    # #    "font.sans-serif": ["Helvetica"],
+    #     'font.size' : 10,
+    #     'axes.labelsize' : 10,
+    #     'font.size' : 10,
+    # #    'text.fontsize' : 10,
+    #     'legend.fontsize': 10,
+    #     'xtick.labelsize' : 10,
+    #     'ytick.labelsize' : 10,
+    #     'figure.figsize': fig_size
+    # })
+    # #matplotlib.use('pgf')
+
+    # file = "Data/matfiles/20131221.mat"
+    # object = MatReader(file)
+    # object.velo_inspec()
 
 
     def hour_round(hours):
@@ -540,8 +541,8 @@ if __name__ == "__main__":
         """
         file = "Data/matfiles/20131231.mat"
         object = MatReader(file)
-        
-        
+
+
 
         ind1 = 2606
         ind2 = 13940
@@ -562,7 +563,7 @@ if __name__ == "__main__":
         xC = object.latC[ind1:ind2]
         yC = object.longC[ind1:ind2]
         zC = object.radC[ind1:ind2]
-        
+
         mltA = object.mltA[ind1:ind2]
         mltB = object.mltB[ind1:ind2]
 
@@ -600,32 +601,33 @@ if __name__ == "__main__":
         plt.legend(["B - A", "B - C"])
         plt.show()
 
-        plt.plot(times, zB - zA)
-        plt.plot(times, zB - zC)
-        plt.title("Difference in altitude")
-        plt.xlabel("time of sat B [s]")
-        plt.ylabel("difference in altitude [m]")
-        plt.legend(["B - A", "B - C"])
-        plt.show()
-        
+        # plt.plot(times, zB - zA)
+        # plt.plot(times, zB - zC)
+        # plt.title("Difference in altitude")
+        # plt.xlabel("time of sat B [s]")
+        # plt.ylabel("difference in altitude [m]")
+        # plt.legend(["B - A", "B - C"])
+        # plt.show()
+
         plt.plot(xA, dist_BA)
+        plt.plot(xC, dist_BC)
         plt.xlabel("Latitude [Degrees]")
         plt.ylabel("Distance [m]")
         plt.title("Distance over latitude")
         plt.show()
-        
+
         mltdiff = mltA - mltB
-        
+
         for i in range(len(mltdiff)):
             if mltdiff[i] > 24:
                 mltdiff[i] = mltdiff[i] - 24
             elif mltdiff[i] < -24:
                 mltdiff[i] = mltdiff[i] + 24
-        
+
 
         print("mean distance B-A = %g m" % np.mean(dist_BA))
         print("mean distance B-C = %g m" % np.mean(dist_BC))
-        
+
         print("velocity times timediff BA = %g" % (object.BA_shift/2*np.mean(object.velA)))
         print("velocity times timediff BC = %g" % (object.BC_shift/2*np.mean(object.velC)))
         print(np.min(dist_BA))
@@ -633,4 +635,4 @@ if __name__ == "__main__":
         print(object.BC_shift - object.BA_shift)
         print(np.mean(object.velA))
 
-    
+    distance_plot()

@@ -216,4 +216,171 @@ def histplot():
     plt.legend(["normal distribution", "data"])
     plt.show()
 
-std_timeshift_mat()
+def std_distance():
+    start = time.time()
+    minfreq = 0.1
+    maxfreq = 0.9
+    day0 = 9
+    day1 = 31
+    lat1 = 90
+    lat0 = 77
+    n = 150
+    lat_diff_list = []
+    long_diff_list = []
+    dist_list_lat = []
+    dist_list_long = []
+    dist_list = []
+    shift_list = []
+    std_list = []
+    k_high = []
+
+    for day in range(day0, day1+1):
+        object = multi_matreader.MultiMat(day, day)
+        hists, bins = object.multi_histmake(n = n, minfreq = minfreq,\
+        maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0,\
+        norm = True, pole = "north")
+        means = np.zeros(len(hists))
+        stds = np.zeros_like(means)
+        for i in range(len(hists)):
+            width = bins[1] - bins[0]
+            hists[i] = hists[i]/np.sum(hists[i]*width)
+            curr_std, curr_mean = pro.std_mean(hists[i], bins)
+            means[i] = curr_mean
+            stds[i] = curr_std
+
+        BA_shift = object.BA_shift
+        BC_shift = object.BC_shift
+        AC_shift = BC_shift - BA_shift
+
+        latA = object.latA
+        latB = object.latB
+        latC = object.latC
+
+        longA = object.longA
+        longB = object.longB
+        longC = object.longC
+
+        radA = object.radA
+        radB = object.radB
+        radC = object.radC
+
+        lat_dist_BA = np.deg2rad(np.abs(np.mean(latB - latA)))*np.mean(object.radB)
+        lat_dist_BC = np.deg2rad(np.abs(np.mean(latB - latC)))*np.mean(object.radB)
+        lat_dist_AC = np.deg2rad(np.abs(np.mean(latA - latC)))*np.mean(object.radA)
+
+        long_dist_BA = np.deg2rad(np.abs(np.mean(longB - longA)))*np.mean(object.radB)
+        long_dist_BC = np.deg2rad(np.abs(np.mean(longB - longC)))*np.mean(object.radB)
+        long_dist_AC = np.deg2rad(np.abs(np.mean(longA - longC)))*np.mean(object.radA)
+
+        BA_dist = np.mean(pro.great_circle_distance(latB, longB, radB, latA, longA, radA))
+        BC_dist = np.mean(pro.great_circle_distance(latB, longB, radB, latC, longC, radC))
+        AC_dist = np.mean(pro.great_circle_distance(latA, longA, radA, latC, longC, radC))
+
+
+        BA_shift = BA_shift/2
+        BC_shift = BC_shift/2
+        AC_shift = AC_shift/2
+        shift_list.append(BA_shift)
+        std_list.append(stds[0])
+        shift_list.append(BC_shift)
+        std_list.append(stds[1])
+        shift_list.append(AC_shift)
+        std_list.append(stds[2])
+
+        lat_diff_list.append(np.mean(np.abs(latB - latA)))
+        lat_diff_list.append(np.mean(np.abs(latB - latC)))
+        lat_diff_list.append(np.mean(np.abs(latA - latC)))
+
+        long_diff_list.append(np.mean(np.abs(longB - longA)))
+        long_diff_list.append(np.mean(np.abs(longB - longC)))
+        long_diff_list.append(np.mean(np.abs(longA - longC)))
+
+        dist_list_lat.append(lat_dist_BA)
+        dist_list_lat.append(lat_dist_BC)
+        dist_list_lat.append(lat_dist_AC)
+
+        dist_list_long.append(long_dist_BA)
+        dist_list_long.append(long_dist_BC)
+        dist_list_long.append(long_dist_AC)
+
+        dist_list.append(BA_dist)
+        dist_list.append(BC_dist)
+        dist_list.append(AC_dist)
+
+
+        if day == 14 or day == 25:
+            for j in range(3):
+                k_high.append(1)
+        else:
+            for j in range(3):
+                k_high.append(0)
+
+
+    # p = np.polyfit(shift_list, std_list, deg = 1)
+    # a = p[0]; b = p[1]
+    # print("Slope of regression is %g" % a)
+    # print("Constant of linear regression is %g" % b)
+
+    # print(a/b*100)
+    # xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+    plt.figure(1)
+    # plt.plot(xs, xs*a + b)
+    plt.plot(lat_diff_list, std_list, "ko")
+    plt.xlabel("Average latitudinal difference")
+    plt.ylabel("Standard deviation of histograms")
+    plt.title("stds over latitudinal distance")
+    # plt.legend(["Linear regression", "data points"])
+
+    plt.figure(2)
+    plt.plot(long_diff_list, std_list, "ko")
+    plt.xlabel("Average longitudinal difference")
+    plt.ylabel("Standard deviation of histograms")
+    plt.title("stds over longitudinal distance")
+
+    plt.figure(3)
+    plt.plot(dist_list, std_list, "ko")
+    plt.xlabel("Great circle distance [m]")
+    plt.ylabel("Standard deviation of histograms")
+    plt.title("Stds over great circle distance")
+
+    plt.figure(4)
+    plt.plot(shift_list, std_list, "ko")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("std of histograms")
+    plt.title("STD timeshift")
+
+    plt.figure(5)
+    plt.plot(shift_list, lat_diff_list, "ko")
+    plt.title("lat diff")
+
+    plt.figure(6)
+    plt.plot(shift_list, long_diff_list, "ko")
+    plt.title("long diff")
+
+
+    p = np.polyfit(shift_list, dist_list, deg = 1)
+    a = p[0]; b = p[1]
+    xs = np.linspace(np.min(shift_list), np.max(shift_list), 100)
+
+    regress = np.array(shift_list)*a + b
+    eps = dist_list - regress
+    regress_std = np.sqrt((np.sum(eps**2))/(len(eps - 2)*np.sum((shift_list - np.mean(shift_list))**2)))
+
+    print("regression: %g pm %g" % (a, regress_std))
+    plt.figure(7)
+    plt.plot(shift_list, dist_list, "ko")
+    plt.plot(xs, xs*a + b)
+    plt.title("distance over time")
+    plt.xlabel("time")
+    plt.ylabel("distance")
+    plt.show()
+
+
+
+
+
+
+    stop = time.time()
+    print(stop-start)
+
+std_distance()
