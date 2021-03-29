@@ -348,6 +348,25 @@ class SWARMprocess():
 
         return(diff_inds, diffs_1_2, diffs_1_3)
 
+    def linear_regression(x, y):
+        """
+        implements page 39 in Squires.
+        Returns [m, c, mdiv, cdiv] as an numpy array
+        m, c are coefficients for a first order polynomial approximation
+        on the form f(x) = m*x + c
+        """
+        D = np.sum(x**2) - np.sum(x)**2/len(x)
+        E = np.sum(x*y) - np.sum(x)*np.sum(y)/len(x)
+        F = np.sum(y**2) - np.sum(y)**2/len(y)
+        msquare = 1/float(len(x)-2)*((D*F - E**2)/(D**2))
+        csquare = 1/float(len(x)-2)*(D/len(x)+np.mean(x)**2)*((D*F - E**2)/(D**2))
+        mdiv = np.sqrt(msquare)
+        cdiv = np.sqrt(csquare)
+        if write == True:
+            print ("m = ",E/D," +- ",mdiv)
+            print ("c= ",np.sum(y)/len(y) - (E/D)*np.sum(x)/len(x),"+-",cdiv)
+        return np.array([E/D, np.sum(y)/len(y) - (E/D)*np.sum(x)/len(x),mdiv,cdiv])
+
 
 
     def gauss_curve(self, x, mean, std):
