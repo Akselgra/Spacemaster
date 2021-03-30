@@ -10,11 +10,11 @@ pro = SWARMprocess.SWARMprocess()
 def std_timeshift_mat():
     start = time.time()
     minfreq = 0.1
-    maxfreq = 0.3
+    maxfreq = 1
     day0 = 9
     day1 = 31
     lat1 = 90
-    lat0 = 7
+    lat0 = 77
     n = 100
     shift_list = []
     std_list = []
@@ -55,10 +55,12 @@ def std_timeshift_mat():
 
 
 
-    p = np.polyfit(shift_list, std_list, deg = 1)
-    a = p[0]; b = p[1]
-    print("Slope of regression is %g" % a)
-    print("Constant of linear regression is %g" % b)
+    # p = np.polyfit(shift_list, std_list, deg = 1)
+    # a = p[0]; b = p[1]
+    a, b, adiv, bdiv = pro.linear_regression(shift_list, std_list)
+    print("Slope of regression is %g pm %g" % (a, adiv))
+    print("Constant of linear regression is %g pm %g" % (b, bdiv))
+    print("a is %g standard deviations away from zero" % (a/adiv))
 
     print(a/b*100)
     xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
@@ -358,18 +360,13 @@ def std_distance():
     plt.title("long diff")
 
 
-    p = np.polyfit(shift_list, dist_list, deg = 1)
-    a = p[0]; b = p[1]
+    
+    m, c, mdiv, cdiv = pro.linear_regression(shift_list, dist_list)
     xs = np.linspace(np.min(shift_list), np.max(shift_list), 100)
-
-    regress = np.array(shift_list)*a + b
-    eps = dist_list - regress
-    regress_std = np.sqrt((np.sum(eps**2))/(len(eps - 2)*np.sum((shift_list - np.mean(shift_list))**2)))
-
-    print("regression: %g pm %g" % (a, regress_std))
+    print("Linear regression for distance over time, a = %g pm %g" % (m, mdiv))
     plt.figure(7)
     plt.plot(shift_list, dist_list, "ko")
-    plt.plot(xs, xs*a + b)
+    plt.plot(xs, xs*m + c)
     plt.title("distance over time")
     plt.xlabel("time")
     plt.ylabel("distance")
@@ -383,4 +380,4 @@ def std_distance():
     stop = time.time()
     print(stop-start)
 
-std_distance()
+std_timeshift_mat()

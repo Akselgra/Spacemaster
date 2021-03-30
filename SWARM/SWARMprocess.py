@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 
 
@@ -348,13 +349,15 @@ class SWARMprocess():
 
         return(diff_inds, diffs_1_2, diffs_1_3)
 
-    def linear_regression(x, y):
+    def linear_regression(self, x, y, write = False):
         """
         implements page 39 in Squires.
         Returns [m, c, mdiv, cdiv] as an numpy array
         m, c are coefficients for a first order polynomial approximation
         on the form f(x) = m*x + c
         """
+        x = np.array(x) #ensure x and y are numpy arrays
+        y = np.array(y)
         D = np.sum(x**2) - np.sum(x)**2/len(x)
         E = np.sum(x*y) - np.sum(x)*np.sum(y)/len(x)
         F = np.sum(y**2) - np.sum(y)**2/len(y)
@@ -787,6 +790,35 @@ class SWARMprocess():
         new_C = holyholed_C
 
         return(new_A, new_B, new_C)
+    
+    def lat_from_time(self, times, lats, timepoints):
+        """
+        Parameters
+        ----------
+        times : array
+            array with times in seconds. Must be same length as latitudes
+        lats : array
+            array with latitudes. Must be same length as times.
+        timepoints : array
+            array with time points for which we want to find latitudes.
+
+        Returns
+        -------
+        latitudes : array
+            array of latitudes at timepoints
+        """
+        
+        inds = []
+        for i in range(len(timepoints)):
+            diffs = np.abs(times - timepoints[i])
+            ind = np.where(diffs == np.min(diffs))[0][0]
+            inds.append(int(ind))
+        
+        inds = np.array(inds)
+        latitudes = lats[inds]
+        
+        return(latitudes)
+        
 if __name__ == "__main__":
     pro = SWARMprocess()
     import matplotlib.pyplot as plt

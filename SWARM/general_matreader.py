@@ -443,28 +443,28 @@ class MatReader(SWARMprocess):
 
 
 if __name__ == "__main__":
-    # fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
-    # inches_per_pt = 1.0/72.27               # Convert pt to inches
-    # golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
-    # fig_width = fig_width_pt*inches_per_pt  # width in inches
-    # fig_height =fig_width*golden_mean       # height in inches
-    # fig_size = [fig_width,fig_height]
-    #
-    # plt.rcParams.update({
-    #     "text.usetex": True,
-    #     "font.family": "Roman",
-    # #    "font.family": "sans-serif",
-    # #    "font.sans-serif": ["Helvetica"],
-    #     'font.size' : 10,
-    #     'axes.labelsize' : 10,
-    #     'font.size' : 10,
-    # #    'text.fontsize' : 10,
-    #     'legend.fontsize': 10,
-    #     'xtick.labelsize' : 10,
-    #     'ytick.labelsize' : 10,
-    #     'figure.figsize': fig_size
-    # })
-    # #matplotlib.use('pgf')
+    fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
+    inches_per_pt = 1.0/72.27               # Convert pt to inches
+    golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
+    fig_width = fig_width_pt*inches_per_pt  # width in inches
+    fig_height =fig_width*golden_mean       # height in inches
+    fig_size = [fig_width,fig_height]
+    
+    plt.rcParams.update({
+        "text.usetex": True,
+        "font.family": "Roman",
+    #   "font.family": "sans-serif",
+        # "font.sans-serif": ["Helvetica"],
+        'font.size' : 10,
+        'axes.labelsize' : 10,
+        'font.size' : 10,
+    #    'text.fontsize' : 10,
+        'legend.fontsize': 10,
+        'xtick.labelsize' : 10,
+        'ytick.labelsize' : 10,
+        'figure.figsize': fig_size
+    })
+    #matplotlib.use('pgf')
 
     # file = "Data/matfiles/20131221.mat"
     # object = MatReader(file)
@@ -634,5 +634,82 @@ if __name__ == "__main__":
         print(object.BA_shift)
         print(object.BC_shift - object.BA_shift)
         print(np.mean(object.velA))
+        
+    def comparison_plotter():
+        """
+        Plots comparison indices
+        """
+        file = "Data/matfiles/20131231.mat"
+        object = MatReader(file)
+        
+        n = 150
+        minfreq = 0.1
+        maxfreq = 1
+        
+        NeA = object.NeA
+        NeB = object.NeB
+        NeC = object.NeC
+        
+        secondsA = object.secondsA
+        secondsB = object.secondsB
+        secondsC = object.secondsA
+        
+        latA = object.latA
+        latB = object.latB
+        latC = object.latC
+        
+        mlatA = object.mlatA
+        mlatB = object.mlatB
+        mlatC = object.mlatC
+        
+        timesA, fftA = object.fft_time_holes_integral(NeA, secondsA, 150, 2,\
+                                        minfreq = minfreq, maxfreq = maxfreq)
+            
+        timesB, fftB = object.fft_time_holes_integral(NeB, secondsB, 150, 2,\
+                                        minfreq = minfreq, maxfreq = maxfreq)
+            
+        timesC, fftC = object.fft_time_holes_integral(NeC, secondsC, 150, 2,\
+                                        minfreq = minfreq, maxfreq = maxfreq)
 
-    distance_plot()
+        comp_ind_BA = object.relative_diff(fftB, fftA, abs = False)
+        comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
+        comp_ind_AC = object.relative_diff(fftA, fftC, abs = False)
+        
+        latitudesA = object.lat_from_time(secondsA, mlatA, timesA)
+        latitudesB = object.lat_from_time(secondsB, mlatB, timesB)
+        latitudesC = object.lat_from_time(secondsC, mlatC, timesC)
+        
+        comp_lat_BA = (latitudesB + latitudesA)/2
+        comp_lat_BC = (latitudesB + latitudesC)/2
+        comp_lat_AC = (latitudesA + latitudesC)/2
+        
+        figs, axs = plt.subplots(3, 1)
+        
+        axs[0].plot(comp_lat_BA, comp_ind_BA, "r.")
+        axs[1].plot(comp_lat_BC, comp_ind_BC, "g.")
+        axs[2].plot(comp_lat_AC, comp_ind_AC, "b.")
+        axs[0].grid("on")
+        axs[1].grid("on")
+        axs[2].grid("on")
+        axs[0].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+        axs[1].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+        axs[2].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+        
+        xlabels = ["MLAT","MLAT","MLAT"]
+        ylabels = ["Comparison index","Comparison index","Comparison index"]
+        for i in range(len(axs.flat)):
+            axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
+            #axs.flat[i].set_aspect("equal", "box")
+            #axs.flat[i].set_xlim(-1, 1)
+            axs.flat[i].set_ylim(-1, 1)
+    
+        # Hide x labels and tick labels for top plots and y ticks for right plots.
+        for ax in axs.flat:
+            ax.label_outer()
+        
+        
+        plt.show()
+        
+        
+        
+    comparison_plotter()
