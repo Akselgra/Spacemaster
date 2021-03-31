@@ -821,7 +821,6 @@ class SWARMprocess():
         
 if __name__ == "__main__":
     pro = SWARMprocess()
-    import matplotlib.pyplot as plt
     array = np.arange(20, 60)
     array = np.sin(np.linspace(0, 2*np.pi, 50))
     print(array)

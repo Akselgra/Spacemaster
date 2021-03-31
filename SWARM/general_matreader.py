@@ -439,8 +439,273 @@ class MatReader(SWARMprocess):
 
 
 
+def one_period_plot():
+    """
+    plots one period of electron density data
+    """
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
+
+    NeA = object.NeA
+    latA = object.latA
+    times = object.secondsA
+    mlt = object.mltA
+    ind1 = 2606
+    ind2 = 13940
+    T = ind2 - ind1
+    ind1 += int(T/2)
+    ind2 += int(T/2)
+
+    latA = latA[ind1:ind2]
+    NeA = NeA[ind1:ind2]
+    times = times[ind1:ind2]
+    mlt = mlt[ind1:ind2]
+    mlt = hour_round(mlt)
+
+    lats = np.zeros_like(latA)
+    lats[0] = latA[0]
+    for i in range(len(latA)-1):
+        dlat = latA[i+1] - latA[i]
+        if dlat < 0:
+            lats[i+1] = lats[i] - dlat
+        else:
+            lats[i+1] = lats[i] + dlat
+
+    lats += 90
+
+    xticks = np.array([-90, -60, -30, 30, 60, 77, 90, 103, 120, 150, 210, 240, 270]) + 90
+    plt.plot(lats, NeA)
+    plt.plot([0, 0], [0, np.max(NeA)], "k")
+    plt.plot([30, 30], [0, np.max(NeA)], "k")
+    plt.plot([60, 60], [0, np.max(NeA)], "k")
+    plt.plot([120, 120],[0, np.max(NeA)], "k")
+    plt.plot([150, 150], [0, np.max(NeA)], "k")
+    plt.plot([167, 167], [0, np.max(NeA)], "k")
+    plt.plot([193, 193], [0, np.max(NeA)], "k")
+    plt.plot([210, 210], [0, np.max(NeA)], "k")
+    plt.plot([240, 244], [0, np.max(NeA)], "k")
+    plt.plot([300, 300], [0, np.max(NeA)], "k")
+    plt.plot([330, 330], [0, np.max(NeA)], "k")
+    plt.plot([360, 360], [0, np.max(NeA)], "k")
+    plt.xticks(xticks)
+    plt.xlabel("Latitude going from 0 to 360 degrees, starting and ending at south pole")
+    plt.ylabel("Electron density [cm$^{-1}$]")
+    plt.title("One SWARM satellite period")
+    plt.show()
 
 
+    print(lats[0])
+    print(lats[-1])
+    
+    
+def comparison_plotter():
+    """
+    Plots comparison indices
+    """
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
+    
+    ind1 = 2606
+    ind2 = int(13940 - (13940 - ind1)/2)
+    
+    ind1 = 0
+    ind2 = -1
+
+    n = 150
+    minfreq = 0.1
+    maxfreq = 1
+    
+    NeA = object.NeA[ind1:ind2]
+    NeB = object.NeB[ind1:ind2]
+    NeC = object.NeC[ind1:ind2]
+    
+    secondsA = object.secondsA[ind1:ind2]
+    secondsB = object.secondsB[ind1:ind2]
+    secondsC = object.secondsA[ind1:ind2]
+    
+    latA = object.latA[ind1:ind2]
+    latB = object.latB[ind1:ind2]
+    latC = object.latC[ind1:ind2]
+    
+    mlatA = object.mlatA[ind1:ind2]
+    mlatB = object.mlatB[ind1:ind2]
+    mlatC = object.mlatC[ind1:ind2]
+    
+    timesA, fftA = object.fft_time_holes_integral(NeA, secondsA, n, 2,\
+                                    minfreq = minfreq, maxfreq = maxfreq)
+        
+    timesB, fftB = object.fft_time_holes_integral(NeB, secondsB, n, 2,\
+                                    minfreq = minfreq, maxfreq = maxfreq)
+        
+    timesC, fftC = object.fft_time_holes_integral(NeC, secondsC, n, 2,\
+                                    minfreq = minfreq, maxfreq = maxfreq)
+
+    comp_ind_BA = object.relative_diff(fftB, fftA, abs = False)
+    comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
+    comp_ind_AC = object.relative_diff(fftA, fftC, abs = False)
+    
+    latitudesA = object.lat_from_time(secondsA, mlatA, timesA)
+    latitudesB = object.lat_from_time(secondsB, mlatB, timesB)
+    latitudesC = object.lat_from_time(secondsC, mlatC, timesC)
+    
+    comp_lat_BA = (latitudesB + latitudesA)/2
+    comp_lat_BC = (latitudesB + latitudesC)/2
+    comp_lat_AC = (latitudesA + latitudesC)/2
+    
+    figs, axs = plt.subplots(3, 1, sharex = True, sharey = True)
+    
+    NeA = object.meanie(NeA, mean_range = 5)
+    NeB = object.meanie(NeB, mean_range = 5)
+    NeC = object.meanie(NeC, mean_range = 5)
+    
+    axs[0].plot(comp_lat_BA, comp_ind_BA, "r.")
+    axs[1].plot(comp_lat_BC, comp_ind_BC, "g.")
+    axs[2].plot(comp_lat_AC, comp_ind_AC, "b.")
+    # axs[0].plot(mlatB, NeB/np.max(NeB), "r")
+    # axs[0].plot(mlatA, NeA/np.max(NeA), "g")
+    # axs[1].plot(mlatB, NeB/np.max(NeB), "r")
+    # axs[1].plot(mlatC, NeC/np.max(NeC), "b")
+    # axs[2].plot(mlatA, NeA/np.max(NeA), "g")
+    # axs[2].plot(mlatC, NeC/np.max(NeC), "b")
+    
+    
+    
+    axs[0].grid("on")
+    axs[1].grid("on")
+    axs[2].grid("on")
+    axs[0].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    axs[1].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    axs[2].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    
+    xlabels = ["MLAT","MLAT","MLAT"]
+    ylabels = ["Comparison index","Comparison index","Comparison index"]
+    for i in range(len(axs.flat)):
+        axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
+        #axs.flat[i].set_aspect("equal", "box")
+        #axs.flat[i].set_xlim(-1, 1)
+        axs.flat[i].set_ylim(-1, 1)
+
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    for ax in axs.flat:
+        ax.label_outer()
+    
+    
+    plt.show()
+    
+    # timies = timesB[np.where(comp_ind_BA > 0.8)]
+    # print(timies)
+    # print(comp_ind_BA)
+    
+    # plt.plot(secondsB, NeA/np.max(NeA), "g")
+    # plt.plot(secondsB, NeB/np.max(NeB), "r")
+    # plt.plot(timesB, comp_ind_BA, "ko")
+    # plt.show()
+    
+
+def distance_plot():
+    """
+    plots distance between data point
+    """
+    file = "Data/matfiles/20131231.mat"
+    object = MatReader(file)
+
+
+
+    ind1 = 2606
+    ind2 = 13940
+
+    ind1 = 0
+    ind2 = 150000
+
+    times = object.secondsB[ind1:ind2]
+
+    xA = object.latA[ind1:ind2]
+    yA = object.longA[ind1:ind2]
+    zA = object.radA[ind1:ind2]
+
+    xB = object.latB[ind1:ind2]
+    yB = object.longB[ind1:ind2]
+    zB = object.radB[ind1:ind2]
+
+    xC = object.latC[ind1:ind2]
+    yC = object.longC[ind1:ind2]
+    zC = object.radC[ind1:ind2]
+
+    mltA = object.mltA[ind1:ind2]
+    mltB = object.mltB[ind1:ind2]
+
+
+    dist_BA = object.great_circle_distance(xB, yB, zB, xA, yA, zA)
+    dist_BC = object.great_circle_distance(xB, yB, zB, xC, yC, zC)
+    dist_AC = object.great_circle_distance(xA, yA, zA, xC, yC, zC)
+
+
+    plt.figure(0)
+    plt.plot(times, dist_BA)
+    plt.plot(times, dist_BC)
+    plt.plot(times, dist_AC)
+    plt.title("distance in meters")
+    plt.xlabel("time of sat B [s]")
+    plt.ylabel("Distance [m]")
+    plt.legend(["B - A", "B - C", "A - C"])
+    plt.figure(1)
+
+    plt.plot(times, xB - xA)
+    plt.plot(times, xB - xC)
+    plt.title("difference in latitude")
+    plt.xlabel("time of sat B [s]")
+    plt.ylabel("difference in latitude [degrees]")
+    plt.legend(["B - A", "B - C"])
+
+    plt.figure(2)
+
+    plt.plot(times, yB - yA)
+    plt.plot(times, yB - yC)
+    #plt.axis([0, 7000, -10, 10])
+    plt.title("difference in longitude")
+    plt.xlabel("time of sat B [s]")
+    plt.ylabel("difference in latitude [degrees]")
+    plt.legend(["B - A", "B - C"])
+    plt.show()
+
+    # plt.plot(times, zB - zA)
+    # plt.plot(times, zB - zC)
+    # plt.title("Difference in altitude")
+    # plt.xlabel("time of sat B [s]")
+    # plt.ylabel("difference in altitude [m]")
+    # plt.legend(["B - A", "B - C"])
+    # plt.show()
+
+    plt.plot(xA, dist_BA)
+    plt.plot(xC, dist_BC)
+    plt.xlabel("Latitude [Degrees]")
+    plt.ylabel("Distance [m]")
+    plt.title("Distance over latitude")
+    plt.show()
+
+    mltdiff = mltA - mltB
+
+    for i in range(len(mltdiff)):
+        if mltdiff[i] > 24:
+            mltdiff[i] = mltdiff[i] - 24
+        elif mltdiff[i] < -24:
+            mltdiff[i] = mltdiff[i] + 24
+
+
+    print("mean distance B-A = %g m" % np.mean(dist_BA))
+    print("mean distance B-C = %g m" % np.mean(dist_BC))
+
+    print("velocity times timediff BA = %g" % (object.BA_shift/2*np.mean(object.velA)))
+    print("velocity times timediff BC = %g" % (object.BC_shift/2*np.mean(object.velC)))
+    print(np.min(dist_BA))
+    print(object.BA_shift)
+    print(object.BC_shift - object.BA_shift)
+    print(np.mean(object.velA))
+
+def hour_round(hours):
+    is_larger = np.nonzero(hours > 24)
+    hours[is_larger] = hours[is_larger] - 24
+    return(hours)
 
 if __name__ == "__main__":
     fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
@@ -466,250 +731,9 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    # file = "Data/matfiles/20131221.mat"
-    # object = MatReader(file)
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
     # object.velo_inspec()
 
-
-    def hour_round(hours):
-        is_larger = np.nonzero(hours > 24)
-        hours[is_larger] = hours[is_larger] - 24
-        return(hours)
-
-    #plotting function
-    def one_period_plot():
-        """
-        plots one period of electron density data
-        """
-        file = "Data/matfiles/20131221.mat"
-        object = MatReader(file)
-
-        NeA = object.NeA
-        latA = object.latA
-        times = object.secondsA
-        mlt = object.mltA
-        ind1 = 2606
-        ind2 = 13940
-        T = ind2 - ind1
-        ind1 += int(T/2)
-        ind2 += int(T/2)
-
-        latA = latA[ind1:ind2]
-        NeA = NeA[ind1:ind2]
-        times = times[ind1:ind2]
-        mlt = mlt[ind1:ind2]
-        mlt = hour_round(mlt)
-
-        lats = np.zeros_like(latA)
-        lats[0] = latA[0]
-        for i in range(len(latA)-1):
-            dlat = latA[i+1] - latA[i]
-            if dlat < 0:
-                lats[i+1] = lats[i] - dlat
-            else:
-                lats[i+1] = lats[i] + dlat
-
-        lats += 90
-
-        xticks = np.array([-90, -60, -30, 30, 60, 77, 90, 103, 120, 150, 210, 240, 270]) + 90
-        plt.plot(lats, NeA)
-        plt.plot([0, 0], [0, np.max(NeA)], "k")
-        plt.plot([30, 30], [0, np.max(NeA)], "k")
-        plt.plot([60, 60], [0, np.max(NeA)], "k")
-        plt.plot([120, 120],[0, np.max(NeA)], "k")
-        plt.plot([150, 150], [0, np.max(NeA)], "k")
-        plt.plot([167, 167], [0, np.max(NeA)], "k")
-        plt.plot([193, 193], [0, np.max(NeA)], "k")
-        plt.plot([210, 210], [0, np.max(NeA)], "k")
-        plt.plot([240, 244], [0, np.max(NeA)], "k")
-        plt.plot([300, 300], [0, np.max(NeA)], "k")
-        plt.plot([330, 330], [0, np.max(NeA)], "k")
-        plt.plot([360, 360], [0, np.max(NeA)], "k")
-        plt.xticks(xticks)
-        plt.xlabel("Latitude going from 0 to 360 degrees, starting and ending at south pole")
-        plt.ylabel("Electron density [cm$^{-1}$]")
-        plt.title("One SWARM satellite period")
-        plt.show()
-
-
-        print(lats[0])
-        print(lats[-1])
-
-    def distance_plot():
-        """
-        plots distance between data point
-        """
-        file = "Data/matfiles/20131231.mat"
-        object = MatReader(file)
-
-
-
-        ind1 = 2606
-        ind2 = 13940
-
-        ind1 = 0
-        ind2 = 150000
-
-        times = object.secondsB[ind1:ind2]
-
-        xA = object.latA[ind1:ind2]
-        yA = object.longA[ind1:ind2]
-        zA = object.radA[ind1:ind2]
-
-        xB = object.latB[ind1:ind2]
-        yB = object.longB[ind1:ind2]
-        zB = object.radB[ind1:ind2]
-
-        xC = object.latC[ind1:ind2]
-        yC = object.longC[ind1:ind2]
-        zC = object.radC[ind1:ind2]
-
-        mltA = object.mltA[ind1:ind2]
-        mltB = object.mltB[ind1:ind2]
-
-
-        dist_BA = object.great_circle_distance(xB, yB, zB, xA, yA, zA)
-        dist_BC = object.great_circle_distance(xB, yB, zB, xC, yC, zC)
-        dist_AC = object.great_circle_distance(xA, yA, zA, xC, yC, zC)
-
-
-        plt.figure(0)
-        plt.plot(times, dist_BA)
-        plt.plot(times, dist_BC)
-        plt.plot(times, dist_AC)
-        plt.title("distance in meters")
-        plt.xlabel("time of sat B [s]")
-        plt.ylabel("Distance [m]")
-        plt.legend(["B - A", "B - C", "A - C"])
-        plt.figure(1)
-
-        plt.plot(times, xB - xA)
-        plt.plot(times, xB - xC)
-        plt.title("difference in latitude")
-        plt.xlabel("time of sat B [s]")
-        plt.ylabel("difference in latitude [degrees]")
-        plt.legend(["B - A", "B - C"])
-
-        plt.figure(2)
-
-        plt.plot(times, yB - yA)
-        plt.plot(times, yB - yC)
-        #plt.axis([0, 7000, -10, 10])
-        plt.title("difference in longitude")
-        plt.xlabel("time of sat B [s]")
-        plt.ylabel("difference in latitude [degrees]")
-        plt.legend(["B - A", "B - C"])
-        plt.show()
-
-        # plt.plot(times, zB - zA)
-        # plt.plot(times, zB - zC)
-        # plt.title("Difference in altitude")
-        # plt.xlabel("time of sat B [s]")
-        # plt.ylabel("difference in altitude [m]")
-        # plt.legend(["B - A", "B - C"])
-        # plt.show()
-
-        plt.plot(xA, dist_BA)
-        plt.plot(xC, dist_BC)
-        plt.xlabel("Latitude [Degrees]")
-        plt.ylabel("Distance [m]")
-        plt.title("Distance over latitude")
-        plt.show()
-
-        mltdiff = mltA - mltB
-
-        for i in range(len(mltdiff)):
-            if mltdiff[i] > 24:
-                mltdiff[i] = mltdiff[i] - 24
-            elif mltdiff[i] < -24:
-                mltdiff[i] = mltdiff[i] + 24
-
-
-        print("mean distance B-A = %g m" % np.mean(dist_BA))
-        print("mean distance B-C = %g m" % np.mean(dist_BC))
-
-        print("velocity times timediff BA = %g" % (object.BA_shift/2*np.mean(object.velA)))
-        print("velocity times timediff BC = %g" % (object.BC_shift/2*np.mean(object.velC)))
-        print(np.min(dist_BA))
-        print(object.BA_shift)
-        print(object.BC_shift - object.BA_shift)
-        print(np.mean(object.velA))
-        
-    def comparison_plotter():
-        """
-        Plots comparison indices
-        """
-        file = "Data/matfiles/20131231.mat"
-        object = MatReader(file)
-        
-        n = 150
-        minfreq = 0.1
-        maxfreq = 1
-        
-        NeA = object.NeA
-        NeB = object.NeB
-        NeC = object.NeC
-        
-        secondsA = object.secondsA
-        secondsB = object.secondsB
-        secondsC = object.secondsA
-        
-        latA = object.latA
-        latB = object.latB
-        latC = object.latC
-        
-        mlatA = object.mlatA
-        mlatB = object.mlatB
-        mlatC = object.mlatC
-        
-        timesA, fftA = object.fft_time_holes_integral(NeA, secondsA, 150, 2,\
-                                        minfreq = minfreq, maxfreq = maxfreq)
-            
-        timesB, fftB = object.fft_time_holes_integral(NeB, secondsB, 150, 2,\
-                                        minfreq = minfreq, maxfreq = maxfreq)
-            
-        timesC, fftC = object.fft_time_holes_integral(NeC, secondsC, 150, 2,\
-                                        minfreq = minfreq, maxfreq = maxfreq)
-
-        comp_ind_BA = object.relative_diff(fftB, fftA, abs = False)
-        comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
-        comp_ind_AC = object.relative_diff(fftA, fftC, abs = False)
-        
-        latitudesA = object.lat_from_time(secondsA, mlatA, timesA)
-        latitudesB = object.lat_from_time(secondsB, mlatB, timesB)
-        latitudesC = object.lat_from_time(secondsC, mlatC, timesC)
-        
-        comp_lat_BA = (latitudesB + latitudesA)/2
-        comp_lat_BC = (latitudesB + latitudesC)/2
-        comp_lat_AC = (latitudesA + latitudesC)/2
-        
-        figs, axs = plt.subplots(3, 1)
-        
-        axs[0].plot(comp_lat_BA, comp_ind_BA, "r.")
-        axs[1].plot(comp_lat_BC, comp_ind_BC, "g.")
-        axs[2].plot(comp_lat_AC, comp_ind_AC, "b.")
-        axs[0].grid("on")
-        axs[1].grid("on")
-        axs[2].grid("on")
-        axs[0].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
-        axs[1].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
-        axs[2].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
-        
-        xlabels = ["MLAT","MLAT","MLAT"]
-        ylabels = ["Comparison index","Comparison index","Comparison index"]
-        for i in range(len(axs.flat)):
-            axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
-            #axs.flat[i].set_aspect("equal", "box")
-            #axs.flat[i].set_xlim(-1, 1)
-            axs.flat[i].set_ylim(-1, 1)
-    
-        # Hide x labels and tick labels for top plots and y ticks for right plots.
-        for ax in axs.flat:
-            ax.label_outer()
-        
-        
-        plt.show()
-        
-        
-        
-    comparison_plotter()
+    plt.plot(object.secondsA, object.mlatA, ".")
+    plt.show()
