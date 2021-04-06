@@ -502,7 +502,7 @@ def comparison_plotter():
     """
     Plots comparison indices
     """
-    file = "Data/matfiles/20131221.mat"
+    file = "Data/matfiles/20131214.mat"
     object = MatReader(file)
     
     ind1 = 2606
@@ -511,7 +511,7 @@ def comparison_plotter():
     ind1 = 0
     ind2 = -1
 
-    n = 150
+    n = 10
     minfreq = 0.1
     maxfreq = 1
     
@@ -544,9 +544,9 @@ def comparison_plotter():
     comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
     comp_ind_AC = object.relative_diff(fftA, fftC, abs = False)
     
-    latitudesA = object.lat_from_time(secondsA, mlatA, timesA)
-    latitudesB = object.lat_from_time(secondsB, mlatB, timesB)
-    latitudesC = object.lat_from_time(secondsC, mlatC, timesC)
+    latitudesA = object.lat_from_time(secondsA, latA, timesA)
+    latitudesB = object.lat_from_time(secondsB, latB, timesB)
+    latitudesC = object.lat_from_time(secondsC, latC, timesC)
     
     comp_lat_BA = (latitudesB + latitudesA)/2
     comp_lat_BC = (latitudesB + latitudesC)/2
@@ -577,8 +577,8 @@ def comparison_plotter():
     axs[1].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
     axs[2].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
     
-    xlabels = ["MLAT","MLAT","MLAT"]
-    ylabels = ["Comparison index","Comparison index","Comparison index"]
+    xlabels = ["LAT","LAT","LAT"]
+    ylabels = ["$I_{BA}$","$I_{BC}$","$I_{AC}$"]
     for i in range(len(axs.flat)):
         axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
         #axs.flat[i].set_aspect("equal", "box")
@@ -590,6 +590,8 @@ def comparison_plotter():
         ax.label_outer()
     
     
+    
+    plt.savefig("Figures/matfigs/comparison_indices_lat.pdf")
     plt.show()
     
     # timies = timesB[np.where(comp_ind_BA > 0.8)]
@@ -735,5 +737,4 @@ if __name__ == "__main__":
     object = MatReader(file)
     # object.velo_inspec()
 
-    plt.plot(object.secondsA, object.mlatA, ".")
-    plt.show()
+    comparison_plotter()

@@ -380,4 +380,4 @@ def std_distance():
     stop = time.time()
     print(stop-start)
 
-std_timeshift_mat()
+std_distance()
