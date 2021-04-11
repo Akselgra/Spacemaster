@@ -502,7 +502,8 @@ def comparison_plotter():
     """
     Plots comparison indices
     """
-    file = "Data/matfiles/20131214.mat"
+    date = "20131216"
+    file = "Data/matfiles/" + date + ".mat"
     object = MatReader(file)
     
     ind1 = 2606
@@ -511,7 +512,7 @@ def comparison_plotter():
     ind1 = 0
     ind2 = -1
 
-    n = 10
+    n = 150
     minfreq = 0.1
     maxfreq = 1
     
@@ -534,11 +535,21 @@ def comparison_plotter():
     timesA, fftA = object.fft_time_holes_integral(NeA, secondsA, n, 2,\
                                     minfreq = minfreq, maxfreq = maxfreq)
         
-    timesB, fftB = object.fft_time_holes_integral(NeB, secondsB, n, 2,\
+    timesB, fftB = object.fft_time_holes_integral(NeB,  secondsB, n, 2,\
                                     minfreq = minfreq, maxfreq = maxfreq)
         
     timesC, fftC = object.fft_time_holes_integral(NeC, secondsC, n, 2,\
                                     minfreq = minfreq, maxfreq = maxfreq)
+        
+    trans_BA = np.abs(fftB - fftA)
+    trans_BC = np.abs(fftB - fftC)
+    trans_AC = np.abs(fftA - fftC)
+    
+    trans_BA = trans_BA/np.max(trans_BA)
+    trans_BC = trans_BC/np.max(trans_BC)
+    trans_AC = trans_AC/np.max(trans_AC)
+
+    
 
     comp_ind_BA = object.relative_diff(fftB, fftA, abs = False)
     comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
@@ -558,9 +569,13 @@ def comparison_plotter():
     NeB = object.meanie(NeB, mean_range = 5)
     NeC = object.meanie(NeC, mean_range = 5)
     
-    axs[0].plot(comp_lat_BA, comp_ind_BA, "r.")
-    axs[1].plot(comp_lat_BC, comp_ind_BC, "g.")
-    axs[2].plot(comp_lat_AC, comp_ind_AC, "b.")
+    for i in range(len(trans_BA)):
+        axs[0].plot(comp_lat_BA[i], comp_ind_BA[i], "r.", alpha = trans_BA[i])
+        axs[1].plot(comp_lat_BC[i], comp_ind_BC[i], "g.", alpha = trans_BC[i])
+        axs[2].plot(comp_lat_AC[i], comp_ind_AC[i], "b.", alpha = trans_AC[i])
+    #axs[0].plot(comp_lat_BA, comp_ind_BA, "r.")
+    #axs[1].plot(comp_lat_BC, comp_ind_BC, "g.")
+    #axs[2].plot(comp_lat_AC, comp_ind_AC, "b.")
     # axs[0].plot(mlatB, NeB/np.max(NeB), "r")
     # axs[0].plot(mlatA, NeA/np.max(NeA), "g")
     # axs[1].plot(mlatB, NeB/np.max(NeB), "r")
@@ -591,7 +606,7 @@ def comparison_plotter():
     
     
     
-    plt.savefig("Figures/matfigs/comparison_indices_lat.pdf")
+    plt.savefig("Figures/matfigs/comp_ind/comparison_indices_lat_" + date + ".pdf")
     plt.show()
     
     # timies = timesB[np.where(comp_ind_BA > 0.8)]
@@ -608,7 +623,7 @@ def distance_plot():
     """
     plots distance between data point
     """
-    file = "Data/matfiles/20131231.mat"
+    file = "Data/matfiles/20131214.mat"
     object = MatReader(file)
 
 

@@ -144,11 +144,11 @@ def triangle_plot():
 
 def index_test():
     fs = 2
-    t = 10000
+    t = 3000
     n = int(fs*t)
     times = np.linspace(0, t, n)
     freqs = np.linspace(-fs/2, fs/2, n)
-    widths = np.arange(5, 500)
+    widths = np.arange(5, 1500)
     indices = np.zeros(len(widths))
     for i in range(len(widths)):
         width1 = widths[i]
@@ -196,13 +196,17 @@ def index_test():
         index = (sum1 - sum2)/np.max([sum1, sum2])
         indices[i] = index
 
-    plt.plot(widths, indices)
+    witty = np.linspace(1, widths[-1]/width2)
+    plt.plot(widths/width2, indices)
     #plt.plot(widths, 1 - widths/width2)
     #plt.plot([width2, width2], [-1, 1], "k")
+    plt.plot(witty, -1 + 1/witty)
     plt.xlabel("Width of triangle A")
-    plt.ylabel("Unitless")
+    plt.ylabel("$I_{A - B}$")
     plt.grid("on")
     #plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
+    plt.title("Comparison indices for varying triangle sizes")
+    # plt.savefig("Figures/comp_ind_example.pdf")
     plt.show()
     
 if __name__ == "__main__":
