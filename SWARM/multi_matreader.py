@@ -114,6 +114,8 @@ class MultiMat():
         self.radA = infile.radA[infile.inds]
         self.radB = infile.radB[infile.inds]
         self.radC = infile.radC[infile.inds]
+        
+        self.secondsB = infile.secondsB[infile.inds]
 
         hists = np.array([histsBA, histsBC, histsAC])
 

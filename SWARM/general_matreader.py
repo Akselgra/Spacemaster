@@ -339,7 +339,8 @@ class MatReader(SWARMprocess):
         plt.ylabel("Electron density [cm$^{-3}$]")
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case")
-        # plt.savefig("Figures/matfigs/interesting_case.pdf")
+        plt.grid("on", axis = "x")
+        plt.savefig("Figures/matfigs/interesting_case.pdf")
 
 
         dx = (secondsB[1] - secondsB[0])*self.velB[ind1]
@@ -384,8 +385,9 @@ class MatReader(SWARMprocess):
 
         plt.title("Density gradients")
         plt.xlabel("Geomagnetic latitude [Degrees]")
-        plt.ylabel("Electron density gradient [$\Delta n_e/\Delta m$]")
-        # plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
+        plt.ylabel("Electron density gradient [$cm^{-3}/m$]")
+        plt.grid("on", axis = "x")
+        plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
 
 
         vsat = np.mean(self.velA) #velocity of satellites
@@ -422,7 +424,8 @@ class MatReader(SWARMprocess):
         plt.ylabel("Electron density [cm$^{-3}$]")
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case, shifted")
-        # plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
+        plt.grid("on", axis = "x")
+        plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
 
 
         print("Bubble velocity calculated from BA = %g [m/s]" % vBA)
@@ -621,18 +624,19 @@ def comparison_plotter():
 
 def distance_plot():
     """
-    plots distance between data point
+    plots distance between data points
     """
-    file = "Data/matfiles/20131214.mat"
+    day = "20131215"
+    file = "Data/matfiles/" + day + ".mat"
     object = MatReader(file)
 
 
 
     ind1 = 2606
-    ind2 = 13940
+    ind2 = 13940 + 1*7000
 
-    ind1 = 0
-    ind2 = 150000
+    # ind1 = 0
+    # ind2 = 150000
 
     times = object.secondsB[ind1:ind2]
 
@@ -661,10 +665,12 @@ def distance_plot():
     plt.plot(times, dist_BA)
     plt.plot(times, dist_BC)
     plt.plot(times, dist_AC)
-    plt.title("distance in meters")
-    plt.xlabel("time of sat B [s]")
+    plt.title("Distance over time")
+    plt.xlabel("Seconds since midnight UTC of sat B")
     plt.ylabel("Distance [m]")
     plt.legend(["B - A", "B - C", "A - C"])
+    plt.grid("on")
+    plt.savefig("Figures/matfigs/distance_over_time_" + day + ".pdf")
     plt.figure(1)
 
     plt.plot(times, xB - xA)
@@ -695,9 +701,14 @@ def distance_plot():
 
     plt.plot(xA, dist_BA)
     plt.plot(xC, dist_BC)
+    plt.plot(xC, dist_AC)
     plt.xlabel("Latitude [Degrees]")
     plt.ylabel("Distance [m]")
     plt.title("Distance over latitude")
+    plt.grid("on")
+    plt.legend(["B - A", "B - C", "A - C"])
+    plt.xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    plt.savefig("Figures/matfigs/distance_over_latitude_" + day + ".pdf")
     plt.show()
 
     mltdiff = mltA - mltB
@@ -750,6 +761,6 @@ if __name__ == "__main__":
 
     file = "Data/matfiles/20131221.mat"
     object = MatReader(file)
-    # object.velo_inspec()
+    object.velo_inspec()
 
-    comparison_plotter()
+    # distance_plot()

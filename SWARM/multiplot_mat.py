@@ -6,6 +6,29 @@ import matplotlib.pyplot as plt
 import time
 pro = SWARMprocess.SWARMprocess()
 
+fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
+inches_per_pt = 1.0/72.27               # Convert pt to inches
+golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
+fig_width = fig_width_pt*inches_per_pt  # width in inches
+fig_height =fig_width*golden_mean       # height in inches
+fig_size = [fig_width,fig_height]
+
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Roman",
+#   "font.family": "sans-serif",
+    # "font.sans-serif": ["Helvetica"],
+    'font.size' : 10,
+    'axes.labelsize' : 10,
+    'font.size' : 10,
+#    'text.fontsize' : 10,
+    'legend.fontsize': 10,
+    'xtick.labelsize' : 10,
+    'ytick.labelsize' : 10,
+    'figure.figsize': fig_size
+})
+#matplotlib.use('pgf')
+
 
 def std_timeshift_mat():
     start = time.time()
@@ -225,7 +248,7 @@ def std_distance():
     day0 = 9
     day1 = 31
     lat1 = 90
-    lat0 = 77
+    lat0 = 1
     n = 150
     lat_diff_list = []
     long_diff_list = []
@@ -240,7 +263,7 @@ def std_distance():
         object = multi_matreader.MultiMat(day, day)
         hists, bins = object.multi_histmake(n = n, minfreq = minfreq,\
         maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0,\
-        norm = True, pole = "north")
+        norm = True, pole = "both")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -292,10 +315,14 @@ def std_distance():
         lat_diff_list.append(np.mean(np.abs(latB - latA)))
         lat_diff_list.append(np.mean(np.abs(latB - latC)))
         lat_diff_list.append(np.mean(np.abs(latA - latC)))
+        
+        
 
         long_diff_list.append(np.mean(np.abs(longB - longA)))
         long_diff_list.append(np.mean(np.abs(longB - longC)))
         long_diff_list.append(np.mean(np.abs(longA - longC)))
+        
+        
 
         dist_list_lat.append(lat_dist_BA)
         dist_list_lat.append(lat_dist_BC)
@@ -353,8 +380,12 @@ def std_distance():
 
     plt.figure(5)
     plt.plot(shift_list, lat_diff_list, "ko")
-    plt.title("lat diff")
-
+    plt.title("Mean absolute latitudinal difference")
+    plt.xlabel("Time difference $\Delta t$ [s]")
+    plt.ylabel("$<|\Delta LAT|>$")
+    plt.grid("on")
+    plt.savefig("Figures/matfigs/latdist_over_timediff_all.pdf")
+    
     plt.figure(6)
     plt.plot(shift_list, long_diff_list, "ko")
     plt.title("long diff")
@@ -364,12 +395,16 @@ def std_distance():
     m, c, mdiv, cdiv = pro.linear_regression(shift_list, dist_list)
     xs = np.linspace(np.min(shift_list), np.max(shift_list), 100)
     print("Linear regression for distance over time, a = %g pm %g" % (m, mdiv))
+    print("b = %g pm %g" % (c, cdiv))
     plt.figure(7)
     plt.plot(shift_list, dist_list, "ko")
     plt.plot(xs, xs*m + c)
-    plt.title("distance over time")
-    plt.xlabel("time")
-    plt.ylabel("distance")
+    plt.title("Distance over time")
+    plt.xlabel("Time difference $\Delta t$ [s]")
+    plt.ylabel("Great circle distance [m]")
+    plt.grid("on")
+    plt.legend(["Average great circle distance", "Linear regression"])
+    plt.savefig("Figures/matfigs/distance_over_timediff_all_a=%g_pm%g_b=%g_pm%g.pdf" % (m, mdiv, c, cdiv))
     plt.show()
 
 
