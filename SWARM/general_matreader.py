@@ -450,11 +450,15 @@ def one_period_plot():
     object = MatReader(file)
 
     NeA = object.NeA
-    latA = object.latA
+    latA = object.mlatA
     times = object.secondsA
     mlt = object.mltA
-    ind1 = 2606
-    ind2 = 13940
+    ind1 = 2606 #lat inds
+    ind2 = 13940 #lat inds
+    
+    ind1 = 3197 #mlat inds
+    ind2 = 14390 #mlat inds
+    
     T = ind2 - ind1
     ind1 += int(T/2)
     ind2 += int(T/2)
@@ -476,27 +480,37 @@ def one_period_plot():
 
     lats += 90
 
-    xticks = np.array([-90, -60, -30, 30, 60, 77, 90, 103, 120, 150, 210, 240, 270]) + 90
-    plt.plot(lats, NeA)
-    plt.plot([0, 0], [0, np.max(NeA)], "k")
-    plt.plot([30, 30], [0, np.max(NeA)], "k")
-    plt.plot([60, 60], [0, np.max(NeA)], "k")
-    plt.plot([120, 120],[0, np.max(NeA)], "k")
-    plt.plot([150, 150], [0, np.max(NeA)], "k")
-    plt.plot([167, 167], [0, np.max(NeA)], "k")
-    plt.plot([193, 193], [0, np.max(NeA)], "k")
-    plt.plot([210, 210], [0, np.max(NeA)], "k")
-    plt.plot([240, 244], [0, np.max(NeA)], "k")
-    plt.plot([300, 300], [0, np.max(NeA)], "k")
-    plt.plot([330, 330], [0, np.max(NeA)], "k")
-    plt.plot([360, 360], [0, np.max(NeA)], "k")
+    xticks = np.array([-90, -60, -30, 30, 60, 77, 103, 120, 150, 210, 240, 270]) + 90
+    plt.plot(lats, NeA, ".", markersize = 1)
+    # plt.plot([0, 0], [0, np.max(NeA)], "k")
+    # plt.plot([30, 30], [0, np.max(NeA)], "k")
+    # plt.plot([60, 60], [0, np.max(NeA)], "k")
+    # plt.plot([120, 120],[0, np.max(NeA)], "k")
+    # plt.plot([150, 150], [0, np.max(NeA)], "k")
+    # plt.plot([167, 167], [0, np.max(NeA)], "k")
+    # plt.plot([193, 193], [0, np.max(NeA)], "k")
+    # plt.plot([210, 210], [0, np.max(NeA)], "k")
+    # plt.plot([240, 244], [0, np.max(NeA)], "k")
+    # plt.plot([300, 300], [0, np.max(NeA)], "k")
+    # plt.plot([330, 330], [0, np.max(NeA)], "k")
+    # plt.plot([360, 360], [0, np.max(NeA)], "k")
     plt.xticks(xticks)
-    plt.xlabel("Latitude going from 0 to 360 degrees, starting and ending at south pole")
+    plt.xlabel("Geomagnetic latitude going from 0 to 360 degrees, starting and ending at south pole")
     plt.ylabel("Electron density [cm$^{-1}$]")
     plt.title("One SWARM satellite period")
+    plt.grid("on", axis = "x")
+    #adding letters
+    x = (xticks[:-1] + xticks[1:])/2
+    y = np.zeros_like(x) -  np.max(NeA)/40
+    s = ["S", "B", "A", "B", "C", "D", "C", "B", "A", "B", "S"]
+    for i in range(len(x)):
+        plt.text(x[i], y[i], s[i], fontsize = 10)
+    plt.savefig("Figures/swarm_period.pdf")
     plt.show()
 
-
+    # plt.plot(times, latA)
+    # plt.plot(times, mlt)
+    # plt.show()
     print(lats[0])
     print(lats[-1])
     
@@ -505,7 +519,7 @@ def comparison_plotter():
     """
     Plots comparison indices
     """
-    date = "20131216"
+    date = "20131215"
     file = "Data/matfiles/" + date + ".mat"
     object = MatReader(file)
     
@@ -544,15 +558,48 @@ def comparison_plotter():
     timesC, fftC = object.fft_time_holes_integral(NeC, secondsC, n, 2,\
                                     minfreq = minfreq, maxfreq = maxfreq)
         
-    trans_BA = np.abs(fftB - fftA)
-    trans_BC = np.abs(fftB - fftC)
-    trans_AC = np.abs(fftA - fftC)
+    # trans_BA = np.abs(fftB - fftA)
+    # trans_BC = np.abs(fftB - fftC)
+    # trans_AC = np.abs(fftA - fftC)
     
-    trans_BA = trans_BA/np.max(trans_BA)
-    trans_BC = trans_BC/np.max(trans_BC)
-    trans_AC = trans_AC/np.max(trans_AC)
+    # trans_BA = trans_BA/np.max(trans_BA)
+    # trans_BC = trans_BC/np.max(trans_BC)
+    # trans_AC = trans_AC/np.max(trans_AC)
 
+    trans_BA = np.zeros_like(fftA) + 0.1
+    trans_BC = np.zeros_like(fftA) + 0.1
+    trans_AC = np.zeros_like(fftA) + 0.1
     
+    BA_95 = np.percentile(np.abs(fftB-fftA), 95)
+    BA_50 = np.percentile(np.abs(fftB-fftA), 68)
+    
+    BC_95 = np.percentile(np.abs(fftB-fftC), 95)
+    BC_50 = np.percentile(np.abs(fftB-fftC), 68)
+    
+    AC_95 = np.percentile(np.abs(fftA-fftC), 95)
+    AC_50 = np.percentile(np.abs(fftA-fftC), 68)
+    
+    print(BA_95)
+    for i in range(len(trans_BA)):
+        if np.abs(fftB[i] - fftA[i]) >= BA_95:
+            trans_BA[i] = 1
+        elif np.abs(fftB[i]-fftA[i]) >= BA_50:
+            trans_BA[i] = 0.5
+        
+        if np.abs(fftB[i] - fftC[i]) >= BC_95:
+            trans_BC[i] = 1
+        elif np.abs(fftB[i]-fftC[i]) >= BC_50:
+            trans_BC[i] = 0.5
+            
+        if np.abs(fftA[i] - fftC[i]) >= AC_95:
+            trans_AC[i] = 1
+        elif np.abs(fftA[i]-fftC[i]) >= AC_50:
+            trans_AC[i] = 0.5
+            
+
+    # trans_BA = np.zeros_like(fftA) + 1
+    # trans_BC = np.zeros_like(fftA) + 1
+    # trans_AC = np.zeros_like(fftA) + 1
 
     comp_ind_BA = object.relative_diff(fftB, fftA, abs = False)
     comp_ind_BC = object.relative_diff(fftB, fftC, abs = False)
@@ -737,6 +784,7 @@ def hour_round(hours):
 
 if __name__ == "__main__":
     fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
+    # fig_width_pt = 575
     inches_per_pt = 1.0/72.27               # Convert pt to inches
     golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
     fig_width = fig_width_pt*inches_per_pt  # width in inches
@@ -759,8 +807,9 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    file = "Data/matfiles/20131221.mat"
-    object = MatReader(file)
-    object.velo_inspec()
+    # file = "Data/matfiles/20131221.mat"
+    # object = MatReader(file)
+    # object.velo_inspec()
 
-    # distance_plot()
+    # comparison_plotter()
+    
