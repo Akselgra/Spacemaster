@@ -818,6 +818,23 @@ class SWARMprocess():
         latitudes = lats[inds]
         
         return(latitudes)
+    
+    def gaussian(self, x, amp, cen, wid):
+        """
+        1-d gaussian: gaussian(x, amp, cen, wid)
+        """
+        return (amp / (np.sqrt(2*np.pi) * wid)) * np.exp(-(x-cen)**2 / (2*wid**2))
+    
+    def along_track_velo(self, V, s, n):
+        """
+        The along-track velocity of a PCP
+        """
+        if n < 0:
+            return(V*(1 - s/(s - n)))
+        elif n == 0:
+            return 0
+        elif n > 0:
+            return(V*(s/(s + n) - 1))
         
 if __name__ == "__main__":
     pro = SWARMprocess()

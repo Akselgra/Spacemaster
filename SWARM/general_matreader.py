@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from SWARMprocess import SWARMprocess
 from time import time
+from scipy.optimize import curve_fit
 
 class MatReader(SWARMprocess):
     """
@@ -308,6 +309,106 @@ class MatReader(SWARMprocess):
 
         return(hists, bins)
 
+    def multi_velo_inspec(self, n = 120, lat0 = 77, lat1 = 90, pole = "north"):
+        """
+        Divides data set into windows of length n and finds
+        along-track velocity for each window.
+        Uses 50% overlap
+        """
+        inds = self.mlat_finder(lat1, lat0, pole)[1]
+        NeA = self.NeA[inds]
+        NeB = self.NeB[inds]
+        NeC = self.NeC[inds]
+
+        secondsA = self.secondsA[inds]
+        secondsB = self.secondsB[inds]
+        secondsC = self.secondsC[inds]
+
+
+        mlatA = self.mlatA[inds]
+        mlatB = self.mlatB[inds]
+        mlatC = self.mlatC[inds]
+
+        mean_range = 5
+        NeA = self.meanie(NeA, mean_range)
+        NeB = self.meanie(NeB, mean_range)
+        NeC = self.meanie(NeC, mean_range)
+        
+        
+        N = int((len(NeA)/n*2) - 1) #nr of windows
+        
+        dx = (secondsB[1]-secondsB[0])*self.velB[0]
+        
+        nBAs = []
+        nBCs = []
+        nACs = []
+        
+        for i in range(N):
+            startind = int(i/2*n)
+            stopind = int((i/2+1)*n)
+            temp_NeA = NeA[startind:stopind]
+            temp_NeB = NeB[startind:stopind]
+            temp_NeC = NeC[startind:stopind]
+            
+            temp_secondsA = secondsA[startind:stopind]
+            temp_secondsB = secondsB[startind:stopind]
+            temp_secondsC = secondsC[startind:stopind]
+            
+            
+            curr_timediff = np.round((temp_secondsB[1:] - temp_secondsB[:-1])-(1/self.fs))
+            if np.sum(curr_timediff) > 2:
+                continue
+            
+            gradA = (temp_NeA[1:] - temp_NeA[:-1])/dx
+            gradB = (temp_NeB[1:] - temp_NeB[:-1])/dx
+            gradC = (temp_NeC[1:] - temp_NeC[:-1])/dx
+            
+            if np.max(gradA) < 0.4:
+                continue
+            
+            stdA = np.std(gradA)
+            stdB = np.std(gradB)
+            stdC = np.std(gradC)
+            
+            meanA = temp_secondsB[np.where(gradA == np.max(gradA))][0]
+            meanB = temp_secondsB[np.where(gradB == np.max(gradB))][0]
+            meanC = temp_secondsB[np.where(gradC == np.max(gradC))][0]
+            
+            p0A = [1, meanA, stdA]
+            p0B = [1, meanB, stdB]
+            p0C = [1, meanB, stdB]
+            
+            poptA, pcovA = curve_fit(self.gaussian, temp_secondsB[:-1], gradA, p0 = p0A)
+            poptB, pcovB = curve_fit(self.gaussian, temp_secondsB[:-1], gradB, p0 = p0B)
+            poptC, pcovC = curve_fit(self.gaussian, temp_secondsB[:-1], gradC, p0 = p0C)
+            
+            nBA = poptB[1] - poptA[1]
+            nBC = poptB[1] - poptC[1]
+            nAC = poptA[1] - poptC[1]
+            
+            nBAs.append(nBA)
+            nBCs.append(nBC)
+            nACs.append(nAC)
+            
+            
+        sBA = self.BA_shift/2 #time delay BA
+        sBC = self.BC_shift/2 #time delay BC
+        sAC = (self.BC_shift - self.BA_shift)/2
+        V = self.velA[0]
+        for i in range(len(nBAs)):
+            VBA = self.along_track_velo(V, sBA, nBAs[i])
+            VBC = self.along_track_velo(V, sBC, nBCs[i])
+            VAC = self.along_track_velo(V, sAC, nACs[i])
+            
+            print(VBA)
+            print(VBC)
+            print(VAC)
+            print("________________________________________")
+                
+           
+        
+        
+        
     def velo_inspec(self, ind1 = 1150*2, ind2 = 1185*2):
         """
         Inspects the velocity of a large scale structure between times
@@ -807,9 +908,9 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    # file = "Data/matfiles/20131221.mat"
-    # object = MatReader(file)
-    # object.velo_inspec()
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
+    object.multi_velo_inspec()
 
     # comparison_plotter()
     
