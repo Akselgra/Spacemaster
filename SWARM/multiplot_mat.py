@@ -33,12 +33,12 @@ plt.rcParams.update({
 def std_timeshift_mat():
     start = time.time()
     minfreq = 0.1
-    maxfreq = 1
+    maxfreq = 0.5
     day0 = 9
     day1 = 31
-    lat1 = 90
-    lat0 = 77
-    n = 100
+    lat1 = -90
+    lat0 = -77
+    n = 120
     shift_list = []
     std_list = []
     k_high = []
@@ -47,7 +47,7 @@ def std_timeshift_mat():
         object = multi_matreader.MultiMat(day, day)
         hists, bins = object.multi_histmake(n = n, minfreq = minfreq,\
         maxfreq = maxfreq, bins_ = 200, lat1 = lat1, lat0 = lat0,\
-        norm = True, pole = "both")
+        norm = True, pole = "south")
         means = np.zeros(len(hists))
         stds = np.zeros_like(means)
         for i in range(len(hists)):
@@ -415,4 +415,4 @@ def std_distance():
     stop = time.time()
     print(stop-start)
 
-std_distance()
+std_timeshift_mat()

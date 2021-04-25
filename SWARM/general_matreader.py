@@ -309,7 +309,7 @@ class MatReader(SWARMprocess):
 
         return(hists, bins)
 
-    def multi_velo_inspec(self, n = 120, lat0 = 77, lat1 = 90, pole = "north"):
+    def multi_velo_inspec(self, n = 60, lat0 = 60, lat1 = 90, pole = "north"):
         """
         Divides data set into windows of length n and finds
         along-track velocity for each window.
@@ -363,7 +363,7 @@ class MatReader(SWARMprocess):
             gradB = (temp_NeB[1:] - temp_NeB[:-1])/dx
             gradC = (temp_NeC[1:] - temp_NeC[:-1])/dx
             
-            if np.max(gradA) < 0.4:
+            if np.max(gradA) < 0.9:
                 continue
             
             stdA = np.std(gradA)
@@ -620,7 +620,7 @@ def comparison_plotter():
     """
     Plots comparison indices
     """
-    date = "20131215"
+    date = "20131214"
     file = "Data/matfiles/" + date + ".mat"
     object = MatReader(file)
     
@@ -630,8 +630,8 @@ def comparison_plotter():
     ind1 = 0
     ind2 = -1
 
-    n = 150
-    minfreq = 0.1
+    n = 120
+    minfreq = 0.2
     maxfreq = 1
     
     NeA = object.NeA[ind1:ind2]
@@ -908,9 +908,9 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    file = "Data/matfiles/20131221.mat"
-    object = MatReader(file)
-    object.multi_velo_inspec()
+    # file = "Data/matfiles/20131221.mat"
+    # object = MatReader(file)
+    # object.multi_velo_inspec()
 
-    # comparison_plotter()
+    comparison_plotter()
     
