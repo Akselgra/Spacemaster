@@ -790,7 +790,7 @@ class SWARMprocess():
         new_C = holyholed_C
 
         return(new_A, new_B, new_C)
-    
+
     def lat_from_time(self, times, lats, timepoints):
         """
         Parameters
@@ -807,24 +807,24 @@ class SWARMprocess():
         latitudes : array
             array of latitudes at timepoints
         """
-        
+
         inds = []
         for i in range(len(timepoints)):
             diffs = np.abs(times - timepoints[i])
             ind = np.where(diffs == np.min(diffs))[0][0]
             inds.append(int(ind))
-        
+
         inds = np.array(inds)
         latitudes = lats[inds]
-        
+
         return(latitudes)
-    
+
     def gaussian(self, x, amp, cen, wid):
         """
         1-d gaussian: gaussian(x, amp, cen, wid)
         """
         return (amp / (np.sqrt(2*np.pi) * wid)) * np.exp(-(x-cen)**2 / (2*wid**2))
-    
+
     def along_track_velo(self, V, s, n):
         """
         The along-track velocity of a PCP
@@ -835,7 +835,49 @@ class SWARMprocess():
             return 0
         elif n > 0:
             return(V*(s/(s + n) - 1))
-        
+
+    def dipol(x, y, z, B0 = 3.12e-5):
+        """
+        A dipol magnetic field.
+        B0 is the magnetic field strength at earths surface
+        """
+
+        Re = 63271*1000 #earth radius in meter
+
+
+        # if np.abs(x) < 1e-10:
+        #     phi = np.pi/2
+        # else:
+
+        phi = np.arctan2(y,x)
+
+
+        r = np.sqrt(x**2 + y**2 + z**2)
+
+        # if np.abs(z) < 1e-10:
+        #     theta = np.pi/2
+        # else:
+
+        theta = np.arctan2(np.sqrt(x**2 + y**2),(z))
+
+        B_r = -2*B0*(Re/r)**3*np.cos(theta)
+        B_theta = -B0*(Re/r)**3*np.sin(theta)
+        B_phi = 0
+
+
+
+        B_x = B_r*np.sin(theta)*np.cos(phi) \
+            + B_theta*np.cos(theta)*np.cos(phi)\
+            - B_phi*np.sin(phi)
+
+        B_y = B_r*np.sin(theta)*np.sin(phi)\
+            + B_theta*np.cos(theta)*np.sin(phi)\
+            + B_phi*np.cos(phi)
+
+        B_z = B_r*np.cos(theta) - B_theta*np.sin(theta)
+
+        return(np.array([B_x, B_y, B_z]))
+
 if __name__ == "__main__":
     pro = SWARMprocess()
     array = np.arange(20, 60)
