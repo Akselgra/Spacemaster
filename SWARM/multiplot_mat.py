@@ -4,6 +4,8 @@ import SWARMprocess
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from scipy.stats import skew
+from scipy.stats import kurtosis
 pro = SWARMprocess.SWARMprocess()
 
 fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
@@ -33,7 +35,7 @@ plt.rcParams.update({
 def std_timeshift_mat():
     start = time.time()
     minfreq = 0.1
-    maxfreq = 0.5
+    maxfreq = 1
     day0 = 9
     day1 = 31
     lat1 = -90
@@ -94,26 +96,193 @@ def std_timeshift_mat():
     plt.ylabel("Standard deviation of histograms")
     plt.title("Stds per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
     plt.legend(["Linear regression", "data points"])
-
-    plt.figure(2)
-    for i in range(len(shift_list)):
-        if k_high[i] == 0:
-            plt.plot(shift_list[i], std_list[i], "ko")
-        else:
-            plt.plot(shift_list[i], std_list[i], "ro")
-
-
-    plt.xlabel("Time between satellites [s]")
-    plt.ylabel("Standard deviation of histograms")
-    plt.title("Stds per day, integral limits: %g to %g" % (minfreq, maxfreq))
+    plt.savefig("Figures/matfigs/std_timeshift/std_timeshift_polarcap_south.pdf")
+    
     plt.show()
+    
+    
+    # plt.figure(2)
+    # for i in range(len(shift_list)):
+    #     if k_high[i] == 0:
+    #         plt.plot(shift_list[i], std_list[i], "ko")
+    #     else:
+    #         plt.plot(shift_list[i], std_list[i], "ro")
+
+
+    # plt.xlabel("Time between satellites [s]")
+    # plt.ylabel("Standard deviation of histograms")
+    # plt.title("Stds per day, integral limits: %g to %g" % (minfreq, maxfreq))
+    # plt.show()
 
 
 
     stop = time.time()
     print(stop-start)
 
+def skewness_timeshift_mat():
+    start = time.time()
+    minfreq = 0.1
+    maxfreq = 1
+    day0 = 9
+    day1 = 31
+    lat1 = 30
+    lat0 = 0
+    n = 120
+    shift_list = []
+    skew_list = []
+    kurtosis_list = []
+    mean_list = []
+    std_list = []
 
+    region = "equatorial"
+    for day in range(day0, day1+1):
+        object = multi_matreader.MultiMat(day, day)
+        
+        I_BA, I_BC, I_AC = object.multi_compind(n = n, minfreq = minfreq,\
+        maxfreq = maxfreq, lat1 = lat1, lat0 = lat0,\
+        norm = True, pole = "both")
+        
+        # AC_std = np.std(I_AC)
+        # AC_mean = np.mean(I_AC)
+        # xs = np.linspace(-1, 1, 1000)
+        # gauss = object.pro.gauss_curve(xs, AC_mean, AC_std)
+        # AChist, bins = np.histogram(I_AC)
+        # bins = (bins[1:] + bins[:-1])/2
+        # width = bins[1] - bins[0]
+        # AChist = AChist/np.sum(AChist*width)
+        # plt.bar(bins, AChist, width = width)
+        # plt.plot(xs, gauss, "r")
+        # plt.show()
+        
+        curr_skew_BA = skew(I_BA)
+        curr_skew_BC = skew(I_BC)
+        curr_skew_AC = skew(I_AC)
+        
+        curr_kurtosis_BA = kurtosis(I_BA)
+        curr_kurtosis_BC = kurtosis(I_BC)
+        curr_kurtosis_AC = kurtosis(I_AC)
+        
+        curr_mean_BA = np.mean(I_BA)
+        curr_mean_BC = np.mean(I_BC)
+        curr_mean_AC = np.mean(I_AC)
+        
+        curr_std_BA = np.std(I_BA)
+        curr_std_BC = np.std(I_BC)
+        curr_std_AC = np.std(I_AC)
+        
+        
+        
+        
+
+        BA_shift = object.BA_shift
+        BC_shift = object.BC_shift
+        AC_shift = BC_shift - BA_shift
+        BA_shift = BA_shift/2
+        BC_shift = BC_shift/2
+        AC_shift = AC_shift/2
+        
+        shift_list.append(BA_shift)
+        skew_list.append(curr_skew_BA)
+        kurtosis_list.append(curr_kurtosis_BA)
+        mean_list.append(curr_mean_BA)
+        std_list.append(curr_std_BA)
+        
+        shift_list.append(BC_shift)
+        skew_list.append(curr_skew_BC)
+        kurtosis_list.append(curr_kurtosis_BC)
+        mean_list.append(curr_mean_BC)
+        std_list.append(curr_std_BC)
+        
+        shift_list.append(AC_shift)
+        skew_list.append(curr_skew_AC)
+        kurtosis_list.append(curr_kurtosis_AC)
+        mean_list.append(curr_mean_AC)
+        std_list.append(curr_std_AC)
+
+
+
+    # p = np.polyfit(shift_list, std_list, deg = 1)
+    # a = p[0]; b = p[1]
+    a, b, adiv, bdiv = pro.linear_regression(shift_list, skew_list)
+    print("Slope of regression is %g pm %g" % (a, adiv))
+    print("Constant of linear regression is %g pm %g" % (b, bdiv))
+    print("a is %g standard deviations away from zero" % (a/adiv))
+
+    print(a/b*100)
+    xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+    plt.figure(1)
+    plt.ylim([-3.2, 3.2])
+    plt.plot(xs, xs*a + b)
+    plt.plot(shift_list, skew_list, "ko")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("Skewness of histograms")
+    plt.title("Skewness per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
+    plt.legend(["Linear regression", "data points"])
+    plt.savefig("Figures/matfigs/skew/skew_" + region + ".pdf")
+    plt.show()
+    
+    
+    # p = np.polyfit(shift_list, std_list, deg = 1)
+    # a = p[0]; b = p[1]
+    a, b, adiv, bdiv = pro.linear_regression(shift_list, kurtosis_list)
+    print("Slope of regression is %g pm %g" % (a, adiv))
+    print("Constant of linear regression is %g pm %g" % (b, bdiv))
+    print("a is %g standard deviations away from zero" % (a/adiv))
+
+    print(a/b*100)
+    xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+    plt.figure(1)
+    plt.ylim([-5, 22])
+    plt.plot(xs, xs*a + b)
+    plt.plot(shift_list, kurtosis_list, "ko")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("kurtosis of histograms")
+    plt.title("Kurtosis per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
+    plt.legend(["Linear regression", "data points"])
+    plt.savefig("Figures/matfigs/kurtosis/kurtosis_" + region + ".pdf")
+    plt.show()
+    
+    a, b, adiv, bdiv = pro.linear_regression(shift_list, mean_list)
+    print("Slope of regression is %g pm %g" % (a, adiv))
+    print("Constant of linear regression is %g pm %g" % (b, bdiv))
+    print("a is %g standard deviations away from zero" % (a/adiv))
+
+    print(a/b*100)
+    xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+    plt.figure(1)
+    plt.ylim([-0.15, 0.15])
+    plt.plot(xs, xs*a + b)
+    plt.plot(shift_list,  mean_list, "ko")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("Mean of histograms")
+    plt.title("Mean per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
+    plt.legend(["Linear regression", "data points"])
+    plt.savefig("Figures/matfigs/mean/mean_" + region + ".pdf")
+    plt.show()
+    
+    
+    a, b, adiv, bdiv = pro.linear_regression(shift_list, std_list)
+    print("Slope of regression is %g pm %g" % (a, adiv))
+    print("Constant of linear regression is %g pm %g" % (b, bdiv))
+    print("a is %g standard deviations away from zero" % (a/adiv))
+
+    print(a/b*100)
+    xs = np.linspace(np.min(shift_list), np.max(shift_list), 1000)
+    plt.figure(1)
+    plt.ylim([0, 0.35])
+    plt.plot(xs, xs*a + b)
+    plt.plot(shift_list,  std_list, "ko")
+    plt.xlabel("Time between satellites [s]")
+    plt.ylabel("Standard deviation of histograms")
+    plt.title("std per day, f: %g - %g, a = %g, b = %g" % (minfreq, maxfreq, a, b))
+    plt.legend(["Linear regression", "data points"])
+    plt.savefig("Figures/matfigs/std/std_" + region + ".pdf")
+    plt.show()
+
+
+
+    stop = time.time()
+    print(stop-start)
 def sigma_plotter_mat():
     """
     plots std as a function of frequency
@@ -146,6 +315,7 @@ def sigma_plotter_mat():
 
 
 def plothing():
+
     """
     random plot
     """
@@ -182,12 +352,203 @@ def plothing():
     plt.title("Power Spectral Density")
     plt.show()
 
+def multiplot_moments():
+    start = time.time()
+    minfreq = 0.1
+    maxfreq = 1
+    day0 = 9
+    day1 = 31
+    lat1 = 30
+    lat0 = 0
+    n = 120
+    
+
+    region = "equatorial"
+    lat0s = [0, 30, 70, 77]
+    lat1s = [30, 70, 77, 90]
+    regions = ["equatorial", "midlatitude", "OCB", "northpole"]
+    poles = ["both", "both", "north", "north"]
+    shift_list_list = []
+    kurtosis_list_list = []
+    skew_list_list = []
+    std_list_list = []
+    mean_list_list = []
+    
+    for l in range(len(lat0s)):
+        shift_list = []
+        skew_list = []
+        kurtosis_list = []
+        mean_list = []
+        std_list = []
+        for day in range(day0, day1+1):
+            object = multi_matreader.MultiMat(day, day)
+            
+            I_BA, I_BC, I_AC = object.multi_compind(n = n, minfreq = minfreq,\
+            maxfreq = maxfreq, lat1 = lat1s[l], lat0 = lat0s[l],\
+            norm = True, pole = poles[l])
+            
+
+            
+            curr_skew_BA = skew(I_BA)
+            curr_skew_BC = skew(I_BC)
+            curr_skew_AC = skew(I_AC)
+            
+            curr_kurtosis_BA = kurtosis(I_BA)
+            curr_kurtosis_BC = kurtosis(I_BC)
+            curr_kurtosis_AC = kurtosis(I_AC)
+            
+            curr_mean_BA = np.mean(I_BA)
+            curr_mean_BC = np.mean(I_BC)
+            curr_mean_AC = np.mean(I_AC)
+            
+            curr_std_BA = np.std(I_BA)
+            curr_std_BC = np.std(I_BC)
+            curr_std_AC = np.std(I_AC)
+            
+            
+            
+            
+    
+            BA_shift = object.BA_shift
+            BC_shift = object.BC_shift
+            AC_shift = BC_shift - BA_shift
+            BA_shift = BA_shift/2
+            BC_shift = BC_shift/2
+            AC_shift = AC_shift/2
+            
+            shift_list.append(BA_shift)
+            skew_list.append(curr_skew_BA)
+            kurtosis_list.append(curr_kurtosis_BA)
+            mean_list.append(curr_mean_BA)
+            std_list.append(curr_std_BA)
+            
+            shift_list.append(BC_shift)
+            skew_list.append(curr_skew_BC)
+            kurtosis_list.append(curr_kurtosis_BC)
+            mean_list.append(curr_mean_BC)
+            std_list.append(curr_std_BC)
+            
+            shift_list.append(AC_shift)
+            skew_list.append(curr_skew_AC)
+            kurtosis_list.append(curr_kurtosis_AC)
+            mean_list.append(curr_mean_AC)
+            std_list.append(curr_std_AC)
+    
+    
+    
+        shift_list_list.append(shift_list)
+        kurtosis_list_list.append(kurtosis_list)
+        skew_list_list.append(skew_list)
+        std_list_list.append(std_list)
+        mean_list_list.append(mean_list)
+        
+    
+    fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
+    for i in range(2):
+        for j in range(2):
+            l = (i*2 + j)
+            a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], kurtosis_list_list[l])
+            print("region = " + regions[l])
+            print("Slope of regression is %g pm %g" % (a, adiv))
+            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
+            axs[i, j].plot(shift_list_list[l], kurtosis_list_list[l], "k.")
+            axs[i, j].plot(xs, xs*a + b)
+            axs[i, j].set_title(regions[l])
+            axs[i, j].grid("on")
+    
+    for ax in axs.flat:
+        ax.set(xlabel = "Time difference between satellites", ylabel = "Kurtosis")
+    
+    for ax in axs.flat:
+        ax.label_outer()
+    
+    plt.savefig("Figures/matfigs/kurtosis/multi_kurtosis.pdf")
+    plt.show()
+    
+    #-----------------------------------------------------------
+    
+    fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
+    for i in range(2):
+        for j in range(2):
+            l = (i*2 + j)
+            a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], skew_list_list[l])
+            print("region = " + regions[l])
+            print("Slope of regression is %g pm %g" % (a, adiv))
+            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
+            axs[i, j].plot(shift_list_list[l], skew_list_list[l], "k.")
+            axs[i, j].plot(xs, xs*a + b)
+            axs[i, j].set_title(regions[l])
+            axs[i, j].grid("on")
+    
+    for ax in axs.flat:
+        ax.set(xlabel = "Time difference between satellites", ylabel = "Skewness")
+    
+    for ax in axs.flat:
+        ax.label_outer()
+    
+    plt.savefig("Figures/matfigs/skew/multi_skewness.pdf")
+    plt.show()
+    
+    #---------------------------------------------------------------------
+    
+    fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
+    for i in range(2):
+        for j in range(2):
+            l = (i*2 + j)
+            a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], std_list_list[l])
+            print("region = " + regions[l])
+            print("Slope of regression is %g pm %g" % (a, adiv))
+            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
+            axs[i, j].plot(shift_list_list[l], std_list_list[l], "k.")
+            axs[i, j].plot(xs, xs*a + b)
+            axs[i, j].set_title(regions[l])
+            axs[i, j].grid("on")
+    
+    for ax in axs.flat:
+        ax.set(xlabel = "Time difference between satellites", ylabel = "Standard deviation")
+    
+    for ax in axs.flat:
+        ax.label_outer()
+    
+    plt.savefig("Figures/matfigs/std/multi_std.pdf")
+    plt.show()
+    #-----------------------------------------------------------------------
+    
+    fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
+    for i in range(2):
+        for j in range(2):
+            l = (i*2 + j)
+            a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], mean_list_list[l])
+            print("region = " + regions[l])
+            print("Slope of regression is %g pm %g" % (a, adiv))
+            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
+            axs[i, j].plot(shift_list_list[l], mean_list_list[l], "k.")
+            axs[i, j].plot(xs, xs*a + b)
+            axs[i, j].set_title(regions[l])
+            axs[i, j].grid("on")
+    
+    for ax in axs.flat:
+        ax.set(xlabel = "Time difference between satellites", ylabel = "Mean")
+    
+    for ax in axs.flat:
+        ax.label_outer()
+    
+    plt.savefig("Figures/matfigs/mean/multi_mean.pdf")
+    plt.show()
+        
+    
+    stop = time.time()
+    print(stop-start)
 def histplot():
     """
     plots histograms
     """
-    day0 = 9
-    day1 = 31
+    day0 = 15
+    day1 = 15
     object = multi_matreader.MultiMat(day0, day1)
     n = 100
     minfreq = 0.1
@@ -212,33 +573,42 @@ def histplot():
     gauss2 = object.pro.gauss_curve(xs, means[1], stds[1])
     gauss3 = object.pro.gauss_curve(xs, means[2], stds[2])
 
-    fig, axs = plt.subplots(1, 3)
-    axs[0].set_title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
-    axs[0].plot(xs, gauss1, "r")
-    axs[0].bar(bins, hists[0], width = width)
+    # fig, axs = plt.subplots(1, 3)
+    # axs[0].set_title("B - A, $\sigma$ = %g, $\mu$ = %g" % (stds[0], means[0]))
+    # axs[0].plot(xs, gauss1, "r")
+    # axs[0].bar(bins, hists[0], width = width)
 
-    axs[1].set_title("B - C, $\sigma$ = %g, $\mu$ = %g" % (stds[1], means[1]))
-    axs[1].plot(xs, gauss2, "r")
-    axs[1].bar(bins, hists[1], width = width)
+    # axs[1].set_title("B - C, $\sigma$ = %g, $\mu$ = %g" % (stds[1], means[1]))
+    # axs[1].plot(xs, gauss2, "r")
+    # axs[1].bar(bins, hists[1], width = width)
 
-    axs[2].set_title("A - C, $\sigma$ = %g, $\mu$ = %g" % (stds[2], means[2]))
-    axs[2].plot(xs, gauss3, "r")
-    axs[2].bar(bins, hists[2], width = width)
+    # axs[2].set_title("A - C, $\sigma$ = %g, $\mu$ = %g" % (stds[2], means[2]))
+    # axs[2].plot(xs, gauss3, "r")
+    # axs[2].bar(bins, hists[2], width = width)
 
 
-    xlabels = ["relative difference","relative difference","relative difference"]
-    ylabels = ["Norm occ","Norm occ","Norm occ"]
-    for i in range(len(axs.flat)):
-        axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
-        #axs.flat[i].set_aspect("equal", "box")
-        #axs.flat[i].set_xlim(-1, 1)
-        #axs.flat[i].set_ylim(0, 5)
+    # xlabels = ["relative difference","relative difference","relative difference"]
+    # ylabels = ["Norm occ","Norm occ","Norm occ"]
+    # for i in range(len(axs.flat)):
+    #     axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
+    #     #axs.flat[i].set_aspect("equal", "box")
+    #     #axs.flat[i].set_xlim(-1, 1)
+    #     #axs.flat[i].set_ylim(0, 5)
 
-    # Hide x labels and tick labels for top plots and y ticks for right plots.
-    for ax in axs.flat:
-        ax.label_outer()
+    # # Hide x labels and tick labels for top plots and y ticks for right plots.
+    # for ax in axs.flat:
+    #     ax.label_outer()
 
-    plt.legend(["normal distribution", "data"])
+    # plt.legend(["normal distribution", "data"])
+    # plt.show()
+    
+    plt.bar(bins, hists[0], width = width)
+    plt.plot(xs, gauss1, "r")
+    plt.xlabel("Comparison index $I_{B-A}$")
+    plt.ylabel("Normalized occurence")
+    plt.legend(["Gaussian distribution", "Data"])
+    plt.title("Histogram of comparison indices for polar cap region")
+    plt.savefig("Figures/matfigs/histograms/I_BA_pole_hist.pdf")
     plt.show()
 
 def std_distance():
@@ -415,4 +785,5 @@ def std_distance():
     stop = time.time()
     print(stop-start)
 
-std_timeshift_mat()
+
+histplot()

@@ -120,6 +120,66 @@ class MultiMat():
         hists = np.array([histsBA, histsBC, histsAC])
 
         return(hists, bins)
+    
+    def multi_compind(self, n, minfreq, maxfreq, lat1, lat0,\
+                       abs = False, norm = True, pole = "north"):
+        """
+        Finds comparison indices for multiple days and combines them.
+        
+        Parameters:
+            n - int; number of indices in time window used in fft_time_integral_holes
+            minfreq - float; lower integral limit
+            maxfreq - float; higher integral limit
+            lat1 - float; higher latitude limit
+            lat0 - float; lower latitude limit
+            abs - bool; if True, will calculate absolute difference
+            norm - bool; if true, will normalize relative difference
+            pole - string; "north", "south" or "both". Decides what pole we are looking at.
+            
+        returns:
+            I_BA - array; comparison indices for BA
+            I_BC - array; comparison indices for BC
+            I_AC - array; comparison indices for AC
+        """
+        
+        I_BA = np.array([])
+        I_BC = np.array([])
+        I_AC = np.array([])
+        
+        for i in range(self.init_loop_index, self.end_loop_index):
+            file = self.filepath(i)
+            infile = MatReader(file)
+            
+            tempBA, tempBC, tempAC = infile.comp_ind_finder(n = n, minfreq = minfreq,\
+                                               maxfreq = maxfreq,\
+                                               lat1 = lat1, lat0 = lat0,\
+                                               abs = abs, norm = norm,\
+                                               pole = pole)
+            
+            I_BA = np.concatenate((I_BA, tempBA))
+            I_BC = np.concatenate((I_BC, tempBC))
+            I_AC = np.concatenate((I_AC, tempAC))
+            
+        
+        self.BA_shift = infile.BA_shift
+        self.BC_shift = infile.BC_shift
+
+        self.latA = infile.latA[infile.inds]
+        self.latB = infile.latB[infile.inds]
+        self.latC = infile.latC[infile.inds]
+
+        self.longA = infile.longA[infile.inds]
+        self.longB = infile.longB[infile.inds]
+        self.longC = infile.longC[infile.inds]
+
+        self.radA = infile.radA[infile.inds]
+        self.radB = infile.radB[infile.inds]
+        self.radC = infile.radC[infile.inds]
+        
+        self.secondsB = infile.secondsB[infile.inds]
+        
+        return(I_BA, I_BC, I_AC)
+            
 
     def freq_sig(self, df, jump, n, bins_, abs, norm, lat1, lat0, f1, f0, pole):
         """

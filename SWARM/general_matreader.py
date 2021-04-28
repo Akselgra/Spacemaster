@@ -308,6 +308,56 @@ class MatReader(SWARMprocess):
         hists = [BAhist, BChist, AChist]
 
         return(hists, bins)
+    
+    def comp_ind_finder(self, n, minfreq, maxfreq, lat1, lat0, abs = False, norm = True,\
+                 pole = "north"):
+        """
+        Finds comparison indices for given parameters.
+        Parameters:
+            n - int; window size
+            minfreq - float; lower integral limit
+            maxfreq - float; higher integral limit
+            abs - bool; if True, will calculate absolute difference
+            norm - bool; if true, will normalize relative difference
+            lat1 - float; higher latitude limit
+            lat0 - float; lower altitude limit
+            pole - string; "both" for both poles, "north" for north pole,
+                            "south" for south pole.
+        returns:
+            BAdiff - array; comparison indices for BA
+            BCdiff - array; comparison indices for BC
+            ACdiff - array; comparison indices for AC
+        """
+        
+        assert self.shifted, "Data has not been index-shifted"
+
+        inds = self.mlat_finder(lat1, lat0, pole)[1]
+        self.inds = inds
+        NeA = self.NeA[inds]
+        NeB = self.NeB[inds]
+        NeC = self.NeC[inds]
+        secondsA = self.secondsA[inds]
+        secondsB = self.secondsB[inds]
+        secondsC = self.secondsC[inds]
+
+        timesA, fftA = self.fft_time_holes_integral(signal = NeA,\
+                       seconds = secondsA, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+
+        timesB, fftB = self.fft_time_holes_integral(signal = NeB,\
+                       seconds = secondsB, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+
+        timesC, fftC = self.fft_time_holes_integral(signal = NeC,\
+                       seconds = secondsC, n = n, fs = self.fs, minfreq\
+                       = minfreq, maxfreq = maxfreq)
+
+
+        BAdiff = self.relative_diff(fftB, fftA, norm = norm, abs = abs)
+        BCdiff = self.relative_diff(fftB, fftC, norm = norm, abs = abs)
+        ACdiff = self.relative_diff(fftA, fftC, norm = norm, abs = abs)
+        
+        return(BAdiff, BCdiff, ACdiff)
 
     def multi_velo_inspec(self, n = 60, lat0 = 60, lat1 = 90, pole = "north"):
         """
@@ -566,6 +616,7 @@ def one_period_plot():
 
     latA = latA[ind1:ind2]
     NeA = NeA[ind1:ind2]
+    # NeA = object.meanie(NeA, 5)
     times = times[ind1:ind2]
     mlt = mlt[ind1:ind2]
     mlt = hour_round(mlt)
@@ -581,8 +632,9 @@ def one_period_plot():
 
     lats += 90
 
-    xticks = np.array([-90, -60, -30, 30, 60, 77, 103, 120, 150, 210, 240, 270]) + 90
-    plt.plot(lats, NeA, ".", markersize = 1)
+    xticks = np.array([-90, -70, -30, 30, 70, 110, 150, 210, 250, 270]) + 90
+    gridticks = np.array([-90, -70, -30, 30, 70, 77, 103, 110, 150, 210, 250, 270]) + 90
+    # plt.plot(lats, NeA, ".", markersize = 1)
     # plt.plot([0, 0], [0, np.max(NeA)], "k")
     # plt.plot([30, 30], [0, np.max(NeA)], "k")
     # plt.plot([60, 60], [0, np.max(NeA)], "k")
@@ -595,19 +647,19 @@ def one_period_plot():
     # plt.plot([300, 300], [0, np.max(NeA)], "k")
     # plt.plot([330, 330], [0, np.max(NeA)], "k")
     # plt.plot([360, 360], [0, np.max(NeA)], "k")
-    plt.xticks(xticks)
-    plt.xlabel("Geomagnetic latitude going from 0 to 360 degrees, starting and ending at south pole")
-    plt.ylabel("Electron density [cm$^{-1}$]")
-    plt.title("One SWARM satellite period")
-    plt.grid("on", axis = "x")
+    # plt.xticks(xticks)
+    # plt.xlabel("Geomagnetic latitude going from 0 to 360 degrees, starting and ending at south pole")
+    # plt.ylabel("Electron density [cm$^{-1}$]")
+    # plt.title("One SWARM satellite period")
+    # plt.grid("on", axis = "x", xdata = gridticks)
     #adding letters
-    x = (xticks[:-1] + xticks[1:])/2
+    x = (gridticks[:-1] + gridticks[1:])/2 - 3
     y = np.zeros_like(x) -  np.max(NeA)/40
     s = ["S", "B", "A", "B", "C", "D", "C", "B", "A", "B", "S"]
-    for i in range(len(x)):
-        plt.text(x[i], y[i], s[i], fontsize = 10)
-    plt.savefig("Figures/swarm_period.pdf")
-    plt.show()
+    # for i in range(len(x)):
+    #     plt.text(x[i], y[i], s[i], fontsize = 10)
+    # plt.savefig("Figures/swarm_period.pdf")
+    # plt.show()
 
     # plt.plot(times, latA)
     # plt.plot(times, mlt)
@@ -615,12 +667,24 @@ def one_period_plot():
     print(lats[0])
     print(lats[-1])
     
+    fig, ax = plt.subplots()
+    ax.plot(lats, NeA, ".", markersize = 1)
+    ax.set_xticks(xticks, minor=False)
+    ax.set_xticks([167, 193], minor=True)
+    ax.xaxis.grid(True, which = "major")
+    ax.xaxis.grid(True, which = "minor")
+    for i in range(len(x)):
+        ax.text(x[i], y[i], s[i], fontsize = 10)
+    ax.set_xlabel("Geomagnetic latitude going from 0 to 360 degrees, starting and ending at south pole")
+    ax.set_ylabel("Electron density [cm$^{-1}$]")
+    ax.set_title("One Swarm satellite period")
+    plt.savefig("Figures/swarm_period.pdf")
     
 def comparison_plotter():
     """
     Plots comparison indices
     """
-    date = "20131214"
+    date = "20131215"
     file = "Data/matfiles/" + date + ".mat"
     object = MatReader(file)
     
@@ -739,11 +803,11 @@ def comparison_plotter():
     axs[0].grid("on")
     axs[1].grid("on")
     axs[2].grid("on")
-    axs[0].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
-    axs[1].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
-    axs[2].set_xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    axs[0].set_xticks([-90, -77, -70, -30, 0, 30, 70, 77, 90])
+    axs[1].set_xticks([-90, -77, -70, -30, 0, 30, 70, 77, 90])
+    axs[2].set_xticks([-90, -77, -70, -30, 0, 30, 70, 77, 90])
     
-    xlabels = ["LAT","LAT","LAT"]
+    xlabels = ["Latitude","Latitude","Latitude"]
     ylabels = ["$I_{BA}$","$I_{BC}$","$I_{AC}$"]
     for i in range(len(axs.flat)):
         axs.flat[i].set(xlabel=xlabels[i], ylabel=ylabels[i])
@@ -883,6 +947,61 @@ def hour_round(hours):
     hours[is_larger] = hours[is_larger] - 24
     return(hours)
 
+def index_shift_plot():
+    """
+    plots an example of index shifting
+    """
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
+    thing = object.shifted == False
+    assert thing, "shifter must be commented out"
+    
+    start = 1920 #index of 16 minutes
+    stop = 3120 #index of 26 minutes
+    
+    NeA = object.NeA[start:stop]
+    NeB = object.NeB[start:stop]
+    NeC = object.NeC[start:stop]
+    NeA = object.meanie(NeA, 5)
+    NeB = object.meanie(NeB, 5)
+    NeC = object.meanie(NeC, 5)
+    
+    secondsA = object.secondsA[start:stop]
+    secondsB = object.secondsB[start:stop]
+    secondsC = object.secondsC[start:stop]
+    
+    plt.plot(secondsB, NeB, "r")
+    plt.plot(secondsB, NeA, "g")
+    plt.plot(secondsB, NeC, "b")
+    plt.xlabel("Seconds since midnight UTC of satellite B")
+    plt.ylabel("Electron density [cm$^{-3}$]")
+    plt.legend(["Satellite B", "Satellite A", "Satellite C"])
+    plt.title("Electron density data before index-shift")
+    plt.savefig("Figures/preshift_example.pdf")
+    plt.show()
+    
+    object.shifter()
+    NeA = object.NeA[start:stop]
+    NeB = object.NeB[start:stop]
+    NeC = object.NeC[start:stop]
+    NeA = object.meanie(NeA, 5)
+    NeB = object.meanie(NeB, 5)
+    NeC = object.meanie(NeC, 5)
+    
+    secondsA = object.secondsA[start:stop]
+    secondsB = object.secondsB[start:stop]
+    secondsC = object.secondsC[start:stop]
+    
+    plt.plot(secondsB, NeB, "r")
+    plt.plot(secondsB, NeA, "g")
+    plt.plot(secondsB, NeC, "b")
+    plt.xlabel("Seconds since midnight UTC of satellite B")
+    plt.ylabel("Electron density [cm$^{-3}$]")
+    plt.legend(["Satellite B", "Satellite A", "Satellite C"])
+    plt.title("Electron density data after index-shift")
+    plt.savefig("Figures/postshift_example.pdf")
+    plt.show()
+    
 if __name__ == "__main__":
     fig_width_pt = 418.0  # Get this from LaTeX using \showthe\columnwidth
     # fig_width_pt = 575
@@ -912,5 +1031,4 @@ if __name__ == "__main__":
     # object = MatReader(file)
     # object.multi_velo_inspec()
 
-    comparison_plotter()
-    
+    comparison_plotter()   

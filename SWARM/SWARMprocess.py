@@ -836,7 +836,7 @@ class SWARMprocess():
         elif n > 0:
             return(V*(s/(s + n) - 1))
 
-    def dipol(x, y, z, B0 = 3.12e-5):
+    def dipol(self, x, y, z, B0 = 3.12e-5):
         """
         A dipol magnetic field.
         B0 is the magnetic field strength at earths surface
