@@ -491,8 +491,42 @@ class MatReader(SWARMprocess):
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case")
         plt.grid("on", axis = "x")
-        plt.savefig("Figures/matfigs/interesting_case.pdf")
-
+        # plt.savefig("Figures/matfigs/interesting_case.pdf")
+        
+        #calculate comparison index of data window
+        n = len(NeA)
+        fftA = np.roll(np.fft.fft(np.hanning(n)*NeA)[:int(n/2)], int(n/2))
+        fftB = np.roll(np.fft.fft(np.hanning(n)*NeB)[:int(n/2)], int(n/2))
+        fftC = np.roll(np.fft.fft(np.hanning(n)*NeC)[:int(n/2)], int(n/2))
+        freqs = np.linspace(-1, 1, n)[int(n/2):]
+        df = freqs[1]-freqs[0]
+        f = 0.1
+        i = int(f/df)
+        
+        plt.figure(69)
+        plt.plot(freqs, np.log10(np.abs(fftA)), "g")
+        plt.plot(freqs, np.log10(np.abs(fftB)), "r")
+        plt.plot(freqs, np.log10(np.abs(fftC)), "b")
+        plt.xticks([f, 0.2, 0.3])
+        plt.grid("on")
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Log10 PSD")
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.show()
+        
+        sumA = np.sum(np.abs(fftA[i:])*df)
+        sumB = np.sum(np.abs(fftB[i:])*df)
+        sumC = np.sum(np.abs(fftC[i:])*df)
+        
+        I_BA = (sumB-sumA)/np.max([sumB, sumA])
+        I_BC = (sumB-sumC)/np.max([sumB, sumC])
+        I_AC = (sumA-sumC)/np.max([sumA, sumC])
+        
+        print("I_BA = %g" % I_BA)
+        print("I_BC = %g" % I_BC)
+        print("I_AC = %g" % I_AC)
+        
+        
 
         dx = (secondsB[1] - secondsB[0])*self.velB[ind1]
         der_NeA = (NeA[1:] - NeA[:-1])/dx
@@ -532,13 +566,13 @@ class MatReader(SWARMprocess):
 
         plt.plot(lats, yC, "--b")
         plt.plot(mlatC[:-1], der_NeC, "b")
-        plt.legend(["fit B", "B", "fit A", "A", "fit C", "C"])
+        plt.legend(["fit B", "sat B", "fit A", "sat A", "fit C", "sat C"])
 
         plt.title("Density gradients")
         plt.xlabel("Geomagnetic latitude [Degrees]")
         plt.ylabel("Electron density gradient [$cm^{-3}/m$]")
         plt.grid("on", axis = "x")
-        plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
+        # plt.savefig("Figures/matfigs/interesting_case_deri.pdf")
 
 
         vsat = np.mean(self.velA) #velocity of satellites
@@ -576,7 +610,7 @@ class MatReader(SWARMprocess):
         plt.legend(["sat B", "sat A", "sat C"])
         plt.title("An interesting case, shifted")
         plt.grid("on", axis = "x")
-        plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
+        # plt.savefig("Figures/matfigs/interesting_case_shifted.pdf")
 
 
         print("Bubble velocity calculated from BA = %g [m/s]" % vBA)
@@ -838,17 +872,17 @@ def distance_plot():
     """
     plots distance between data points
     """
-    day = "20131215"
+    day = "20131210"
     file = "Data/matfiles/" + day + ".mat"
     object = MatReader(file)
 
 
 
-    ind1 = 2606
-    ind2 = 13940 + 1*7000
+    # ind1 = 2606
+    # ind2 = 13940 + 1*7000
 
-    # ind1 = 0
-    # ind2 = 150000
+    ind1 = 0
+    ind2 = 150000
 
     times = object.secondsB[ind1:ind2]
 
@@ -882,7 +916,7 @@ def distance_plot():
     plt.ylabel("Distance [m]")
     plt.legend(["B - A", "B - C", "A - C"])
     plt.grid("on")
-    plt.savefig("Figures/matfigs/distance_over_time_" + day + ".pdf")
+    # plt.savefig("Figures/matfigs/distance_over_time_" + day + ".pdf")
     plt.figure(1)
 
     plt.plot(times, xB - xA)
@@ -911,15 +945,15 @@ def distance_plot():
     # plt.legend(["B - A", "B - C"])
     # plt.show()
 
-    plt.plot(xA, dist_BA)
-    plt.plot(xC, dist_BC)
-    plt.plot(xC, dist_AC)
+    plt.plot(xB, dist_BA)
+    plt.plot(xB, dist_BC)
+    plt.plot(xB, dist_AC)
     plt.xlabel("Latitude [Degrees]")
     plt.ylabel("Distance [m]")
     plt.title("Distance over latitude")
     plt.grid("on")
     plt.legend(["B - A", "B - C", "A - C"])
-    plt.xticks([-90, -77, -60, -30, 0, 30, 60, 77, 90])
+    plt.xticks([-90, -77, -70, -30, 0, 30, 70, 77, 90])
     plt.savefig("Figures/matfigs/distance_over_latitude_" + day + ".pdf")
     plt.show()
 
@@ -1027,8 +1061,6 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    # file = "Data/matfiles/20131221.mat"
-    # object = MatReader(file)
-    # object.multi_velo_inspec()
-
-    comparison_plotter()   
+    file = "Data/matfiles/20131221.mat"
+    object = MatReader(file)
+    object.velo_inspec()

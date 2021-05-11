@@ -458,7 +458,7 @@ def multiplot_moments():
             axs[i, j].grid("on")
     
     for ax in axs.flat:
-        ax.set(xlabel = "Time difference between satellites", ylabel = "Kurtosis")
+        ax.set(xlabel = "Time difference $\Delta t$ [s]", ylabel = "Kurtosis")
     
     for ax in axs.flat:
         ax.label_outer()
@@ -483,7 +483,7 @@ def multiplot_moments():
             axs[i, j].grid("on")
     
     for ax in axs.flat:
-        ax.set(xlabel = "Time difference between satellites", ylabel = "Skewness")
+        ax.set(xlabel = "Time difference $\Delta t$ [s]", ylabel = "Skewness")
     
     for ax in axs.flat:
         ax.label_outer()
@@ -508,7 +508,7 @@ def multiplot_moments():
             axs[i, j].grid("on")
     
     for ax in axs.flat:
-        ax.set(xlabel = "Time difference between satellites", ylabel = "Standard deviation")
+        ax.set(xlabel = "Time difference $\Delta t$ [s]", ylabel = "Standard deviation")
     
     for ax in axs.flat:
         ax.label_outer()
@@ -532,7 +532,7 @@ def multiplot_moments():
             axs[i, j].grid("on")
     
     for ax in axs.flat:
-        ax.set(xlabel = "Time difference between satellites", ylabel = "Mean")
+        ax.set(xlabel = "Time difference $\Delta t$ [s]", ylabel = "Mean")
     
     for ax in axs.flat:
         ax.label_outer()
@@ -550,9 +550,9 @@ def histplot():
     day0 = 15
     day1 = 15
     object = multi_matreader.MultiMat(day0, day1)
-    n = 100
+    n = 120
     minfreq = 0.1
-    maxfreq = 0.3
+    maxfreq = 1
     bins_ = 100
     lat1 = 90
     lat0 = 77
@@ -569,6 +569,9 @@ def histplot():
         means[j] = curr_mean
 
     xs = np.linspace(-1, 1, 1000)
+    print(means[0])
+    print(stds[0])
+    print(object.BA_shift)
     gauss1 = object.pro.gauss_curve(xs, means[0], stds[0])
     gauss2 = object.pro.gauss_curve(xs, means[1], stds[1])
     gauss3 = object.pro.gauss_curve(xs, means[2], stds[2])
@@ -786,4 +789,4 @@ def std_distance():
     print(stop-start)
 
 
-histplot()
+multiplot_moments()

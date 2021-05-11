@@ -483,12 +483,14 @@ class SWARMprocess():
             curr_dat = signal[ind1:ind2]
             curr_dat = self.meanie(curr_dat, mean_length)
             curr_dat = curr_dat*np.hanning(len(curr_dat))
-            ffts.append(np.fft.fft(curr_dat)[:int(len(curr_dat)/2)])
+            ffts.append(np.fft.fft(curr_dat)[:int(len(curr_dat)/2)]/n*2)
 
         ffts = np.array(ffts)
 
         times = np.array(times)
-        freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        # freqs = np.linspace(-fs/2, fs/2, n)[int(n/2):]
+        freqs = np.arange(n)*(fs/n)
+        freqs = freqs[:int(n/2)]
         Freqs, Times = np.meshgrid(freqs, times)
         return(Freqs, Times, ffts)
 
@@ -829,12 +831,9 @@ class SWARMprocess():
         """
         The along-track velocity of a PCP
         """
-        if n < 0:
-            return(V*(1 - s/(s - n)))
-        elif n == 0:
-            return 0
-        elif n > 0:
-            return(V*(s/(s + n) - 1))
+       
+        return((V*n)/(s+n))
+        
 
     def dipol(self, x, y, z, B0 = 3.12e-5):
         """
@@ -880,12 +879,7 @@ class SWARMprocess():
 
 if __name__ == "__main__":
     pro = SWARMprocess()
-    array = np.arange(20, 60)
-    array = np.sin(np.linspace(0, 2*np.pi, 50))
-    print(array)
-    plt.plot(array)
-    plt.show()
-    array = pro.meanie(array, mean_range = 10)
-    print(array)
-    plt.plot(array)
-    plt.show()
+    n = [2.16, 5.64, 3.49]
+    s = [45, 123.5, 78.5]
+    for i in range(len(n)):
+        print(pro.along_track_velo(7600, s[i], n[i]))
