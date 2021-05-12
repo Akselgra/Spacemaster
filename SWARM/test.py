@@ -1,61 +1,82 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import SWARMprocess
-pro = SWARMprocess.SWARMprocess()
 
 
-fig_width_pt = 360  # Get this from LaTeX using \showthe\columnwidth
-inches_per_pt = 1.0/72.27               # Convert pt to inches
-golden_mean = (np.sqrt(5)-1.0)/2.0         # Aesthetic ratio
-fig_width = fig_width_pt*inches_per_pt  # width in inches
-fig_height =fig_width*golden_mean       # height in inches
-fig_height = fig_width
-fig_size = [fig_width,fig_height]
+def standard_form(f, dec = 2):
+    """
+    Takes Float
+    Returns float on standard form as string
+    """
+    
+    zeros = 0
+    string = str(f)
+    if f < 0:
+        string = string[1:]
+    
+    for i in range(len(string)-1):
+        if string[i+1] == ".":
+            break
+        zeros += 1
+    
+    for i in range(len(string[zeros:])):
+        if string[i] == ".":
+            continue
+        if string[i] != "0":
+            break
+        zeros -= 1
+     
+    dot_ind = 0
+    for i in range(len(string)):
+        if string[i] == ".":
+            break
+        dot_ind += 1
+    
+    
+    if zeros >= 0:
+        if 1 <= dot_ind < dec+2:
+            temp = string[1:dot_ind] + string[dot_ind+1 : dec+1] + str(int((np.round(float(string[dec+1] + "." + string[dec+2:])))))
+        else:
+            temp = string[1:dec+1]
+            
+        bob = string[0] + "." + temp
+        if f < 0:
+            bob = "-" + bob
+    
+    else:
+        temp = string[np.abs(zeros) + 2 : np.abs(zeros) + dec + 1] + str(int((np.round(float(string[np.abs(zeros) + dec+1] + "." + string[np.abs(zeros) + dec+2:])))))
+        bob = string[np.abs(zeros)+1] + "." + temp
+        if f < 0:
+            bob = "-" + bob
+    
+    return(bob + " \\cdot 10^{%g}" % zeros)
+    
 
-plt.rcParams.update({
-    "text.usetex": True,
-    "font.family": "Roman",
-#   "font.family": "sans-serif",
-    # "font.sans-serif": ["Helvetica"],
-    'font.size' : 10,
-    'axes.labelsize' : 10,
-    'font.size' : 10,
-#    'text.fontsize' : 10,
-    'legend.fontsize': 10,
-    'xtick.labelsize' : 10,
-    'ytick.labelsize' : 10,
-    'figure.figsize': fig_size
-})
-#matplotlib.use('pgf')
+a1 = 0.00024
+a2 = 1
+a3 = 1
+a4 = 1
 
-Re = 6370000
-xs = np.linspace(-3*Re, 3*Re, 1000)
-zs = np.copy(xs)
-# zs = np.linspace(-5*Re, 5*Re, 1000)
+b1 = 1
+b2 = 1
+b3 = 1
+b4 = 1
 
+f_a1 = standard_form(a1, dec = 1)
 
-Xs, Zs = np.meshgrid(xs, zs)
-Ys = np.zeros_like(Xs)
-
-vecs = pro.dipol(Xs, Ys, Zs)
-xvecs = vecs[0]
-zvecs = vecs[2]
-
-xvecs[np.where(np.sqrt(Xs**2 + Zs**2) < Re)] = 0
-zvecs[np.where(np.sqrt(Xs**2 + Zs**2) < Re)] = 0
-
-thetas = np.linspace(0, 2*np.pi, 1000)
-circ_x = Re*np.cos(thetas)
-circ_y = Re*np.sin(thetas)
-
-plt.streamplot(Xs/Re, Zs/Re, xvecs, zvecs, color = "k")
-plt.plot(circ_x/Re, circ_y/Re, "k")
-plt.axis("equal")
-plt.xlabel("[Earth radii]")
-plt.ylabel("[Earth radii]")
-plt.title("Dipole model of the geomagnetic field")
-plt.savefig("Figures/dipole_model.png")
-plt.show()
-
-
-
+print("\\begin{table}[htbp]")
+print("\\centering")
+print("\\caption{Table of regression coefficients for the linear regressions found in Figure \\ref{fig:multi_std}. The first column has the latitudinal regions, the second column has the regression slopes and the third column has the regression constants.}")
+print("\\begin{tabular}{|c|c|c|}")
+print("\\hline")
+print("Region & Std regression slope [s$^{-1}$] & Std regression constant [s$^{-1}$]\\" + "\\")
+print("\\hline")
+print("Equatorial & $" + f_a1 +  " \pm 8.1 \cdot 10^{-5}$ & $1.2 \cdot 10^{-1} \pm 7.2 \cdot 10^{-3}$\\" + "\\")
+print("\\hline ")
+print("Midlatitude & $-8.6 \cdot 10^{-5} \pm 6.5 \cdot 10^{-5}$ & $1.9 \cdot 10^{-1} \pm 5.8 \cdot 10^{-3}$\\" + "\\" )
+print("\\hline ")
+print("Auroral Oval & $3.5 \cdot 10^{-4} \pm 9.0 \cdot 10^{-5}$ & $1.7 \cdot 10^{-1} \pm 8.0 \cdot 10^{-3}$\\" + "\\")
+print("\\hline ")
+print("Northern polar cap & $6.7 \cdot 10^{-4} \pm 7.4 \cdot 10^{-5}$ & $1.6 \cdot 10^{-1} \pm 6.6 \cdot 10^{-3}$\\" + "\\")
+print("\\hline ")
+print("\\end{tabular}")
+print("\\label{tab:multi_std}")
+print("\\end{table}")

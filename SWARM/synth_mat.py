@@ -165,7 +165,7 @@ def triple_test():
     plt.ylabel("Frequency [Hz]")
     plt.title("Time-Frequency fourier coefficients")
     plt.pcolormesh(Times[:, :ind], Freqs[:, :ind], np.log10(np.abs(ffts[:, :ind])), cmap = "gist_ncar")
-    plt.colorbar(label = "Log10(PSD) [dB]")
+    plt.colorbar(label = "Log10(Power) [dB]")
     plt.savefig("Figures/matfigs/synth/multi_triangle_pulse_fft_time.pdf")
 
     times, fourier_int = pro.fft_time_holes_integral(triangles, times, n = N, fs = fs,\
@@ -219,7 +219,7 @@ def triangle_plot():
     plt.plot(positive_freqs, (np.abs(positive_ffts)))
     plt.plot(positive_freqs, (width*np.sinc(width*positive_freqs)**2), ".")
     plt.xlabel("Frequency [Hz]")
-    plt.ylabel("PSD")
+    plt.ylabel("Power")
     plt.legend(["PSD of triangle", "Sinc$^2$"])
     plt.title("PSD of triangle pulse")
     plt.savefig("Figures/matfigs/synth/triangle_pulse_fft.pdf")
@@ -274,7 +274,7 @@ def triangle_plot2():
     plt.plot(positive_freqs, (np.abs(positive_ffts1)))
     plt.plot(positive_freqs, np.abs(positive_ffts2))
     plt.xlabel("Frequency [Hz]")
-    plt.ylabel("PSD")
+    plt.ylabel("Power")
     plt.legend(["PSD of triangle A", "PSD of triangle B"])
     plt.title("PSD of triangle pulses")
     plt.savefig("Figures/matfigs/synth/double_triangle_pulse_fft.pdf")
@@ -282,6 +282,7 @@ def triangle_plot2():
     
     minfreq = 0.1
     minfreq = 1/width1
+    minfreq = 0
     print(minfreq)
     maxfreq = 0.5
     i_minfreq = int(minfreq/df)
@@ -290,6 +291,10 @@ def triangle_plot2():
     sumA = np.sum(np.abs(positive_ffts1[i_minfreq:i_maxfreq])*df)
     sumB = np.sum(np.abs(positive_ffts2[i_minfreq:i_maxfreq])*df)
     comp_ind = (sumA - sumB)/(np.max([sumA, sumB]))
+    
+    print((np.mean(ys1) - np.mean(ys2)))
+    print(np.mean(ys1))
+    print(np.mean(ys2))
     print(comp_ind)
     
 def index_test():
@@ -373,7 +378,8 @@ def index_test():
     plt.grid("on")
     #plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
     plt.title("Comparison indices for varying triangle sizes")
-    # plt.savefig("Figures/comp_ind_example.pdf")
+    plt.xticks([0, 1, 2, 3, 4, 5], ["$0/L_B$", "$1/L_B$", "$2/L_B$", "$3/L_B$", "$4/L_B$", "$5/L_B$"])
+    plt.savefig("Figures/comp_ind_example.pdf")
     plt.show()
 
 def index_test_trapez():
@@ -554,5 +560,5 @@ def sine_plot2():
     plt.show()
     
 if __name__ == "__main__":
-    triple_test()
+    index_test()
     

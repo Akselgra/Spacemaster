@@ -366,7 +366,7 @@ def multiplot_moments():
     region = "equatorial"
     lat0s = [0, 30, 70, 77]
     lat1s = [30, 70, 77, 90]
-    regions = ["equatorial", "midlatitude", "OCB", "northpole"]
+    regions = ["Equatorial", "Midlatitude", "Auroral Oval", "Northern polar cap"]
     poles = ["both", "both", "north", "north"]
     shift_list_list = []
     kurtosis_list_list = []
@@ -444,13 +444,30 @@ def multiplot_moments():
         
     
     fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
+    
+    print("\\begin{table}[htbp]")
+    print("\\centering")
+    print("\\caption{Table of regression coefficients for the linear regressions found in Figure \\ref{fig:multi_kurtosis}. The first column has the latitudinal regions, the second column has the regression slopes and the third column has the regression constants.}")
+    print("\\begin{tabular}{|c|c|c|}")
+    print("\\hline")
+    print("Region & Kurtosis regression slope [s$^{-1}$] & Kurtosis regression constant [s$^{-1}$]\\" + "\\")
+    print("\\hline")
     for i in range(2):
         for j in range(2):
             l = (i*2 + j)
             a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], kurtosis_list_list[l])
-            print("region = " + regions[l])
-            print("Slope of regression is %g pm %g" % (a, adiv))
-            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            a = float(a); b = float(b); adiv = float(adiv); bdiv = float(bdiv)
+            
+            norm_a = pro.standard_form(a, dec = 1)
+            norm_b = pro.standard_form(b, dec = 1)
+            norm_adiv = pro.standard_form(adiv, dec = 1)
+            norm_bdiv = pro.standard_form(bdiv, dec = 1)
+            print(regions[l] + " & $" + norm_a + " \pm " + norm_adiv + "$ & $" + norm_b + " \pm " + norm_bdiv + "$\\" + "\\")
+            print("\\hline")
+            
+            # print("region = " + regions[l])
+            # print("Slope of regression is %g pm %g" % (a, adiv))
+            # print("Constant of linear regression is %g pm %g" % (b, bdiv))
             xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
             axs[i, j].plot(shift_list_list[l], kurtosis_list_list[l], "k.")
             axs[i, j].plot(xs, xs*a + b)
@@ -463,19 +480,39 @@ def multiplot_moments():
     for ax in axs.flat:
         ax.label_outer()
     
+    print("\\end{tabular}")
+    print("\\label{tab:multi_kurtosis}")
+    print("\\end{table}")
     plt.savefig("Figures/matfigs/kurtosis/multi_kurtosis.pdf")
     plt.show()
     
     #-----------------------------------------------------------
+    
+    print("\\begin{table}[htbp]")
+    print("\\centering")
+    print("\\caption{Table of regression coefficients for the linear regressions found in Figure \\ref{fig:multi_skewness}. The first column has the latitudinal regions, the second column has the regression slopes and the third column has the regression constants.}")
+    print("\\begin{tabular}{|c|c|c|}")
+    print("\\hline")
+    print("Region & Skewness regression slope [s$^{-1}$] & Skewness regression constant [s$^{-1}$]\\" + "\\")
+    print("\\hline")
     
     fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
     for i in range(2):
         for j in range(2):
             l = (i*2 + j)
             a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], skew_list_list[l])
-            print("region = " + regions[l])
-            print("Slope of regression is %g pm %g" % (a, adiv))
-            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            a = float(a); b = float(b); adiv = float(adiv); bdiv = float(bdiv)
+            
+            norm_a = pro.standard_form(a, dec = 1)
+            norm_b = pro.standard_form(b, dec = 1)
+            norm_adiv = pro.standard_form(adiv, dec = 1)
+            norm_bdiv = pro.standard_form(bdiv, dec = 1)
+            print(regions[l] + " & $" + norm_a + " \pm " + norm_adiv + "$ & $" + norm_b + " \pm " + norm_bdiv + "$\\" + "\\")
+            print("\\hline")
+            
+            # print("region = " + regions[l])
+            # print("Slope of regression is %g pm %g" % (a, adiv))
+            # print("Constant of linear regression is %g pm %g" % (b, bdiv))
             xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
             axs[i, j].plot(shift_list_list[l], skew_list_list[l], "k.")
             axs[i, j].plot(xs, xs*a + b)
@@ -488,19 +525,38 @@ def multiplot_moments():
     for ax in axs.flat:
         ax.label_outer()
     
+    print("\\end{tabular}")
+    print("\\label{tab:multi_skewness}")
+    print("\\end{table}")
     plt.savefig("Figures/matfigs/skew/multi_skewness.pdf")
     plt.show()
     
     #---------------------------------------------------------------------
+    
+    print("\\begin{table}[htbp]")
+    print("\\centering")
+    print("\\caption{Table of regression coefficients for the linear regressions found in Figure \\ref{fig:multi_std}. The first column has the latitudinal regions, the second column has the regression slopes and the third column has the regression constants.}")
+    print("\\begin{tabular}{|c|c|c|}")
+    print("\\hline")
+    print("Region & Std regression slope [s$^{-1}$] & Std regression constant [s$^{-1}$]\\" + "\\")
+    print("\\hline")
     
     fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
     for i in range(2):
         for j in range(2):
             l = (i*2 + j)
             a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], std_list_list[l])
-            print("region = " + regions[l])
-            print("Slope of regression is %g pm %g" % (a, adiv))
-            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            a = float(a); b = float(b); adiv = float(adiv); bdiv = float(bdiv)
+            
+            norm_a = pro.standard_form(a, dec = 1)
+            norm_b = pro.standard_form(b, dec = 1)
+            norm_adiv = pro.standard_form(adiv, dec = 1)
+            norm_bdiv = pro.standard_form(bdiv, dec = 1)
+            print(regions[l] + " & $" + norm_a + " \pm " + norm_adiv + "$ & $" + norm_b + " \pm " + norm_bdiv + "$\\" + "\\")
+            print("\\hline")
+            # print("region = " + regions[l])
+            # print("Slope of regression is %g pm %g" % (a, adiv))
+            # print("Constant of linear regression is %g pm %g" % (b, bdiv))
             xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
             axs[i, j].plot(shift_list_list[l], std_list_list[l], "k.")
             axs[i, j].plot(xs, xs*a + b)
@@ -512,19 +568,42 @@ def multiplot_moments():
     
     for ax in axs.flat:
         ax.label_outer()
+        
+    print("\\end{tabular}")
+    print("\\label{tab:multi_std}")
+    print("\\end{table}")
     
     plt.savefig("Figures/matfigs/std/multi_std.pdf")
     plt.show()
+    
+    
     #-----------------------------------------------------------------------
+    
+    
+    print("\\begin{table}[htbp]")
+    print("\\centering")
+    print("\\caption{Table of regression coefficients for the linear regressions found in Figure \\ref{fig:multi_mean}. The first column has the latitudinal regions, the second column has the regression slopes and the third column has the regression constants.}")
+    print("\\begin{tabular}{|c|c|c|}")
+    print("\\hline")
+    print("Region & Mean regression slope [s$^{-1}$] & Mean regression constant [s$^{-1}$]\\" + "\\")
+    print("\\hline")
     
     fig, axs = plt.subplots(2, 2, sharex = True, sharey = True)
     for i in range(2):
         for j in range(2):
             l = (i*2 + j)
             a, b, adiv, bdiv = pro.linear_regression(shift_list_list[l], mean_list_list[l])
-            print("region = " + regions[l])
-            print("Slope of regression is %g pm %g" % (a, adiv))
-            print("Constant of linear regression is %g pm %g" % (b, bdiv))
+            a = float(a); b = float(b); adiv = float(adiv); bdiv = float(bdiv)
+            
+            norm_a = pro.standard_form(a, dec = 1)
+            norm_b = pro.standard_form(b, dec = 1)
+            norm_adiv = pro.standard_form(adiv, dec = 1)
+            norm_bdiv = pro.standard_form(bdiv, dec = 1)
+            print(regions[l] + " & $" + norm_a + " \pm " + norm_adiv + "$ & $" + norm_b + " \pm " + norm_bdiv + "$\\" + "\\")
+            print("\\hline")
+            # print("region = " + regions[l])
+            # print("Slope of regression is %g pm %g" % (a, adiv))
+            # print("Constant of linear regression is %g pm %g" % (b, bdiv))
             xs = np.linspace(np.min(shift_list_list[l]), np.max(shift_list_list[l]), 1000)
             axs[i, j].plot(shift_list_list[l], mean_list_list[l], "k.")
             axs[i, j].plot(xs, xs*a + b)
@@ -537,8 +616,13 @@ def multiplot_moments():
     for ax in axs.flat:
         ax.label_outer()
     
+    print("\\end{tabular}")
+    print("\\label{tab:multi_mean}")
+    print("\\end{table}")
     plt.savefig("Figures/matfigs/mean/multi_mean.pdf")
     plt.show()
+    
+    
         
     
     stop = time.time()

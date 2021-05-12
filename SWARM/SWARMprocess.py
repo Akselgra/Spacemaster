@@ -13,6 +13,58 @@ class SWARMprocess():
         self.Re = 6371008.8 #earth radius
 
 
+    def standard_form(self, f, dec = 2):
+        """
+        Takes Float
+        Returns float on standard form as string
+        """
+        
+        assert(type(f) == type(0.1)), "f must be a float"
+        zeros = 0
+        string = str("%.15f" % f)
+        if dec > (len(string) - 3):
+            dec = len(string) - 3
+        if f < 0:
+            string = string[1:]
+        
+        for i in range(len(string)-1):
+            if string[i+1] == ".":
+                break
+            zeros += 1
+        
+        for i in range(len(string[zeros:])):
+            if string[i] == ".":
+                continue
+            if string[i] != "0":
+                break
+            zeros -= 1
+         
+        dot_ind = 0
+        for i in range(len(string)):
+            if string[i] == ".":
+                break
+            dot_ind += 1
+        
+        
+        if zeros >= 0:
+            if 1 <= dot_ind < dec+2:
+                temp = string[1:dot_ind] + string[dot_ind+1 : dec+1] + str(int((np.round(float(string[dec+1] + "." + string[dec+2:])))))
+            else:
+                temp = string[1:dec+1]
+                
+            bob = string[0] + "." + temp
+            if f < 0:
+                bob = "-" + bob
+        
+        else:
+            temp = string[np.abs(zeros) + 2 : np.abs(zeros) + dec + 1] + str(int((np.round(float(string[np.abs(zeros) + dec+1] + "." + string[np.abs(zeros) + dec+2:])))))
+            bob = string[np.abs(zeros)+1] + "." + temp
+            if f < 0:
+                bob = "-" + bob
+        
+        return(bob + " \\cdot 10^{%g}" % zeros)
+
+
     def stamp_to_sec(self, times):
         """
         Takes timestamps and returns seconds.
@@ -458,7 +510,7 @@ class SWARMprocess():
             ffts - array containing fourier transforms
         """
 
-        mean_length = 10
+        mean_length = 5
         if mean_length > n/4:
             mean_length = int(n/4)
         N = len(signal)
@@ -879,7 +931,8 @@ class SWARMprocess():
 
 if __name__ == "__main__":
     pro = SWARMprocess()
-    n = [2.16, 5.64, 3.49]
-    s = [45, 123.5, 78.5]
-    for i in range(len(n)):
-        print(pro.along_track_velo(7600, s[i], n[i]))
+    a = 7.87032e-05
+    # a = 0.53
+    print(a)
+    print("%f" % a)
+    print(pro.standard_form(a))
