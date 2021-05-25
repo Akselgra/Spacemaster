@@ -494,7 +494,7 @@ class SWARMprocess():
         return(Freqs, Times, ffts)
 
 
-    def fft_time_holes(self, signal, seconds, n, fs):
+    def fft_time_holes(self, signal, seconds, n, fs, window = False):
         """
         Splits signal into n windows and calculates fourier transform of each
         uses 50% overlap
@@ -534,7 +534,8 @@ class SWARMprocess():
             times.append(np.mean(curr_time))
             curr_dat = signal[ind1:ind2]
             curr_dat = self.meanie(curr_dat, mean_length)
-            curr_dat = curr_dat*np.hanning(len(curr_dat))
+            if window:
+                curr_dat = curr_dat*np.hanning(len(curr_dat))
             ffts.append(np.fft.fft(curr_dat)[:int(len(curr_dat)/2)]/n*2)
 
         ffts = np.array(ffts)
@@ -622,7 +623,7 @@ class SWARMprocess():
 
 
 
-    def fft_time_holes_integral(self, signal, seconds, n, fs, minfreq = 0, maxfreq = 1):
+    def fft_time_holes_integral(self, signal, seconds, n, fs, minfreq = 0, maxfreq = 1, window = False):
         """
         Calls fft_time and integrates results over frequency.
         parameters:
@@ -639,7 +640,7 @@ class SWARMprocess():
 
         assert maxfreq<=(fs/2), "maxfreq must be lower or equal nyquist frequency"
 
-        Freqs, Times, ffts = self.fft_time_holes(signal, seconds, n, fs)
+        Freqs, Times, ffts = self.fft_time_holes(signal, seconds, n, fs, window)
 
         ffts = np.abs(ffts) + 1e-16
         freqs = Freqs[0, :]

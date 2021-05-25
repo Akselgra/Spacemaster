@@ -125,8 +125,8 @@ def skewness_timeshift_mat():
     maxfreq = 1
     day0 = 9
     day1 = 31
-    lat1 = 30
-    lat0 = 0
+    lat1 = 90
+    lat0 = 77
     n = 120
     shift_list = []
     skew_list = []
@@ -134,13 +134,13 @@ def skewness_timeshift_mat():
     mean_list = []
     std_list = []
 
-    region = "equatorial"
+    region = "Northpole"
     for day in range(day0, day1+1):
         object = multi_matreader.MultiMat(day, day)
         
         I_BA, I_BC, I_AC = object.multi_compind(n = n, minfreq = minfreq,\
         maxfreq = maxfreq, lat1 = lat1, lat0 = lat0,\
-        norm = True, pole = "both")
+        norm = True, pole = "north")
         
         # AC_std = np.std(I_AC)
         # AC_mean = np.mean(I_AC)
@@ -366,7 +366,7 @@ def multiplot_moments():
     region = "equatorial"
     lat0s = [0, 30, 70, 77]
     lat1s = [30, 70, 77, 90]
-    regions = ["Equatorial", "Midlatitude", "Auroral Oval", "Northern polar cap"]
+    regions = ["Equatorial (A)", "Midlatitude (B)", "Auroral Oval (C)", "Northern polar cap (D)"]
     poles = ["both", "both", "north", "north"]
     shift_list_list = []
     kurtosis_list_list = []

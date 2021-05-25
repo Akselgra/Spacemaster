@@ -140,7 +140,7 @@ def triple_test():
     widths = np.array([2, 4, 6, 8, 10])*25
     mids = np.array([100, 300, 500, 700, 900])*5
     vals = np.array([1, 1, 1, 1, 1])
-    minfreq = 0.025
+    minfreq = 0.01
     minfreq = 1/np.min(widths)
     maxfreq = 0.5
     # widths = np.array([1])
@@ -154,7 +154,7 @@ def triple_test():
     plt.ylabel("Data")
     plt.title("Synthetic data")
     plt.savefig("Figures/matfigs/synth/multi_triangle_pulse.pdf")
-    Freqs, Times, ffts = pro.fft_time_holes(triangles, times, n = N, fs = fs)
+    Freqs, Times, ffts = pro.fft_time_holes(triangles, times, n = N, fs = fs, window = True)
     ffts += 1e-16
 
     ind = int(f*N/fs)
@@ -164,12 +164,12 @@ def triple_test():
     plt.xlabel("Time [s]")
     plt.ylabel("Frequency [Hz]")
     plt.title("Time-Frequency fourier coefficients")
-    plt.pcolormesh(Times[:, :ind], Freqs[:, :ind], np.log10(np.abs(ffts[:, :ind])), cmap = "gist_ncar")
+    plt.pcolormesh(Times[:, :ind], Freqs[:, :ind], np.log10(np.abs(ffts[:, :ind])),cmap = "gist_ncar")# cmap = "gist_ncar")
     plt.colorbar(label = "Log10(Power) [dB]")
     plt.savefig("Figures/matfigs/synth/multi_triangle_pulse_fft_time.pdf")
 
     times, fourier_int = pro.fft_time_holes_integral(triangles, times, n = N, fs = fs,\
-                                                    minfreq = minfreq, maxfreq = maxfreq)
+                                                    minfreq = minfreq, maxfreq = maxfreq, window = True)
 
     plt.figure(2)
     plt.xlabel("Time [s]")
@@ -216,10 +216,10 @@ def triangle_plot():
     
     
 
-    plt.plot(positive_freqs, (np.abs(positive_ffts)))
-    plt.plot(positive_freqs, (width*np.sinc(width*positive_freqs)**2), ".")
+    plt.plot(positive_freqs, np.log10((np.abs(positive_ffts)**2)))
+    plt.plot(positive_freqs, np.log10((width*np.sinc(width*positive_freqs)**2)**2), "--")
     plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Power")
+    plt.ylabel("Log10(Power) [dB]")
     plt.legend(["PSD of triangle", "Sinc$^2$"])
     plt.title("PSD of triangle pulse")
     plt.savefig("Figures/matfigs/synth/triangle_pulse_fft.pdf")
@@ -271,10 +271,10 @@ def triangle_plot2():
     
     
 
-    plt.plot(positive_freqs, (np.abs(positive_ffts1)))
-    plt.plot(positive_freqs, np.abs(positive_ffts2))
+    plt.plot(positive_freqs, np.log10((np.abs(positive_ffts1)**2)))
+    plt.plot(positive_freqs, np.log10(np.abs(positive_ffts2)**2))
     plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Power")
+    plt.ylabel("Log10(Power) [dB]")
     plt.legend(["PSD of triangle A", "PSD of triangle B"])
     plt.title("PSD of triangle pulses")
     plt.savefig("Figures/matfigs/synth/double_triangle_pulse_fft.pdf")
@@ -504,7 +504,7 @@ def sine_plot1():
     ffts = ffts[:int(f_lim*t)]
     
 
-    plt.plot(freqs, (np.abs(ffts)), "-o")
+    plt.plot(freqs, (np.abs(ffts)**2), "-o")
     plt.plot(freqs, (np.imag(ffts)), "-o")
     plt.plot(freqs, (np.real(ffts)), "-o")
     plt.title("Fourier transform")
@@ -526,6 +526,7 @@ def sine_plot2():
     f_lim = 0.5
     n = int(fs*t)
     df = fs/n
+    dt = t/n
     times = np.linspace(0, t, n)
     
     signal = 3*np.cos(2*np.pi*f1*times) + np.cos(2*np.pi*f2*times) + np.cos(2*np.pi*f3*times)
@@ -551,7 +552,7 @@ def sine_plot2():
     ffts = ffts[:int(f_lim*t)]
     
 
-    plt.plot(freqs, (np.abs(ffts)), "-o")
+    plt.plot(freqs, (np.abs(ffts)**2), "-o")
     plt.title("PSD")
     plt.ylabel("PSD")
     plt.xlabel("Frequency [Hz]")
@@ -560,5 +561,5 @@ def sine_plot2():
     plt.show()
     
 if __name__ == "__main__":
-    index_test()
+    triangle_plot2()
     

@@ -459,7 +459,7 @@ class MatReader(SWARMprocess):
         
         
         
-    def velo_inspec(self, ind1 = 1150*2, ind2 = 1185*2):
+    def velo_inspec(self,ind1 = 1150*2, ind2 = 1185*2):
         """
         Inspects the velocity of a large scale structure between times
         t0 and t1.
@@ -492,25 +492,40 @@ class MatReader(SWARMprocess):
         plt.title("An interesting case")
         plt.grid("on", axis = "x")
         # plt.savefig("Figures/matfigs/interesting_case.pdf")
+        plt.show()
         
         #calculate comparison index of data window
         n = len(NeA)
-        fftA = np.roll(np.fft.fft(np.hanning(n)*NeA)[:int(n/2)], int(n/2))
-        fftB = np.roll(np.fft.fft(np.hanning(n)*NeB)[:int(n/2)], int(n/2))
-        fftC = np.roll(np.fft.fft(np.hanning(n)*NeC)[:int(n/2)], int(n/2))
+        NeA_ = NeA*np.hanning(n)
+        NeB_ = NeB*np.hanning(n)
+        NeC_ = NeC*np.hanning(n)
+        fftA = np.roll(np.fft.fft(NeA)[:int(n/2)], int(n/2))
+        fftB = np.roll(np.fft.fft(NeB)[:int(n/2)], int(n/2))
+        fftC = np.roll(np.fft.fft(NeC)[:int(n/2)], int(n/2))
         freqs = np.linspace(-1, 1, n)[int(n/2):]
         df = freqs[1]-freqs[0]
         f = 0.1
         i = int(f/df)
         
+        plt.plot(mlatB, np.hanning(n))
+        plt.xlabel(" ")
+        plt.ylabel("extensions")
+        plt.show()
+        
         plt.figure(69)
-        plt.plot(freqs, np.log10(np.abs(fftA)), "g")
-        plt.plot(freqs, np.log10(np.abs(fftB)), "r")
-        plt.plot(freqs, np.log10(np.abs(fftC)), "b")
+        plt.plot(freqs[1:], np.log10(np.abs(fftA[1:])), "g")
+        plt.plot(freqs[1:], np.log10(np.abs(fftB[1:])), "r")
+        plt.plot(freqs[1:], np.log10(np.abs(fftC[1:])), "b")
         plt.xticks([f, 0.2, 0.3])
         plt.grid("on")
         plt.xlabel("Frequency [Hz]")
         plt.ylabel("Log10 PSD")
+        plt.legend(["Sat B", "Sat A", "Sat C"])
+        plt.show()
+        
+        plt.plot(mlatB, NeB_, "r")
+        plt.plot(mlatA, NeA_, "g")
+        plt.plot(mlatC, NeC_, "b")
         plt.legend(["Sat B", "Sat A", "Sat C"])
         plt.show()
         
@@ -635,7 +650,7 @@ def one_period_plot():
     object = MatReader(file)
 
     NeA = object.NeA
-    latA = object.mlatA
+    latA = object.latA
     times = object.secondsA
     mlt = object.mltA
     ind1 = 2606 #lat inds
@@ -712,8 +727,12 @@ def one_period_plot():
     ax.set_xlabel("Geomagnetic latitude going from 0 to 360 degrees, starting and ending at south pole")
     ax.set_ylabel("Electron density [cm$^{-1}$]")
     ax.set_title("One Swarm satellite period")
-    plt.savefig("Figures/swarm_period.pdf")
-    
+    # plt.savefig("Figures/swarm_period.pdf")
+    plt.show()
+    plt.plot(mlt, NeA)
+    plt.show()
+    plt.plot(mlt, lats)
+    plt.show()
 def comparison_plotter():
     """
     Plots comparison indices
@@ -1061,6 +1080,6 @@ if __name__ == "__main__":
     })
     #matplotlib.use('pgf')
 
-    file = "Data/matfiles/20131221.mat"
-    object = MatReader(file)
+    filename = "Data/matfiles/20131221.mat"
+    object = MatReader(filename)
     object.velo_inspec()
