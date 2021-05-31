@@ -1,52 +1,61 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def square(x, mid, width, val = 100):
+    """
+    defines a square pulse signal
+    """
+    temp_arr = np.copy(x)
+    inds1 = np.nonzero(np.abs(x-mid) <= width)[0]
+    inds2 = np.nonzero(np.abs(x-mid) > width)[0]
+    temp_arr[inds1] = val
+    temp_arr[inds2] = 0
+    return temp_arr
 
-cv0 = 650
-cv1 = 1200
-ck = 100000
-m = 2.25
-K = 273.15
 
+mid = 2
+width = 1
+t = 10
+fs = 100
+n = int(fs*t)
+df = 1/t
+print(df)
+val = 10000
 
-E1 = cv0*m*(5)
-E2 = E1 + m*ck
-E3 = cv1*(65)*m + E2
+xs = np.linspace(0, t, n)
 
-Es = np.array([E1, E2, E3])
+sig = square(xs, mid, width, val)
+sig = sig + np.random.normal(size = len(sig), scale = 0.01*val)
 
-def T(E):
-    cv0 = 650
-    cv1 = 1200
-    ck = 100000
-    m = 2.25
-    K = 273.15
-    
-    
-    E1 = cv0*m*(5)
-    E2 = E1 + m*ck
-    E3 = cv1*(65)*m + E2
-    
-    Es = np.array([E1, E2, E3])
-    
-    if E < E1:
-        return 273.15 - 30 + E/(cv0*m)
-    if E >= E1 and E < E2:
-        return 273.15 - 25
-    if E > E2:
-        return(273.15 - 25 + (E - E2)/(cv1*m))
-    
-Es = np.linspace(0, E3, 1000)
-Ts = np.zeros_like(Es)
-for i in range(len(Ts)):
-    Ts[i] = T(Es[i])
-    
-Ts = Ts - 273.15
-Es = Es/1000
-plt.plot(Es, Ts)
-plt.xticks([E1/1000, E2/1000, E3/1000])
-plt.yticks([-30, -25, 40])
-plt.xlabel("Energy [kJ]")
-plt.ylabel("Temperature [$^\circ$C]")
-plt.grid("on")
+plt.plot(xs, sig)
 plt.show()
+
+fft = np.fft.fft(sig)[:int(n/2)]/n*2
+PSD = np.abs(fft)**2
+freqs = np.arange(int(n/2))*df
+
+freqs = freqs[1:]
+PSD = PSD[1:]
+
+PSD += 1e-16
+
+
+freqs = np.log10(freqs)
+PSD = np.log10(PSD)
+plt.plot(freqs, PSD, ".")
+
+
+a, b = np.polyfit(freqs, PSD, deg = 1)
+plt.plot(freqs, a*freqs + b)
+ticks = np.array([freqs[0], freqs[5], freqs[20], freqs[300], freqs[-1]])
+strs = []
+for i in range(len(ticks)):
+    strs.append("%g" % (10**ticks[i]))
+plt.xticks(ticks = ticks, labels = strs)
+plt.show()
+
+
+print(a)
+print(5/3)
+
+

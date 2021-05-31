@@ -319,7 +319,7 @@ def index_test():
         ys1 = triangle(times, mid, width1, val)
         ys2 = triangle(times, mid, width2, val)#*(width1/widths[-1]))
         # ys1 = square(times, mid, width1, val)
-        # ys2 = square(times, mid, width1, val)
+        # ys2 = square(times, mid, width2, val)
         # ys1 = limited_sin(times, mid, width1, freq = 0.5, amp = val)
         # ys2 = limited_sin(times, mid, width2, freq = 0.5, amp = val)
         # ys1 = trapez(times, mid, width1, val, grad = grad1)
@@ -378,7 +378,7 @@ def index_test():
     plt.grid("on")
     #plt.legend(["Comparison Index", "1 - width$_1$/width$_2$"])
     plt.title("Comparison indices for varying triangle sizes")
-    plt.xticks([0, 1, 2, 3, 4, 5], ["$0/L_B$", "$1/L_B$", "$2/L_B$", "$3/L_B$", "$4/L_B$", "$5/L_B$"])
+    plt.xticks([0, 1, 2, 3, 4, 5], ["$0$", "$L_B$", "$2L_B$", "$3L_B$", "$4L_B$", "$5L_B$"])
     plt.savefig("Figures/comp_ind_example.pdf")
     plt.show()
 
@@ -561,5 +561,5 @@ def sine_plot2():
     plt.show()
     
 if __name__ == "__main__":
-    triangle_plot2()
+    index_test()
     

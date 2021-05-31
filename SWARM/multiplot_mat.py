@@ -289,16 +289,16 @@ def sigma_plotter_mat():
     """
     f0 = 0
     f1 = 1
-    n = 100
-    df = 0.05
+    n = 120
+    df = 0.5
     jump = 0.01
     lat1 = 90
     lat0 = 77
     start = time.time()
-    object = multi_matreader.MultiMat(9, 31)
+    object = multi_matreader.MultiMat(15, 15)
     freq0s, sigmas, means = object.freq_sig(df = df, jump = jump, n = n,\
                                             f0 = f0, f1 = f1, bins_ = 50,\
-                                            abs = False, norm = False,\
+                                            abs = False, norm = True,\
                                             lat1 = lat1, lat0 = lat0,\
                                                 pole = "north")
 
@@ -309,6 +309,8 @@ def sigma_plotter_mat():
     plt.ylabel("STD")
     plt.legend(["B-A", "B-C", "A-C"])
     plt.title("standard deviations of histograms, df = %g" % df)
+    plt.grid("on")
+    plt.savefig("Figures/matfigs/sigma_f/mat_sigma_f.pdf")
     plt.show()
     stop = time.time()
     print(stop-start)
@@ -873,4 +875,4 @@ def std_distance():
     print(stop-start)
 
 
-multiplot_moments()
+sigma_plotter_mat()
