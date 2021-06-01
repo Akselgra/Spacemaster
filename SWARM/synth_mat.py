@@ -217,7 +217,7 @@ def triangle_plot():
     
 
     plt.plot(positive_freqs, np.log10((np.abs(positive_ffts)**2)))
-    plt.plot(positive_freqs, np.log10((width*np.sinc(width*positive_freqs)**2)**2), "--")
+    plt.plot(positive_freqs, np.log10((width*np.sinc(width*positive_freqs)**2)**2 + np.min((np.abs(positive_ffts)**2))), "--")
     plt.xlabel("Frequency [Hz]")
     plt.ylabel("Log10(Power) [dB]")
     plt.legend(["PSD of triangle", "Sinc$^2$"])
@@ -561,5 +561,5 @@ def sine_plot2():
     plt.show()
     
 if __name__ == "__main__":
-    index_test()
+    triangle_plot()
     
